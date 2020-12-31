@@ -45,7 +45,9 @@ $page_id=get_option('details_escrow_page_id');
     
     if($results==null)
 	{
-		echo "<br><center><h3>No escrow to show</h3></center>";
+	    
+	      _e( "<br><center><h3>No escrow to show</h3></center>", 'aistore' );
+	
 	}
 	else{
     foreach($results as $row):

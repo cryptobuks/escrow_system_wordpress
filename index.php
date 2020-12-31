@@ -8,9 +8,13 @@
   Description: Integrate wordpress to your mandrill , sendgrid , getresponse, email-marketing247 SMTP Server, Amazon SES or any SMTP Server.
  */
 
+function my_scripts_method() {
+  
+    wp_enqueue_script( 'aistore', plugins_url( '/js/custom.js' , __FILE__ ), array( 'jquery' ) );
+}
 
 
-
+add_action( 'wp_enqueue_scripts', 'my_scripts_method' );
 
 
 
@@ -56,12 +60,26 @@ $email_id = get_the_author_meta( 'user_email', get_current_user_id() );
 $b=$instance->get_wallet_balance($user_id,'');
 
 if($b<$amount){
-    echo "<p>Insufficent Balance</p>";
+      _e( '<p>Insufficent Balance</p>', 'aistore' ); 
+
 }
 else
 {
+    
+$escrow_fee=get_option('escrow_create_fee');
+$escrow_fee1=($escrow_fee / 100) * $amount;
+
+
+
+
+
+    
+    $new_amount=$amount-$escrow_fee1;
+    
 $instance->debit($user_id,$amount,$term_condition);
-$txid=$instance->credit(get_option('escrow_user_id'),$amount,$term_condition);
+
+$instance->credit(get_option('escrow_user_id'),$escrow_fee1,$term_condition);
+$txid=$instance->credit(get_option('escrow_user_id'),$new_amount,$term_condition);
 
 $msg1="Invited by ".$email_id;
 global $wpdb;   
@@ -94,10 +112,11 @@ wp_mail( $to, $subject, $body, $headers );
 
 <br>
 <div><h1>Thank You</h1></div>
-<div><?php echo $msg; ?></div>
-<div>Sender:<?php echo $email_id ; ?></div>
-<div>Receiver:<?php echo $receiver_email ; ?></div>
-<div><a href="<?php echo $url ; ?>" >Go To Details Page </a></div>
+<div><?php echo esc_html($msg); ?></div>
+<div>Escrow Fee : <?php echo esc_html($escrow_fee1); ?></div>
+<div>Sender:<?php echo esc_html($email_id) ; ?></div>
+<div>Receiver:<?php echo esc_html($receiver_email) ; ?></div>
+<div><a href="<?php echo esc_html($url) ; ?>" >Go To Details Page </a></div>
 
 <?php
 
@@ -110,23 +129,40 @@ wp_mail( $to, $subject, $body, $headers );
 
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
 
+                
+                 <?php
+            
+
+                ?>
 <label for="title">Title</label><br>
   <input class="input" type="text" id="title" name="title" required><br>
   
 
   <label for="amount">Amount</label><br>
   <input class="input" type="number" id="amount" name="amount" required><br>
- Available balance is  
-  
-  
-  <?php 
+ 
+   <input class="input" type="hidden" id="escrow_create_fee" name="escrow_create_fee" value= <?php echo get_option('escrow_create_fee');?>><br>
+  <?php
+    _e( " Available balance is : ", 'aistore' );
+    
+ 
+    
+
+
+
  $b=$instance->get_wallet_balance ($user_id);
  
-  echo $b;?>
-  
+  echo $b;
+
+
+
+  ?>
+ 
   <br>
   
-    
+  Escrow Fee:  <b id="demo"></b>/-<br>
+  Amount:  <b id="demo1"></b>/-<br>
+  Total  Amount:  <b id="demo2"></b>/-<br>
 <label for="address">Receiver Email:</label><br>
   <input class="input" type="text" id="receiver_email" name="receiver_email" required><br>
   
@@ -150,7 +186,7 @@ wp_mail( $to, $subject, $body, $headers );
 
 // Escrow List
 
-public static function aistore_escrow_list(){
+ public static function aistore_escrow_list(){
 
 	 
 $email_id = get_the_author_meta( 'user_email', get_current_user_id() );
@@ -166,7 +202,9 @@ global $wpdb;
 <?php 
  if($results==null)
 	{
-		echo "<br><center><h3>Escrow List Not Found</h3></center>";
+	    
+	     _e( '<br><center><h3>Escrow List Not Found</h3></center>', 'aistore' ); 
+	
 	}
 	else{
    
@@ -236,7 +274,8 @@ global $wpdb;
 
     if($results==null)
 	{
-		echo "<br><center><h3>Not Found</h3></center>";
+	    _e( '<br><center><h3>Escrow List Not Found</h3></center>', 'aistore' );
+	
 	}
 	else{
      
@@ -260,7 +299,7 @@ global $wpdb;
 
     foreach($results as $row):
 	
-  $page1=get_option('detailsescrowpage_id'); 
+  $page1=get_option('details_escrow_page_id'); 
 	 
 	 $url1 =  esc_url( add_query_arg( array(
     'page_id' => $page1,
@@ -328,10 +367,8 @@ return ob_get_clean();
 
 global $wpdb;
 
-
-//include "action.php";
-
-if(isset($_POST['submit']) and $_POST['action']=='disputed')
+ 
+if(isset($_POST['submit']) and $_POST['action']=='disputed-1')
 {
 
 if ( ! isset( $_POST['aistore_nonce'] ) 
@@ -343,14 +380,73 @@ if ( ! isset( $_POST['aistore_nonce'] )
 
 $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
-   'disputed' , $eid   ) );
+   'disputed-1' , $eid   ) );
 					  
 				
 ?>
 <div>
-<strong> Disputed Successfully</strong></div>
+<strong> Disputed-1 Successfully</strong></div>
 <?php
 }
+
+
+if(isset($_POST['submit']) and $_POST['action']=='disputed-2')
+{
+
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+   return 'Sorry, your nonce did not verify.';
+    
+} 
+
+$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
+    SET status = '%s'  WHERE id = '%d'", 
+   'disputed-2' , $eid   ) );
+					  
+				
+?>
+<div>
+<strong> Disputed -2 Successfully</strong></div>
+<?php
+}
+
+if(isset($_POST['submit']) and $_POST['action']=='disputed-3')
+{
+
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+   return 'Sorry, your nonce did not verify.';
+    
+} 
+
+$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
+    SET status = '%s'  WHERE id = '%d'", 
+   'disputed-3' , $eid   ) );
+					  
+		
+		
+		$amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+ 
+//echo $amount;
+
+ $details= 'Accept Escrow System';
+$escrow_fee=get_option('escrow_create_dispute_fee');
+$escrow_fee1=($escrow_fee / 100) * $amount;
+
+
+$instance = new Woo_Wallet_Wallet();
+$instance->debit($user_id,$escrow_fee1,$details);
+$instance->credit(get_option('escrow_user_id'),$escrow_fee1,$details);
+		
+?>
+<div>
+<strong> Disputed -3 Successfully</strong></div>
+<?php
+_e( "<p>Escrow Fee :: ". "<b>".$escrow_fee1."</b></p> ", 'aistore' ); 
+}
+
 
 
 if(isset($_POST['submit']) and $_POST['action']=='accepted')
@@ -365,12 +461,30 @@ if ( ! isset( $_POST['aistore_nonce'] )
 
 $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
-   'accepted' , $eid   ) )
+   'accepted' , $eid   ) );
+
+$amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+ 
+//echo $amount;
+
+ $details= 'Accept Escrow System';
+$escrow_fee=get_option('escrow_accept_fee');
+$escrow_fee1=($escrow_fee / 100) * $amount;
+
+
+$instance = new Woo_Wallet_Wallet();
+
+
+$instance->debit($user_id,$escrow_fee1,$details);
+$instance->credit(get_option('escrow_user_id'),$escrow_fee1,$details);
 
 ?>
 <div>
+    
 <strong> Accepted Successfully</strong></div>
 <?php
+ _e( "<p>Escrow Fee :: ". "<b>".$escrow_fee1."</b></p> ", 'aistore' ); 
+
 }
 
 if(isset($_POST['submit']) and $_POST['action']=='released')
@@ -387,7 +501,21 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'released' , $eid   ) );
    
-  
+	$q = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+	$q2 = $wpdb->get_var( $wpdb->prepare( "SELECT receiver_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+
+$amount=$q;
+$reciever_email=$q2;
+
+$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_login  = %s", $reciever_email ) );
+
+
+ $details= 'Release Escrow System';
+ 
+$instance = new Woo_Wallet_Wallet();
+$instance->debit(get_option('escrow_user_id'),$amount,$details);
+$instance->credit($id,$amount,$details);
+
 ?>
 <div>
 <strong> Released Successfully</strong></div>
@@ -409,6 +537,20 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'cancelled' , $eid   ) );
 
+$amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+ 
+//echo $amount;
+
+ $details= 'Cancel Escrow System';
+
+
+
+$instance = new Woo_Wallet_Wallet();
+
+
+$instance->debit(get_option('escrow_user_id'),$amount,$details);
+$instance->credit($user_id,$amount,$details);
+
 ?>
 <div>
 <strong> Cancelled Successfully</strong></div>
@@ -423,8 +565,8 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
 
 
 ////
-$instance = new EscrowSystem();
- if ( ! $instance->aistore_isadmin()) {
+$instance1 = new EscrowSystem();
+ if ( ! $instance1->aistore_isadmin()) {
 
 
   $escrow = $wpdb->get_row( 
@@ -442,33 +584,47 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_sy
  }
 
      echo "<h1>#". $escrow->id ." ".$escrow->title ."</h1>";
-	   
-	   echo "<p>Term Condition <br /><br /> "."<b>".$escrow->term_condition."</b></p>";
-	   
-	    
-	   echo "<p>Sender: ". "<b>".$escrow->sender_email."</b></p> ";
-	   echo "<p>Receiver: " . "<b>".$escrow->receiver_email."</b></p>";
-	   echo "<p>Status: " . "<b>".$escrow->status."</b></p>";
+   _e( "<p>Term Condition <br /><br /> "."<b>".$escrow->term_condition."</b></p>", 'aistore' );
+  _e( "<p>Sender: ". "<b>".$escrow->sender_email."</b></p> ", 'aistore' );   
+ _e( "<p>Receiver: " . "<b>".$escrow->receiver_email."</b></p>", 'aistore' ); 
+ _e( "<p>Status: " . "<b>".$escrow->status."</b></p>", 'aistore' ); 
+	      
+
 	   
 	 
 //include "buttons/accept_button.php";
 
-$instance->accept_escrow_btn($escrow);
+$instance1->accept_escrow_btn($escrow);
 
 
 //include "buttons/cancel_button.php";
-$instance->cancel_escrow_btn($escrow);
+$instance1->cancel_escrow_btn($escrow);
 
 
 //include "buttons/release_button.php";
-$instance->release_escrow_btn($escrow);
+$instance1->release_escrow_btn($escrow);
  
 //include "buttons/dispute_button.php";
-$instance->dispute_escrow_btn($escrow);
- 
+
+if($escrow->status=='accepted'){
+    
+   
+
+$instance1->dispute_escrow_btn1($escrow);
+}
+  if($escrow->status=='disputed-1'){
+$instance1->dispute_escrow_btn2($escrow);
+
+}
+
+if($escrow->status=='disputed-2'){
+$instance1->dispute_escrow_btn3($escrow);
+}
+
+
 
 //include "escrow_discussion.php";
-$instance->escrow_discussion($escrow);
+$instance1->escrow_discussion($escrow);
  
 
  return ob_get_clean();  
@@ -478,7 +634,7 @@ $instance->escrow_discussion($escrow);
 
 // Escrow Discussion
 
-	function escrow_discussion($escrow){
+private	function escrow_discussion($escrow){
 	
 	$user_login = get_the_author_meta( 'user_login', get_current_user_id() );
 
@@ -556,7 +712,7 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion WHERE eid=%s", $e
 
  // Accept Button
  
-function  accept_escrow_btn($escrow)
+private function  accept_escrow_btn($escrow)
 {
 	 global $wpdb;
 	$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
@@ -578,8 +734,10 @@ function  accept_escrow_btn($escrow)
 	
 	else 
 		
-		if($escrow->status=="disputed"  )
+		if($escrow->status=="disputed-1"  )
 		return "";
+		
+	
 	
 else 
 		
@@ -598,7 +756,7 @@ else
  <form method="POST" action="" name="accepted" enctype="multipart/form-data"> 
  
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-  <input type="submit"  name="submit" value="accept_escrow">
+  <input type="submit"  name="submit" value="Accept">
   <input type="hidden" name="action" value="accepted" />
 </form> <?php } 
 
@@ -606,7 +764,7 @@ else
 
 // cancel button
 
-function cancel_escrow_btn($escrow)
+private function cancel_escrow_btn($escrow)
 {
 	 global $wpdb;
 	$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
@@ -637,7 +795,7 @@ function cancel_escrow_btn($escrow)
  if ( ! $instance->aistore_isadmin()) {
 
 	
-		if($escrow->status=="disputed"  )
+		if($escrow->status=="disputed-1"  )
 		return "";
 
  }
@@ -659,7 +817,7 @@ function cancel_escrow_btn($escrow)
 
 // release button
 
-function release_escrow_btn($escrow)
+private function release_escrow_btn($escrow)
 {
 	 global $wpdb;
 	$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
@@ -686,7 +844,8 @@ function release_escrow_btn($escrow)
 
 
  
- if ( ! aistore_isadmin()) {
+ $instance = new EscrowSystem();
+ if ( ! $instance->aistore_isadmin()) {
 
 
 
@@ -714,9 +873,9 @@ function release_escrow_btn($escrow)
 }
 
 
-// dispute button
+// dispute button 1
 
-function  dispute_escrow_btn($escrow)
+private function  dispute_escrow_btn1($escrow)
 {
 	 global $wpdb;
 	$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
@@ -738,8 +897,10 @@ function  dispute_escrow_btn($escrow)
 	
 	else 
 		
-		if($escrow->status=="disputed"  )
+		if($escrow->status=="disputed-1"  )
 		return "";
+		
+		
 	
 	else 
 		
@@ -748,20 +909,98 @@ function  dispute_escrow_btn($escrow)
 
 ?>
 
- <form method="POST" action="" name="disputed" enctype="multipart/form-data"> 
+ <form method="POST" action="" name="disputed-1" enctype="multipart/form-data"> 
  
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-  <input type="submit"  name="submit" value="Dispute">
-  <input type="hidden" name="action" value="disputed" />
+  <input type="submit"  name="submit" value="Dispute-1">
+  <input type="hidden" name="action" value="disputed-1" />
 </form> <?php  }
 
 
+// dispute button 2
+
+private function  dispute_escrow_btn2($escrow)
+{
+	 global $wpdb;
+	$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
 
 
+
+	if($escrow->status=="closed"  )
+		return "";
+	
+	else 
+		
+		if($escrow->status=="released"  )
+		return "";
+	
+	else 
+		
+		if($escrow->status=="cancelled"  )
+		return "";
+
+	else 
+		
+		if($escrow->status=="disputed-2"  )
+		return "";
+		
+	else 
+		
+		if($escrow->status=="pending"  )
+		return "";
+
+?>
+
+ <form method="POST" action="" name="disputed-2" enctype="multipart/form-data"> 
+ 
+<?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
+  <input type="submit"  name="submit" value="Dispute-2">
+  <input type="hidden" name="action" value="disputed-2" />
+</form> <?php  }
+
+
+// dispute button 3
+
+private function  dispute_escrow_btn3($escrow)
+{
+	 global $wpdb;
+	$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
+
+	if($escrow->status=="closed"  )
+		return "";
+	
+	else 
+		
+		if($escrow->status=="released"  )
+		return "";
+	
+	else 
+		
+		if($escrow->status=="cancelled"  )
+		return "";
+
+	else 
+		
+		if($escrow->status=="disputed-3"  )
+		return "";
+		
+	else 
+		
+		if($escrow->status=="pending"  )
+		return "";
+
+?>
+
+ <form method="POST" action="" name="disputed-3" enctype="multipart/form-data"> 
+ 
+<?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
+  <input type="submit"  name="submit" value="Dispute-3">
+  <input type="hidden" name="action" value="disputed-3" />
+</form> <?php  }
 
 
 // admin
-public static function aistore_isadmin()
+ function aistore_isadmin()
 {
 $user = wp_get_current_user();
  $allowed_roles = array( 'administrator');

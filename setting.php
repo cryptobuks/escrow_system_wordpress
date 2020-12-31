@@ -94,7 +94,8 @@ $page_id=get_option('details_escrow_page_id');
     
     if($results==null)
 	{
-		echo "<br><center><h3>No Escrow Found</h3></center>";
+	     _e( "<br><center><h3>No Escrow Found</h3></center>", 'aistore' );
+
 	}
 	else{
     foreach($results as $row):
@@ -148,9 +149,8 @@ $page_id=get_option('details_escrow_page_id');
   
   <?php
   
-    
-    echo "<br><center><h3>Wallet List Not Found</h3></center>";
-    
+     _e( "<br><center><h3>Wallet List Not Found</h3></center>", 'aistore' );
+   
     ?>
     
     </div>
@@ -190,7 +190,9 @@ $page_id=get_option('details_escrow_page_id');
     
     if($results==null)
 	{
-		echo "<br><center><h3>No Escrow Found</h3></";
+	    
+	     _e( "<br><center><h3>No Escrow Found</h3></center>", 'aistore' );
+	
 	}
 	else{
 		
@@ -240,20 +242,23 @@ function aistore_page_register_setting() {
 	register_setting( 'aistore_page', 'list_escrow_page_id' );
 	register_setting( 'aistore_page', 'details_escrow_page_id' );
 	register_setting( 'aistore_page', 'escrow_user_id' );
+	
+	register_setting( 'aistore_page', 'escrow_create_fee' );
+	register_setting( 'aistore_page', 'escrow_accept_fee' );
+	register_setting( 'aistore_page', 'escrow_create_dispute_fee' );
+	register_setting( 'aistore_page', 'escrow_accept_dispute_fee' );
 }
 
  function aistore_page_setting() {
 	 
 	  $pages = get_pages(); 
-	  //	echo get_option('details_escrow_page_id');
-	  	
-	    //   print_r($pages);
+	
 	   ?>
 	  <div class="wrap">
 	  
 	  <div class="card">
 	  
-<h1>Escrow Setting</h1>
+<h3>Escrow Setting</h3>
  
 	                      
 <form method="post" action="options.php">
@@ -354,7 +359,7 @@ function aistore_page_register_setting() {
         	
         <table class="form-table">
         
-        
+        <h3>Admin Escrow Setting</h3>
         
 		 <tr valign="top">
         <th scope="row">Admin Id:</th>
@@ -367,9 +372,7 @@ function aistore_page_register_setting() {
 		   
         $blogusers = get_users( [ 'role__in' => [ 'administrator' ] ] );
 // Array of WP_User objects.
-foreach ( $blogusers as $user ) {
-   
-}
+
                     foreach($blogusers as $user){ 
                         
 					
@@ -390,6 +393,39 @@ foreach ( $blogusers as $user ) {
         </tr>  
         
       
+  
+    </table>
+    
+    
+    
+    	<hr/>
+        	
+        	
+        <table class="form-table">
+        
+        <h3>Escrow Fee Setting</h3>
+        
+	 <tr valign="top">
+        <th scope="row">Escrow Create Fee</th>
+        <td><input type="number" name="escrow_create_fee" value="<?php echo esc_attr( get_option('escrow_create_fee') ); ?>" /></td>
+        </tr>
+        
+      <tr valign="top">
+        <th scope="row">Escrow Accept Fee</th>
+        <td><input type="number" name="escrow_accept_fee" value="<?php echo esc_attr( get_option('escrow_accept_fee') ); ?>" /></td>
+        </tr>
+        
+        
+         <tr valign="top">
+        <th scope="row">Escrow Create Dispute Fee</th>
+        <td><input type="number" name="escrow_create_dispute_fee" value="<?php echo esc_attr( get_option('escrow_create_dispute_fee') ); ?>" /></td>
+        </tr>
+  
+   <tr valign="top">
+        <th scope="row">Escrow Accept Dispute Fee</th>
+        <td><input type="number" name="escrow_accept_dispute_fee" value="<?php echo esc_attr( get_option('escrow_accept_dispute_fee') ); ?>" /></td>
+        </tr>
+  
   
     </table>
     
