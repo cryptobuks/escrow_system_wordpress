@@ -46,19 +46,19 @@ $page_id=get_option('details_escrow_page_id');
     if($results==null)
 	{
 	    
-	      _e( "<br><center><h3>No escrow to show</h3></center>", 'aistore' );
+	      _e( "No escrow to show", 'aistore' );
 	
 	}
 	else{
     foreach($results as $row):
       
-	 $url  =  esc_url( add_query_arg( array(
+	 $details_escrow_page_url  =  esc_url( add_query_arg( array(
     'page_id' => $page_id,
     'eid' => $row->id,
 ), home_url() ) ); 
     ?> 
       
-		  	<a href="<?php echo $url ; ?>" >	
+		  	<a href="<?php echo $details_escrow_page_url ; ?>" >	
 		   
 		   <?php echo $row->id ; ?> </a> 
 		  
@@ -67,7 +67,7 @@ $page_id=get_option('details_escrow_page_id');
 		  
 		 	   <?php echo $row->status ; ?> <br>
 		   
-			  Amount:  <?php echo $row->amount ; ?>  <?php echo esc_attr( get_option('coin_name') ); ?> <br>
+			 <?php  _e( 'Amount', 'aistore' ) ?> :  <?php echo $row->amount ; ?>  <?php echo esc_attr( get_option('coin_name') ); ?> <br>
 		  
 		   		   <?php echo $row->receiver_email ; ?> <br>
 		  

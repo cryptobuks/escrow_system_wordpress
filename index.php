@@ -10,6 +10,8 @@
 
 
 function my_plugin_load_plugin_textdomain() {
+  
+    
     load_plugin_textdomain( 'aistore', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 }
 add_action( 'plugins_loaded', 'my_plugin_load_plugin_textdomain' );

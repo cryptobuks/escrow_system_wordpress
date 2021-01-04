@@ -15,9 +15,9 @@ var fee=document.getElementById('escrow_create_fee').value ;
    
     alert("Escrow Fee: "+ escrow_fee);
    
-document.getElementById("demo").innerHTML = escrow_fee;
-document.getElementById("demo1").innerHTML = amount;
-document.getElementById("demo2").innerHTML = total;
+document.getElementById("escrow_fee").innerHTML = escrow_fee;
+document.getElementById("amount").innerHTML = amount;
+document.getElementById("total").innerHTML = total;
        });     
  
 });

@@ -84,7 +84,7 @@ $page_id=get_option('details_escrow_page_id');
                  );
      
   ?>
-  <h1>All On going escrow </h1>
+  <h1> <?php  _e( 'All On going escrow', 'aistore' ) ?> </h1>
   <table class="widefat fixed striped">
         
      
@@ -94,20 +94,20 @@ $page_id=get_option('details_escrow_page_id');
     
     if($results==null)
 	{
-	     _e( "<br><center><h3>No Escrow Found</h3></center>", 'aistore' );
+	     _e( "No Escrow Found", 'aistore' );
 
 	}
 	else{
     foreach($results as $row):
       
-	 $url  =  esc_url( add_query_arg( array(
+	 $escrow_details_page_url  =  esc_url( add_query_arg( array(
     'page_id' => $page_id,
     'eid' => $row->id,
 ), home_url() ) ); 
     ?> 
       <tr>
 
-		   <td> 	<a href="<?php echo $url; ?>" >	
+		   <td> 	<a href="<?php echo $escrow_details_page_url; ?>" >	
 		   
 		   <?php echo $row->id ; ?> </a> </td>
 		  
@@ -145,11 +145,11 @@ $page_id=get_option('details_escrow_page_id');
     
       <div class="wrap">
 
-  <h1> Wallets</h1>
+  <h1> <?php  _e( 'Wallets', 'aistore' ) ?> </h1>
   
   <?php
   
-     _e( "<br><center><h3>Wallet List Not Found</h3></center>", 'aistore' );
+     _e( "Wallet List Not Found", 'aistore' );
    
     ?>
     
@@ -179,7 +179,7 @@ $page_id=get_option('details_escrow_page_id');
     
      
   ?>
-    <h1>All disputed escrows </h1>
+    <h1> <?php  _e( 'All disputed escrows', 'aistore' ) ?> </h1>
 	
 	
   <table class="widefat fixed striped">
@@ -191,7 +191,7 @@ $page_id=get_option('details_escrow_page_id');
     if($results==null)
 	{
 	    
-	     _e( "<br><center><h3>No Escrow Found</h3></center>", 'aistore' );
+	     _e( "No Escrow Found", 'aistore' );
 	
 	}
 	else{
@@ -239,7 +239,7 @@ $page_id=get_option('details_escrow_page_id');
 function aistore_page_register_setting() {
 	//register our settings
 	register_setting( 'aistore_page', 'add_escrow_page_id' );
-	register_setting( 'aistore_page', 'add_escrow_page_id2' );
+	register_setting( 'aistore_page', 'create_escrow_page_2' );
 	register_setting( 'aistore_page', 'list_escrow_page_id' );
 	register_setting( 'aistore_page', 'details_escrow_page_id' );
 
@@ -259,7 +259,7 @@ function aistore_page_register_setting() {
 	  
 	  <div class="card">
 	  
-<h3>Escrow Setting</h3>
+<h3><?php  _e( 'Escrow Setting', 'aistore' ) ?></h3>
  
 	                      
 <form method="post" action="options.php">
@@ -269,7 +269,7 @@ function aistore_page_register_setting() {
     <table class="form-table">
 	
 	 <tr valign="top">
-        <th scope="row">Escrow Page - 1:</th>
+        <th scope="row"><?php  _e( 'Escrow Page - 1', 'aistore' ) ?></th>
         <td>
 		<select name="add_escrow_page_id"  >
 		 
@@ -297,9 +297,9 @@ function aistore_page_register_setting() {
         
         	
 		 <tr valign="top">
-        <th scope="row">Escrow System Page -2 :</th>
+        <th scope="row"><?php  _e( 'Escrow Page - 2', 'aistore' ) ?></th>
         <td>
-		<select name="add_escrow_page_id2" >
+		<select name="create_escrow_page_2" >
 		 
 		 
 		  <?php 
@@ -307,7 +307,7 @@ function aistore_page_register_setting() {
                         
 				
 
-					if($page->ID==get_option('add_escrow_page_id2'))
+					if($page->ID==get_option('create_escrow_page_2'))
 					{
 		 echo '	<option selected value="'.$page->ID.'">'.$page->post_title .'</option>';
 		 
@@ -329,7 +329,7 @@ function aistore_page_register_setting() {
         </tr> 
 		
 		  <tr valign="top">
-        <th scope="row">Escrow List page:</th>
+        <th scope="row"><?php  _e( 'Escrow List page', 'aistore' ) ?></th>
         <td>
 		<select name="list_escrow_page_id">
 		  
@@ -357,7 +357,7 @@ function aistore_page_register_setting() {
 		
 		
 		 <tr valign="top">
-        <th scope="row">Escrow Details Page:</th>
+        <th scope="row"><?php  _e( 'Escrow Details Page', 'aistore' ) ?></th>
         <td>
 		<select name="details_escrow_page_id" >
 		 
@@ -393,10 +393,10 @@ function aistore_page_register_setting() {
         	
         <table class="form-table">
         
-        <h3>Admin Escrow Setting</h3>
+        <h3><?php  _e( 'Admin Escrow Setting', 'aistore' ) ?></h3>
         
 		 <tr valign="top">
-        <th scope="row">Admin Id:</th>
+        <th scope="row"><?php  _e( 'Admin Id', 'aistore' ) ?></th>
         <td>
 		<select name="escrow_user_id" >
 		 
@@ -437,15 +437,15 @@ function aistore_page_register_setting() {
         	
         <table class="form-table">
         
-        <h3>Escrow Fee Setting</h3>
+        <h3><?php  _e( 'Escrow Fee Setting', 'aistore' ) ?></h3>
         
 	 <tr valign="top">
-        <th scope="row">Escrow Create Fee</th>
+        <th scope="row"><?php  _e( 'Escrow Create Fee', 'aistore' ) ?></th>
         <td><input type="number" name="escrow_create_fee" value="<?php echo esc_attr( get_option('escrow_create_fee') ); ?>" /></td>
         </tr>
         
       <tr valign="top">
-        <th scope="row">Escrow Accept Fee</th>
+        <th scope="row"><?php  _e( 'Escrow Accept Fee', 'aistore' ) ?></th>
         <td><input type="number" name="escrow_accept_fee" value="<?php echo esc_attr( get_option('escrow_accept_fee') ); ?>" /></td>
         </tr>
         

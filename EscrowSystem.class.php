@@ -20,9 +20,13 @@ function allow_subscriber_uploads() {
 
 class EscrowSystem {
     
+    
+  
+ 
+ 
     public static function escrow_syetem_part2()
 {
-    if(isset($_POST['submit']) and $_POST['action']=='escrow_system_part2' )
+    if(isset($_POST['submit']) and $_POST['action']=='create_escrow_page_2' )
 {
 
 if ( ! isset( $_POST['aistore_nonce'] ) 
@@ -38,7 +42,9 @@ if ( ! isset( $_POST['aistore_nonce'] )
     $user_id=get_current_user_id();
     
     $term_condition=sanitize_text_field($_REQUEST['term_condition']);
+    
     global $wpdb; 
+    
     $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET term_condition = '%s'  WHERE id = '%d'", 
    $term_condition , $eid   ) );
@@ -56,17 +62,18 @@ if ( ! isset( $_POST['aistore_nonce'] )
             move_uploaded_file($_FILES['file']['tmp_name'], $user_dirname .'/'. $filename);
             
             $image= $upload_dir['baseurl'].'/documents/'.$filename;
-            // save into database $upload_dir['baseurl'].'/product-images/'.$filename;
+            
+            // save into database  $image
             
                      
 
 $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id) VALUES ( %d,%s,%d)", array( $eid,$image,$user_id) ) );
         }
         
-         $page_id=get_option('details_escrow_page_id'); 
+   
 	 
-	 $url  =  esc_url( add_query_arg( array(
-    'page_id' => $page_id,
+	 $details_escrow_page_url  =  esc_url( add_query_arg( array(
+    'page_id' => get_option('details_escrow_page_id') ,
 	'eid'=> $eid,
 ), home_url() ) );
 
@@ -76,8 +83,8 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid
 <br>
 <div><h1> <?php  _e( 'Thank You', 'aistore' ) ?></h1></div>
 
-<div><a href="<?php echo esc_html($url) ; ?>" >
-    <?php  _e( 'Go To Details Page', 'aistore' ) ?>
+<div><a href="<?php echo esc_html($details_escrow_page_url) ; ?>" >
+    <?php  _e( 'Go To Escrow Details Page', 'aistore' ) ?>
      </a></div>
 
 <?php
@@ -86,7 +93,7 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid
     else{
     ?>
     
-    <form method="POST" action="" name="escrow_system_part2" enctype="multipart/form-data"> 
+    <form method="POST" action="" name="create_escrow_page_2" enctype="multipart/form-data"> 
     <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
     
 
@@ -113,13 +120,16 @@ wp_editor( $content, $editor_id);
      
 <br><br>
 <input class="input" type="submit" name="submit" value="Submit"/>
-<input type="hidden" name="action" value="escrow_system_part2" />
+<input type="hidden" name="action" value="create_escrow_page_2" />
     </form>
     
 
     <?php
     } 
     }
+    
+    
+    
 
     
       // create escrow System
@@ -132,7 +142,7 @@ public static function aistore_escrow_system()
 
 
 
-$instance = new Woo_Wallet_Wallet();
+$wallet = new Woo_Wallet_Wallet();
 $user_id=get_current_user_id();
 
 if(isset($_POST['submit']) and $_POST['action']=='escrow_system' )
@@ -152,58 +162,94 @@ $title=sanitize_text_field($_REQUEST['title']);
 $amount=sanitize_text_field($_REQUEST['amount']);
 $receiver_email=sanitize_text_field($_REQUEST['receiver_email']);
 
-$email_id = get_the_author_meta( 'user_email', get_current_user_id() );
-$b=$instance->get_wallet_balance($user_id,'');
+$sender_email = get_the_author_meta( 'user_email', get_current_user_id() );
+$user_balance=$wallet->get_wallet_balance($user_id,'');
 
 
-if($b<$amount){
+if($user_balance<$amount){
       _e( 'Insufficent Balance', 'aistore' ); 
 
 }
 else
 {
-    
-$escrow_fee=get_option('escrow_create_fee');
-$escrow_fee1=($escrow_fee / 100) * $amount;
+     
+$escrow_fee =(get_option('escrow_create_fee') / 100) * $amount;
 
 
 
 
 
     
-    $new_amount=$amount-$escrow_fee1;
- $details="Create Escrow System";   
-$instance->debit($user_id,$amount,$details);
+    $new_amount=$amount-$escrow_fee ;
+    
+    
+    global $wpdb;   
 
-$instance->credit(get_option('escrow_user_id'),$escrow_fee1,$details);
-$txid=$instance->credit(get_option('escrow_user_id'),$new_amount,$details);
-
-$msg1="Invited by ".$email_id;
-global $wpdb;   
-
-$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email ,transaction_id,balance) VALUES ( %s, %d, %s, %s, %d ,%d)", array( $title, $amount, $receiver_email,$email_id ,$txid , $b) ) );
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email ,transaction_id,balance) VALUES ( %s, %d, %s, %s, %d ,%d)", array( $title, $amount, $receiver_email,$sender_email ,4 , $user_balance) ) );
 
 
-$this_insert = $wpdb->insert_id;
-$to = $receiver_email;
-$subject = 'Escrow System';
-$body =     $msg1;   
+
+$eid = $wpdb->insert_id;
 
 
-$headers = array('Content-Type: text/html; charset=UTF-8');
-$msg= _e( 'Successfully send payment with Escrow id ', 'aistore' ) 
- .$this_insert;
+ $details="Payment transaction for the escrow ".$eid ; 
  
-wp_mail( $to, $subject, $body, $headers );
+ 
+$wallet->debit($user_id,$amount,$details);
 
-   $page_id=get_option('add_escrow_page_id2'); 
-	 
-	 $url  =  esc_url( add_query_arg( array(
-    'page_id' => $page_id,
-	'eid'=> $this_insert,
+$wallet->credit(get_option('escrow_user_id'),$escrow_fee ,$details);
+$txid=$wallet->credit(get_option('escrow_user_id'),$new_amount,$details);
+
+ 
+
+
+
+
+$msg= printf(
+
+__( 'Successfully send payment with Escrow id %d.', 'aistore' ),
+$eid
+);
+
+
+
+
+	 $create_escrow_page_2_url  =  esc_url( add_query_arg( array(
+    'page_id' => get_option('create_escrow_page_2'),
+	'eid'=> $eid,
 ), home_url() ) );
 
- 
+// email to sender 
+
+
+
+
+// email to receiver
+
+
+$to = $receiver_email;
+$subject =$details;
+
+
+	 $url1  =  esc_url( add_query_arg( array(
+    'page_id' => get_option('details_escrow_page_id') ,
+	'eid'=> $eid,
+), home_url() ) );
+
+
+ $body="Dear sir, <br>
+     <h2>Your partner ".$sender_email." have invited you for the escrow ".$eid." </h2><br> Below is complete detail of the escrow <br/>
+     Invited by : ".$sender_email.
+     
+     "<br>Escrow ID is:".$eid.
+     "<br>Accept Escrow system to :<br><br><u>Click here </u>:".
+         $url1 ;
+    
+  $body  .="<br /> If you are not registered in the portal kindly visit my account page and register.";
+  
+  $headers = array('Content-Type: text/html; charset=UTF-8');
+     wp_mail( $to, $subject, $body, $headers );
+
 ?>
 
 
@@ -211,15 +257,22 @@ wp_mail( $to, $subject, $body, $headers );
 
 <br>
 <div><h1><?php   _e( 'Thank You', 'aistore' ); ?> </h1></div>
+
 <div><?php echo esc_html($msg); ?></div>
-<div><?php   _e( 'Escrow Fee', 'aistore' ); ?> : <?php echo esc_html($escrow_fee1); ?></div>
-
-<div>   <?php   _e( 'Sender', 'aistore' ); ?>     :<?php echo esc_html($email_id) ; ?></div>
 
 
-<div>  <?php   _e( 'Receiver', 'aistore' ); ?> :<?php echo esc_html($receiver_email) ; ?></div>
 
-<div><a href="<?php echo esc_html($url) ; ?>" > <?php   _e( 'Go To Next Step', 'aistore' ); ?> </a></div>
+<div><?php  
+printf(__( 'Escrow Fee %s.', 'aistore' ),
+$escrow_fee
+); ?> </div>
+
+<div>   <?php   printf(__( 'Sender %s.', 'aistore'),$sender_email ); ?>   </div>
+
+
+<div>  <?php   printf(__( 'Receiver %s.', 'aistore'),$receiver_email ); ?> </div>
+
+<div><a href="<?php echo esc_html($create_escrow_page_2_url) ; ?>" > <?php   _e( 'Go To Next Step', 'aistore' ); ?> </a></div>
 
 <?php
 
@@ -254,9 +307,9 @@ else{
 
 
 
- $b=$instance->get_wallet_balance ($user_id);
+ $balance=$wallet->get_wallet_balance ($user_id);
  
-  echo $b;
+  echo $balance;
 
 
 
@@ -264,15 +317,16 @@ else{
  
   <br>
   <?php   _e( 'Escrow Fee', 'aistore' ); ?>
-  :  <b id="demo"></b>/-  (<?php echo get_option('escrow_create_fee');?> %)<br>
-     <?php   _e( 'Amount', 'aistore' ); ?> :  <b id="demo1"></b>/-<br>
+  
+  :  <b id="escrow_fee"></b>/-  (<?php echo get_option('escrow_create_fee');?> %)<br>
+     <?php   _e( 'Amount', 'aistore' ); ?> :  <b id="amount"></b>/-<br>
      
    <?php   _e( 'Total  Amount', 'aistore' ); ?> :   
-  :  <b id="demo2"></b>/-<br>
+  :  <b id="total"></b>/-<br><br>
   
   
   
-<label for="address"><?php   _e( 'Receiver Email', 'aistore' ); ?>:</label><br>
+<label for="receiver_email"><?php   _e( 'Receiver Email', 'aistore' ); ?>:</label><br>
   <input class="input" type="text" id="receiver_email" name="receiver_email" required><br>
   
   
@@ -292,17 +346,19 @@ else{
 
 
 
+
+
 // Escrow List
 
  public static function aistore_escrow_list(){
 
 	 
-$email_id = get_the_author_meta( 'user_email', get_current_user_id() );
+$current_user_email_id = get_the_author_meta( 'user_email', get_current_user_id() );
 
 global $wpdb;
 
  $results = $wpdb->get_results( 
-                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE sender_email=%s", $email_id) 
+                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE sender_email=%s", $current_user_email_id) 
                  );
 
 ?>
@@ -336,10 +392,10 @@ global $wpdb;
      
    
     foreach($results as $row):
-     $page1=get_option('details_escrow_page_id'); 
+  
 	 
-	 $url2 =  esc_url( add_query_arg( array(
-    'page_id' => $page1,
+	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
+    'page_id' => get_option('details_escrow_page_id'),
     'eid' => $row->id,
 ), home_url() ) ); 
 
@@ -353,7 +409,7 @@ global $wpdb;
 		 
 		   
 		   
-		   <td> 	<a href="<?php echo $url2; ?>" >
+		   <td> 	<a href="<?php echo $details_escrow_page_id_url; ?>" >
 
 		   <?php echo $row->id ; ?> </a> </td>
   <td> 		   <?php echo $row->title ; ?> </td>
@@ -377,7 +433,7 @@ global $wpdb;
 <?php
 
  $results = $wpdb->get_results( 
-                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email=%s", $email_id) 
+                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email=%s", $current_user_email_id) 
                  );
 
     if($results==null)
@@ -407,10 +463,10 @@ global $wpdb;
 
     foreach($results as $row):
 	
-  $page1=get_option('details_escrow_page_id'); 
+ 
 	 
-	 $url1 =  esc_url( add_query_arg( array(
-    'page_id' => $page1,
+	 $details_escrow_page_url =  esc_url( add_query_arg( array(
+    'page_id' => get_option('details_escrow_page_id'),
     'eid' => $row->id,
 ), home_url() ) ); 
 
@@ -418,7 +474,7 @@ global $wpdb;
       <tr>
            
  
-		   <td> 	<a href="<?php echo $url1; ?>" >
+		   <td> 	<a href="<?php echo $details_escrow_page_url; ?>" >
 		   <?php echo $row->id ; ?> </a> </td>
 		   <td> 		   <?php echo $row->title ; ?> </td>
 		   <td> 		   <?php echo $row->amount ; ?> </td>
@@ -451,7 +507,7 @@ function fn_upload_file() {
             $filename = wp_unique_filename( $user_dirname, $_FILES['file']['name'] );
             move_uploaded_file($_FILES['file']['tmp_name'], $user_dirname .'/'. $filename);
             echo $upload_dir['baseurl'].'/documents/'.$filename;
-            // save into database $upload_dir['baseurl'].'/product-images/'.$filename;
+          
         }
     }
 }
@@ -464,6 +520,8 @@ public static function aistore_escrow_detail( ){
     
    $eid=$_REQUEST['eid'];
 $user_id= get_current_user_id();
+
+
 if ( isset($_POST['upload_file']) ) {
         $upload_dir = wp_upload_dir();
  
@@ -475,9 +533,9 @@ if ( isset($_POST['upload_file']) ) {
  
             $filename = wp_unique_filename( $user_dirname, $_FILES['file']['name'] );
             move_uploaded_file($_FILES['file']['tmp_name'], $user_dirname .'/'. $filename);
-            //echo $upload_dir['baseurl'].'/documents/'.$filename;
+            
             $image=$upload_dir['baseurl'].'/documents/'.$filename;
-            // save into database $upload_dir['baseurl'].'/product-images/'.$filename;
+            // save into database $image;
             
             global $wpdb;   
 
@@ -513,15 +571,14 @@ ob_start();
 
 if(!isset($_REQUEST['eid']))
 {
- 
-	$page_id=get_option('list_escrow_page_id'); 
+
 	 
-	 $url  =  esc_url( add_query_arg( array(
-    'page_id' => $page_id,
+	 $list_escrow_page_url  =  esc_url( add_query_arg( array(
+    'page_id' => get_option('list_escrow_page_id'),
 ), home_url() ) ); 
 
 ?>
-	<div><a href="<?php echo $url ; ?>" >
+	<div><a href="<?php echo $list_escrow_page_url ; ?>" >
 	    <?php   _e( 'Go To Escrow List Page', 'aistore' ); ?> 
 	     </a></div>
 <?php	
@@ -537,9 +594,6 @@ global $wpdb;
  
 if(isset($_POST['submit']) and $_POST['action']=='disputed')
 {
-
-
-
 if ( ! isset( $_POST['aistore_nonce'] ) 
     || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
 ) {
@@ -551,10 +605,7 @@ if ( ! isset( $_POST['aistore_nonce'] )
 $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'disputed' , $eid   ) );
-					  
-		
-		
-	
+
 ?>
 <div>
 <strong> <?php  _e( 'Disputed Successfully', 'aistore' ) ?></strong></div>
@@ -580,26 +631,25 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
    'accepted' , $eid   ) );
 
 $amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
- 
-//echo $amount;
-
- $details= 'Accept Escrow System';
-$escrow_fee=get_option('escrow_accept_fee');
-$escrow_fee1=($escrow_fee / 100) * $amount;
 
 
-$instance = new Woo_Wallet_Wallet();
+ $details= 'Accept Escrow System'.$eid;
+
+$escrow_fee=(get_option('escrow_accept_fee')/ 100) * $amount;
 
 
-$instance->debit($user_id,$escrow_fee1,$details);
-$instance->credit(get_option('escrow_user_id'),$escrow_fee1,$details);
+$wallet = new Woo_Wallet_Wallet();
+
+
+$wallet->debit($user_id,$escrow_fee,$details);
+$wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
 
 ?>
 <div>
     
 <strong> <?php  _e( 'Accepted Successfully', 'aistore' ) ?></strong></div>
 <?php
- _e( "<p>Escrow Fee :: ". "<b>".$escrow_fee1."</b></p> ", 'aistore' ); 
+ printf(__( "Escrow Fee %d.", 'aistore'),$escrow_fee ); 
 
 }
 
@@ -617,20 +667,21 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'released' , $eid   ) );
    
-	$q = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
-	$q2 = $wpdb->get_var( $wpdb->prepare( "SELECT receiver_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
-
-$amount=$q;
-$reciever_email=$q2;
-
-$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_login  = %s", $reciever_email ) );
+	$escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+	
+	$escrow_reciever_email_id = $wpdb->get_var( $wpdb->prepare( "SELECT receiver_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
 
 
- $details= 'Release Escrow System';
+
+
+$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_login  = %s", $escrow_reciever_email_id ) );
+
+
+ $details= 'Release Escrow System'.$eid;
  
-$instance = new Woo_Wallet_Wallet();
-$instance->debit(get_option('escrow_user_id'),$amount,$details);
-$instance->credit($id,$amount,$details);
+$wallet = new Woo_Wallet_Wallet();
+$wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
+$wallet->credit($id,$escrow_amount,$details);
 
 ?>
 <div>
@@ -638,6 +689,9 @@ $instance->credit($id,$amount,$details);
 <?php
 }
  
+
+
+
 
 if(isset($_POST['submit']) and $_POST['action']=='cancelled')
 {
@@ -653,19 +707,18 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'cancelled' , $eid   ) );
 
-$amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+$escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
  
-//echo $amount;
 
- $details= 'Cancel Escrow System';
-
+ $details= 'Cancel Escrow System'.$eid;
 
 
-$instance = new Woo_Wallet_Wallet();
+
+$wallet = new Woo_Wallet_Wallet();
 
 
-$instance->debit(get_option('escrow_user_id'),$amount,$details);
-$instance->credit($user_id,$amount,$details);
+$wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
+$wallet->credit($user_id,$escrow_amount,$details);
 
 ?>
 <div>
@@ -681,8 +734,8 @@ $instance->credit($user_id,$amount,$details);
 
 
 ////
-$instance1 = new EscrowSystem();
- if ( ! $instance1->aistore_isadmin()) {
+$escrow_system = new EscrowSystem();
+ if ( ! $escrow_system->aistore_isadmin()) {
 
 
   $escrow = $wpdb->get_row( 
@@ -702,18 +755,12 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_sy
      echo "<h1>#". $escrow->id ." ".$escrow->title ."</h1>";
      
      
-  _e( "Term Condition:  ", 'aistore' );
-   echo "<b>".$escrow->term_condition."</b><br>";
-   
- _e( "Sender:   ", 'aistore' );  
- echo "<b>".$escrow->sender_email."</b> <br>";
- 
- _e( "Receiver:" , 'aistore' ); 
- echo "<b>".$escrow->receiver_email."</b><br>";
- 
- 
- _e( "Status: " , 'aistore' ); 
- echo "<b>".$escrow->status."</b><br>";
+  printf(__( "Term Condition : %s.", 'aistore' ),$escrow->term_condition."<br>");
+  printf(__( "Sender:  %s.", 'aistore' ),$escrow->sender_email."<br>");
+  printf(__( "Receiver : %s.", 'aistore' ),$escrow->receiver_email."<br>");
+  printf(__( "Status : %s.", 'aistore' ),$escrow->status."<br>");
+  
+
 
     
 	   $escrow_documents = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_documents WHERE  eid=%d ",$eid ));
@@ -727,28 +774,31 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_sy
 	   <?php
 	   }
 	   
-//include "buttons/accept_button.php";
-
-$instance1->accept_escrow_btn($escrow);
 
 
-//include "buttons/cancel_button.php";
-$instance1->cancel_escrow_btn($escrow);
+$escrow_system->accept_escrow_btn($escrow);
 
 
-//include "buttons/release_button.php";
-$instance1->release_escrow_btn($escrow);
+
+$escrow_system->cancel_escrow_btn($escrow);
+
+
+
+$escrow_system->release_escrow_btn($escrow);
  
-//include "buttons/dispute_button.php";
-$instance1->dispute_escrow_btn($escrow);
 
-//include "escrow_discussion.php";
-$instance1->escrow_discussion($escrow);
+$escrow_system->dispute_escrow_btn($escrow);
+
+
+$escrow_system->escrow_discussion($escrow);
  
 
  return ob_get_clean();  
 	 
 }
+
+
+
 
 
 // Escrow Discussion
