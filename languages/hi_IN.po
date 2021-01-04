@@ -1,0 +1,124 @@
+# Translation of WordPress - 4.9.x - Development in Hindi
+# This file is distributed under the same license as the WordPress - 4.9.x - Development package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2018-06-17 09:22:26+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: hi_IN\n"
+"Project-Id-Version: WordPress - 4.9.x - Development\n"
+
+
+
+msgid "Hello World"
+msgstr ""
+
+# Example comment
+#. Example pluralized message
+#, php-format
+msgid "An example"
+msgid_plural "%s examples"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Thank You"
+msgstr ""
+
+msgid "Sorry, your nonce did not verify"
+msgstr ""
+
+msgid "Go To Details Page"
+msgstr ""
+
+msgid "Term And Condition"
+msgstr ""
+
+msgid "Documents"
+msgstr ""
+
+msgid "Insufficent Balance"
+msgstr ""
+
+msgid "Successfully send payment with Escrow id"
+msgstr ""
+
+msgid "Escrow Fee"
+msgstr ""
+
+msgid "Sender"
+msgstr ""
+
+msgid "Receiver"
+msgstr ""
+
+msgid "Go To Next Step"
+msgstr ""
+
+msgid "Title"
+msgstr "Noureen"
+
+msgid "Amount"
+msgstr ""
+
+msgid " Available balance is "
+msgstr ""
+
+msgid "Total  Amount"
+msgstr ""
+
+msgid "Receiver Email"
+msgstr ""
+
+msgid "Out Going Escrow"
+msgstr ""
+
+msgid "Escrow List Not Found"
+msgstr ""
+
+msgid "Id"
+msgstr ""
+
+msgid "Incoming Escrow"
+msgstr ""
+
+msgid "Go To Escrow List Page"
+msgstr ""
+
+msgid "Disputed-1 Successfully"
+msgstr ""
+
+msgid "Disputed-2 Successfully"
+msgstr ""
+
+msgid "Disputed-3 Successfully"
+msgstr ""
+
+msgid "Accept Escrow System"
+msgstr ""
+
+msgid "Accepted Successfully"
+msgstr ""
+
+msgid "Released Successfully"
+msgstr ""
+
+msgid "Cancelled Successfully"
+msgstr ""
+
+msgid "Term Condition"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Download Document"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Release"
+msgstr ""

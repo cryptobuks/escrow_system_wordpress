@@ -239,14 +239,15 @@ $page_id=get_option('details_escrow_page_id');
 function aistore_page_register_setting() {
 	//register our settings
 	register_setting( 'aistore_page', 'add_escrow_page_id' );
+	register_setting( 'aistore_page', 'add_escrow_page_id2' );
 	register_setting( 'aistore_page', 'list_escrow_page_id' );
 	register_setting( 'aistore_page', 'details_escrow_page_id' );
+
 	register_setting( 'aistore_page', 'escrow_user_id' );
 	
 	register_setting( 'aistore_page', 'escrow_create_fee' );
 	register_setting( 'aistore_page', 'escrow_accept_fee' );
-	register_setting( 'aistore_page', 'escrow_create_dispute_fee' );
-	register_setting( 'aistore_page', 'escrow_accept_dispute_fee' );
+
 }
 
  function aistore_page_setting() {
@@ -268,7 +269,7 @@ function aistore_page_register_setting() {
     <table class="form-table">
 	
 	 <tr valign="top">
-        <th scope="row">Escrow Page:</th>
+        <th scope="row">Escrow Page - 1:</th>
         <td>
 		<select name="add_escrow_page_id"  >
 		 
@@ -293,6 +294,39 @@ function aistore_page_register_setting() {
 	 
 </select></td>
         </tr>  
+        
+        	
+		 <tr valign="top">
+        <th scope="row">Escrow System Page -2 :</th>
+        <td>
+		<select name="add_escrow_page_id2" >
+		 
+		 
+		  <?php 
+                    foreach($pages as $page){ 
+                        
+				
+
+					if($page->ID==get_option('add_escrow_page_id2'))
+					{
+		 echo '	<option selected value="'.$page->ID.'">'.$page->post_title .'</option>';
+		 
+		  } else {
+                      
+   echo '	<option  value="'.$page->ID.'">'.$page->post_title .'</option>';
+		 
+		
+
+		}  
+	 } ?> 
+	 
+	 
+		 
+					  
+					
+ 
+</select></td>
+        </tr> 
 		
 		  <tr valign="top">
         <th scope="row">Escrow List page:</th>
@@ -415,16 +449,7 @@ function aistore_page_register_setting() {
         <td><input type="number" name="escrow_accept_fee" value="<?php echo esc_attr( get_option('escrow_accept_fee') ); ?>" /></td>
         </tr>
         
-        
-         <tr valign="top">
-        <th scope="row">Escrow Create Dispute Fee</th>
-        <td><input type="number" name="escrow_create_dispute_fee" value="<?php echo esc_attr( get_option('escrow_create_dispute_fee') ); ?>" /></td>
-        </tr>
-  
-   <tr valign="top">
-        <th scope="row">Escrow Accept Dispute Fee</th>
-        <td><input type="number" name="escrow_accept_dispute_fee" value="<?php echo esc_attr( get_option('escrow_accept_dispute_fee') ); ?>" /></td>
-        </tr>
+       
   
   
     </table>
