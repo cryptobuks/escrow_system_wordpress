@@ -1,4 +1,5 @@
 <?php
+ add_filter('woo_wallet_disallow_negative_transaction', '__return_false');
  
 add_action( 'admin_init', 'allow_subscriber_uploads' );
 
@@ -10,6 +11,7 @@ function allow_subscriber_uploads() {
   
     $contributor = get_role( 'customer' );
     $contributor->add_cap('upload_files');
+   
     
 }
 
@@ -67,7 +69,7 @@ if ( ! isset( $_POST['aistore_nonce'] )
             
                      
 
-$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id) VALUES ( %d,%s,%d)", array( $eid,$image,$user_id) ) );
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
         }
         
    
@@ -79,13 +81,17 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid
 
     ?>
     
-    
-<br>
-<div><h1> <?php  _e( 'Thank You', 'aistore' ) ?></h1></div>
+   
+<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($details_escrow_page_url) ; ?>" /> 
 
-<div><a href="<?php echo esc_html($details_escrow_page_url) ; ?>" >
-    <?php  _e( 'Go To Escrow Details Page', 'aistore' ) ?>
-     </a></div>
+<div class="alert alert-success" role="alert">
+ <?php printf(
+
+__( 'Successfully  with Escrow id %d.', 'aistore' ),
+$eid
+); ?>
+</div>
+<br>
 
 <?php
 } 
@@ -93,6 +99,15 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid
     else{
     ?>
     
+    <?php  $eid=$_REQUEST['eid'];?>
+    <div class="alert alert-success" role="alert">
+ <?php printf(
+
+__( 'Successfully send payment with Escrow id %d.', 'aistore' ),
+$eid
+); ?>
+</div>
+
     <form method="POST" action="" name="create_escrow_page_2" enctype="multipart/form-data"> 
     <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
     
@@ -116,8 +131,10 @@ wp_editor( $content, $editor_id);
 
 ?><br>
 	<label for="documents"><?php  _e( 'Documents', 'aistore' ) ?>: </label>
-     <input type="file" name="file" required /><br>
-     
+     <input type="file" name="file" accept="application/pdf" required /><br>
+     <div><p>Note : We accept only pdf file and
+	You can upload many pdf file then go to next escrow details page.</p></div>
+<div><a href="<?php echo esc_html($details_escrow_page_url) ; ?>" >
 <br><br>
 <input class="input" type="submit" name="submit" value="Submit"/>
 <input type="hidden" name="action" value="create_escrow_page_2" />
@@ -138,7 +155,7 @@ public static function aistore_escrow_system()
 { 
  
     
-
+if ( is_user_logged_in() ) {
 
 
 
@@ -205,13 +222,6 @@ $txid=$wallet->credit(get_option('escrow_user_id'),$new_amount,$details);
 
 
 
-$msg= printf(
-
-__( 'Successfully send payment with Escrow id %d.', 'aistore' ),
-$eid
-);
-
-
 
 
 	 $create_escrow_page_2_url  =  esc_url( add_query_arg( array(
@@ -256,9 +266,10 @@ $subject =$details;
 
 
 <br>
+
+<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($create_escrow_page_2_url) ; ?>" />
 <div><h1><?php   _e( 'Thank You', 'aistore' ); ?> </h1></div>
 
-<div><?php echo esc_html($msg); ?></div>
 
 
 
@@ -272,7 +283,7 @@ $escrow_fee
 
 <div>  <?php   printf(__( 'Receiver %s.', 'aistore'),$receiver_email ); ?> </div>
 
-<div><a href="<?php echo esc_html($create_escrow_page_2_url) ; ?>" > <?php   _e( 'Go To Next Step', 'aistore' ); ?> </a></div>
+
 
 <?php
 
@@ -293,41 +304,37 @@ else{
                 ?>
 <label for="title"><?php   _e( 'Title', 'aistore' ); ?></label><br>
   <input class="input" type="text" id="title" name="title" required><br>
-  
+  <?php  $user_balance=$wallet->get_wallet_balance($user_id,''); ?>
 
   <label for="amount"><?php   _e( 'Amount', 'aistore' ); ?></label><br>
-  <input class="input" type="number" id="amount" name="amount" required><br>
+  <input class="input" type="number" id="amount" name="amount" min="1" max="<?php echo $user_balance ?>" required><br>
  
-   <input class="input" type="hidden" id="escrow_create_fee" name="escrow_create_fee" value= <?php echo get_option('escrow_create_fee');?>><br>
+   <input class="input" type="hidden" id="escrow_create_fee" name="escrow_create_fee" value= <?php echo get_option('escrow_create_fee');?>>
   <?php
-    _e( " Available balance is ", 'aistore' );
-    
+   $balance=$wallet->get_wallet_balance ($user_id);
+
+   printf(__( 'Available balance is %s', 'aistore'), $balance) ;
  
-    
-
-
-
- $balance=$wallet->get_wallet_balance ($user_id);
- 
-  echo $balance;
-
-
-
   ?>
+ <div class="feeblock hide" >
+      <?php   _e( 'Amount', 'aistore' ); ?> :
+      <b id="escrow_amount"></b>/-  &#8377;<br>
  
-  <br>
   <?php   _e( 'Escrow Fee', 'aistore' ); ?>
   
-  :  <b id="escrow_fee"></b>/-  (<?php echo get_option('escrow_create_fee');?> %)<br>
-     <?php   _e( 'Amount', 'aistore' ); ?> :  <b id="amount"></b>/-<br>
+  :  <b id="escrow_fee" ></b>/-  &#8377;  (<?php echo get_option('escrow_create_fee');?> %)<br>
+  
+    
      
    <?php   _e( 'Total  Amount', 'aistore' ); ?> :   
-  :  <b id="total"></b>/-<br><br>
+  :  <b id="total"></b>/-  &#8377;
   
   
+  </div>
+  <br>
   
 <label for="receiver_email"><?php   _e( 'Receiver Email', 'aistore' ); ?>:</label><br>
-  <input class="input" type="text" id="receiver_email" name="receiver_email" required><br>
+  <input class="input" type="email" id="receiver_email" name="receiver_email" required><br>
   
   
 
@@ -340,6 +347,13 @@ else{
 </form> 
 <?php
 }
+
+
+}
+else
+{
+     _e( 'Welcome, visitor!', 'aistore' );    
+}
 }
 
 
@@ -351,14 +365,15 @@ else{
 // Escrow List
 
  public static function aistore_escrow_list(){
-
+if ( is_user_logged_in() ) {
+   
 	 
 $current_user_email_id = get_the_author_meta( 'user_email', get_current_user_id() );
 
 global $wpdb;
 
  $results = $wpdb->get_results( 
-                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE sender_email=%s", $current_user_email_id) 
+                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE sender_email=%s order by id desc limit 20", $current_user_email_id) 
                  );
 
 ?>
@@ -385,6 +400,7 @@ global $wpdb;
           <th><?php   _e( 'Amount', 'aistore' ); ?></th> 
 		  <th><?php   _e( 'Sender', 'aistore' ); ?></th>
 		  <th><?php   _e( 'Receiver', 'aistore' ); ?></th>
+		    <th><?php   _e( 'Status', 'aistore' ); ?></th>
 </tr>
 
     <?php 
@@ -413,9 +429,10 @@ global $wpdb;
 
 		   <?php echo $row->id ; ?> </a> </td>
   <td> 		   <?php echo $row->title ; ?> </td>
-		  	   <td> 		   <?php echo $row->amount ; ?> </td>
+		  	   <td> 		   <?php echo $row->amount ; ?>&#8377; </td>
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
+		    <td> 		   <?php echo $row->status ; ?> </td>
            
             </tr>
     <?php endforeach;
@@ -433,7 +450,7 @@ global $wpdb;
 <?php
 
  $results = $wpdb->get_results( 
-                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email=%s", $current_user_email_id) 
+                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email=%s order by id desc limit 20", $current_user_email_id) 
                  );
 
     if($results==null)
@@ -455,6 +472,7 @@ global $wpdb;
           <th><?php   _e( 'Amount', 'aistore' ); ?></th> 
 		  <th><?php   _e( 'Sender', 'aistore' ); ?></th>
 		  <th><?php   _e( 'Receiver', 'aistore' ); ?></th>
+		   <th><?php   _e( 'Status', 'aistore' ); ?></th>
 </tr>
 
     <?php 
@@ -477,9 +495,10 @@ global $wpdb;
 		   <td> 	<a href="<?php echo $details_escrow_page_url; ?>" >
 		   <?php echo $row->id ; ?> </a> </td>
 		   <td> 		   <?php echo $row->title ; ?> </td>
-		   <td> 		   <?php echo $row->amount ; ?> </td>
+		   <td> 		   <?php echo $row->amount ; ?>&#8377; </td>
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
+		     <td> 		   <?php echo $row->status ; ?> </td>
 		  
     </tr>
     <?php endforeach;
@@ -491,7 +510,10 @@ global $wpdb;
     </table>
     <?php 
  return ob_get_clean();   
- 
+} else {
+    _e( 'Welcome, visitor!', 'aistore' );
+}
+
 }
 
 function fn_upload_file() {
@@ -517,7 +539,7 @@ function fn_upload_file() {
 // Escrow Details
 
 public static function aistore_escrow_detail( ){
-    
+    if ( is_user_logged_in() ) {
    $eid=$_REQUEST['eid'];
 $user_id= get_current_user_id();
 
@@ -539,26 +561,14 @@ if ( isset($_POST['upload_file']) ) {
             
             global $wpdb;   
 
-$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id) VALUES ( %d,%s,%d)", array( $eid,$image,$user_id) ) );
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
         }
     }
 
 
     ?>
     
-    
-    <div>
-        
-        
-    <form method="post" enctype="multipart/form-data">
-	<label for="documents"> <?php   _e( 'Documents', 'aistore' ); ?> : </label>
-     <input type="file" name="file" required />
-     <input type="submit" name="upload_file" value="Upload" />
-     </form>
-     
-     
-     </div>
-     
+ 
      <?php
 	
 $user_id= get_current_user_id();
@@ -639,6 +649,7 @@ $escrow_fee=(get_option('escrow_accept_fee')/ 100) * $amount;
 
 
 $wallet = new Woo_Wallet_Wallet();
+
 
 
 $wallet->debit($user_id,$escrow_fee,$details);
@@ -746,40 +757,69 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s", $eid)
  
  else
  {
-	  
+	 
 	 
 $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE ( sender_email = '".   $email_id."' or receiver_email = '".   $email_id."' ) and id=%s ",$eid ));
 
  }
-
-     echo "<h1>#". $escrow->id ." ".$escrow->title ."</h1>";
+ ?>
+	  <div>
+	      <?php
+     echo "<h1>#". $escrow->id ." ".$escrow->title ."</h1><br>";
      
      
-  printf(__( "Term Condition : %s.", 'aistore' ),$escrow->term_condition."<br>");
-  printf(__( "Sender:  %s.", 'aistore' ),$escrow->sender_email."<br>");
-  printf(__( "Receiver : %s.", 'aistore' ),$escrow->receiver_email."<br>");
-  printf(__( "Status : %s.", 'aistore' ),$escrow->status."<br>");
+  printf(__( "Term Condition : %s", 'aistore' ),$escrow->term_condition."<br>");
+  printf(__( "Sender:  %s", 'aistore' ),$escrow->sender_email."<br>");
+  printf(__( "Receiver : %s", 'aistore' ),$escrow->receiver_email."<br>");
+  printf(__( "Status : %s", 'aistore' ),$escrow->status."<br><br>");
   
+  
+  
+   $escrow_documents = $wpdb->get_results( 
+$wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $eid) 
+                 );
+
+?> 
+  
+    <table class="table">
+    <?php
+    foreach($escrow_documents as $row):
+     
+    ?> 
+	
+	<div >
+   
 
 
+  <p><a href="<?php echo $row->documents; ?>" target="_blank">
+	       <b><?php echo $row->documents_name ; ?></b></a></p>
+  <h6 > <?php echo $row->created_at; ?></h6>
+</div>
+
+<hr>
     
-	   $escrow_documents = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_documents WHERE  eid=%d ",$eid ));
-	   if($escrow_documents){
-	   ?>
-	   <div>
-	       
-	  <a href="<?php echo $escrow_documents->documents; ?>">
-	      <?php  _e( ' Download Document', 'aistore' ) ?></a>
-	   </div>
-	   <?php
-	   }
-	   
-
+    <?php endforeach;?>
+    </table>
+<br>
+	   <div>  
+        
+    <form method="post" enctype="multipart/form-data">
+	<label for="documents"> <?php   _e( 'Documents', 'aistore' ); ?> : </label>
+     <input type="file" name="file" accept="application/pdf" required />
+     <input type="submit" name="upload_file" value="Upload" />
+     </form>
+    
+     
+     
+     </div>
+     <br>
+<?php
 
 $escrow_system->accept_escrow_btn($escrow);
+?>
 
-
-
+<br>
+<?php
 $escrow_system->cancel_escrow_btn($escrow);
 
 
@@ -792,9 +832,19 @@ $escrow_system->dispute_escrow_btn($escrow);
 
 $escrow_system->escrow_discussion($escrow);
  
+?>
 
+<?php
  return ob_get_clean();  
-	 
+ }
+    else{
+       _e( 'Please SignIn', 'aistore' ) ; 
+    }
+    
+    ?>
+</div>
+<?php
+    
 }
 
 
@@ -828,7 +878,8 @@ $wpdb->query( $wpdb->prepare( " INSERT INTO {$wpdb->prefix}escrow_discussion ( e
 
      
 	 
-
+<div>
+    <br>
 <form method="POST" action="" name="escrow_discussion" enctype="multipart/form-data"> 
 
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
@@ -853,7 +904,8 @@ wp_editor( $content, $editor_id);
 <br><br>
 <input class="input" type="submit" name="submit" value="Submit"/>
 <input type="hidden" name="action" value="escrow_discussion" />
-</form> 
+</form> <br>
+</div>
 <?php
 
   $discussions = $wpdb->get_results( 
@@ -986,7 +1038,7 @@ private function cancel_escrow_btn($escrow)
  <form method="POST" action="" name="cancelled" enctype="multipart/form-data"> 
  
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-  <input type="submit"  name="submit" value="Cancel">
+  <input type="submit"  name="submit" value="Cancel Escrow">
   <input type="hidden" name="action" value="cancelled" />
 </form> <?php  
 

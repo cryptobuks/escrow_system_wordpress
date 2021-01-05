@@ -13,11 +13,18 @@ var fee=document.getElementById('escrow_create_fee').value ;
      
      var total=parseInt(amount) + parseInt(escrow_fee);
    
-    alert("Escrow Fee: "+ escrow_fee);
+    
    
-document.getElementById("escrow_fee").innerHTML = escrow_fee;
-document.getElementById("amount").innerHTML = amount;
-document.getElementById("total").innerHTML = total;
+    
+     
+     
+     
+document.getElementById("escrow_fee").innerHTML =  Intl.NumberFormat().format(escrow_fee);
+document.getElementById("escrow_amount").innerHTML =Intl.NumberFormat().format(amount) ;
+document.getElementById("total").innerHTML =  Intl.NumberFormat().format(total);
+
+ $(".feeblock").removeClass("hide");
+
        });     
  
 });

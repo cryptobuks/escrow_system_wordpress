@@ -19,7 +19,8 @@ add_action( 'plugins_loaded', 'my_plugin_load_plugin_textdomain' );
 
 function my_scripts_method() {
   
-    wp_enqueue_script( 'aistore', plugins_url( '/js/custom.js' , __FILE__ ), array( 'jquery' ) );
+    wp_enqueue_style( 'aistore', plugins_url( '/js/custom.css' , __FILE__ ), array( ) );
+       wp_enqueue_script( 'aistore', plugins_url( '/js/custom.js' , __FILE__ ), array( 'jquery' ) );
 }
 
 
