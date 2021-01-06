@@ -1,50 +1,169 @@
 <?php
 /*
-  Plugin Name: Saksh WP SMTP
-  Version: 4.1.1
+  Plugin Name: Saksh Escrow System
+  Version:  1.0
   Plugin URI: #
   Author: susheelhbti
   Author URI: http://www.aistore2030.com/
-  Description: Integrate wordpress to your mandrill , sendgrid , getresponse, email-marketing247 SMTP Server, Amazon SES or any SMTP Server.
+  Description: Saksh Escrow System is a plateform allow parties to complete safe payments.  
+
+ 
+
+*/
+
+
+
+  add_action( 'init', 'aistore_wpdocs_load_textdomain' );
+/**
+ * Load plugin textdomain.
  */
-
-
-function my_plugin_load_plugin_textdomain() {
-  
-    
-    load_plugin_textdomain( 'aistore', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+ 
+ if (!function_exists('aistore_wpdocs_load_textdomain')) {
+     
+     
+function aistore_wpdocs_load_textdomain() {
+  load_plugin_textdomain( 'aistore', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 }
-add_action( 'plugins_loaded', 'my_plugin_load_plugin_textdomain' );
+
+}
 
 
-function my_scripts_method() {
+  if (!function_exists('aistore_scripts_method')) {
+     
+function aistore_scripts_method() {
   
-    wp_enqueue_style( 'aistore', plugins_url( '/js/custom.css' , __FILE__ ), array( ) );
+    wp_enqueue_style( 'aistore', plugins_url( '/css/custom.css' , __FILE__ ), array( ) );
        wp_enqueue_script( 'aistore', plugins_url( '/js/custom.js' , __FILE__ ), array( 'jquery' ) );
 }
 
+}
 
-add_action( 'wp_enqueue_scripts', 'my_scripts_method' );
 
-  include_once dirname( __FILE__) . '/setting.php';
+add_action( 'wp_enqueue_scripts', 'aistore_scripts_method' );
 
  
  
- 	if ( ! class_exists( 'EscrowSystem' ) ) {
- 	    include_once dirname( __FILE__) . '/EscrowSystem.class.php';
+
+
+
+  if (!function_exists('aistore_isadmin')) {
+      
+      
+ function aistore_isadmin()
+{
+    
+$user = wp_get_current_user();
+ $allowed_roles = array( 'administrator');
+ if (  array_intersect( $allowed_roles, $user->roles ) ) {
+	 return true;
+ }
+	else{
+		
+		return false;
+		
+	}
+}
+
+}
+
+
+ 
+ 	if ( ! class_exists( 'AistoreEscrowSystem' ) ) {
+ 	    include_once dirname( __FILE__) . '/AistoreEscrowSystem.class.php';
+ 	}
+ 	
+ 	
+ 	
+ 	if ( ! class_exists( 'AistoreSettingsPage' ) ) {
+ 	    include_once dirname( __FILE__) . '/AistoreSettingsPage.class.php';
  	}
 
 
  
+ 
+ function aistore_plugin_table_install() {
+    global $wpdb;
+    global $charset_collate;
+    
+    
+   
+    
 
 
-add_shortcode( 'aistore_escrow_system', array( 'EscrowSystem', 'aistore_escrow_system' ) );
 
-add_shortcode( 'aistore_escrow_list', array( 'EscrowSystem', 'aistore_escrow_list' ) );
+  $table_escrow_discussion = "CREATE TABLE  ".$wpdb->prefix."escrow_discussion  (
+  id int(100) NOT NULL  AUTO_INCREMENT,
+  eid int(100) NOT NULL,
+   message  text  NOT NULL,
+   user_login  varchar(100)   NOT NULL,
+  status  varchar(100)   NOT NULL,
+   created_at  timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id)
+) ";
 
-add_shortcode( 'aistore_escrow_detail', array( 'EscrowSystem', 'aistore_escrow_detail' ) );
+
+
+
+ $table_escrow_documents= "CREATE TABLE ".$wpdb->prefix."escrow_documents (
+  id int(100) NOT NULL  AUTO_INCREMENT,
+  eid  int(100) NOT NULL,
+  documents  varchar(100)  NOT NULL,
+   created_at  timestamp NOT NULL DEFAULT current_timestamp(),
+   user_id  int(100) NOT NULL,
+  documents_name  varchar(100)  DEFAULT NULL,
+  PRIMARY KEY (id)
+)  ";
+
+
+ $table_escrow_documents= "CREATE TABLE `".$wpdb->prefix."_escrow_system` (
+  `id` int(100) NOT NULL AUTO_INCREMENT, 
+  `title` varchar(100)   NOT NULL,
+   
+  `amount` int(100) NOT NULL,
+  `receiver_email` varchar(100)  NOT NULL,
+  `sender_email` varchar(100)   NOT NULL,
+  
+  `status` varchar(100)   NOT NULL DEFAULT 'pending',
+  `created_at` timestamp  current_timestamp(),
+   
+   
+  PRIMARY KEY (id)
+)  ";
+
 
  
-add_shortcode( 'escrow_syetem_part2', array( 'EscrowSystem', 'escrow_syetem_part2' ) );
+
+  
+    
+    
+    
+     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+     dbDelta( $table_escrow_discussion );
+     
+        dbDelta( $table_escrow_documents );
+        
+           dbDelta( $table_escrow_documents );
+}
+register_activation_hook(__FILE__,'aistore_plugin_table_install');
+
+
+
+
+
+add_shortcode( 'aistore_escrow_system', array( 'AistoreEscrowSystem', 'aistore_escrow_system' ) );
+
+add_shortcode( 'escrow_system_part2', array( 'AistoreEscrowSystem', 'escrow_system_part2' ) );
+
+add_shortcode( 'aistore_escrow_list', array( 'AistoreEscrowSystem', 'aistore_escrow_list' ) );
+
+add_shortcode( 'aistore_escrow_detail', array( 'AistoreEscrowSystem', 'aistore_escrow_detail' ) );
+
+  
+
+ add_filter('woo_wallet_disallow_negative_transaction', '__return_false');
+ 
+ 
+ 
+  
 
 

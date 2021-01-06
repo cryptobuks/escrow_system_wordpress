@@ -1,122 +1,84 @@
-=== Saksh WP SMTP ===
+=== Saksh Escrow System ===
 Contributors: susheelhbti
-Donate link: http://aistore2030.com/
-Tags: wp smtp,smtp,mail,email,phpmailer,mailer,wp mail,gmail,yahoo,mail smtp,  smtp bot, 
+Donate link: http://www.aistore2030.com/
+Tags: Escrow System 
 License: GPLv2
-Requires at least: 2.7
-Tested up to: 4.9.8
-Stable tag: 1.1.1
-Version : 3.0
+Requires at least:  5.3
+Tested up to: 5.6
+Stable tag: 4.8.0
+Requires PHP: 7.0
+Version : 1.0
 
-Saksh WP SMTP can help us to integrate SMTP to your wordpress installation. So that you don't need to use mail() function.
- 
-
-
-Todo
-
-
-1 send fund description
-
-
+Saksh Escrow System is a plateform allow parties to complete safe payments.  
 
 
 == Description ==
 
-How to run bitcoin full node-
+1   Escrow System
 
-1. Download a bitcoin : https://bitcoincore.org/en/download/
-2. Add Bitcoin Config File : 
+This involve in two steps in first step it ask to provide contract title , 
+escrow amount and email ID of your partner once submit it will take you another page and ask to upload any document and details about the escrow and concerned terms and conditions. In second step user can submit one document but in the escrow details page user can submit many documents.
 
-	paytxfee=0.0005
-	mintxfee=0.0000001
-	txconfirmtarget=1
-	Fallbackfee=0.00001
-	server=1
-	rpcuser=user
-	rpcpassword=password
-	maxconnections=0
-	
-	You change value as per your requiremnet
+After creating escrow it will take user to details page where user can submit more informtion about escrow and documents as much he want. 
+
+When user create escrow it ask to submit the email of partner and when submit email it send email to the partner with details of the escrow and ask user to create account [ or login] and then the partner visit the escrow details page and ACCEPT escrow.
 
 
-3. Run the following command :
- 
-	./bitcoind -regtest -rpcport=8332 -server=1 
-	
-	After this step you will get full node running.
+The partner will have option to ACCEPT/REJECT escrow if accept then the contract will start if not then contract will be cancelled.
+
+In the escrow detail page both partner can upload/download files shared by uploadings. Both partners can also do discussion about the project. It include a wordpress editor so easy to format texts.
+
+2  Dispute Handling:
+
+Some time agreement don't reach either party can start dispute by clicking on a 
+give dispute button. When user start dispute the admin will join and discuss
+with user and try to short out the problems and then can release or cancel the
+payment.
 
 
 
-How to configure wordpress plugins:
+3 File shareing
 
-1. Open a Private Blockchain Settings page and set these fields according to config file.
+Both partners can share document each other they can share pdf/zip files vai simple uploads.
 
-2. If paramerter are correct then connection are established and show a totalblockcount otherwise connettion lost.
+4 Discussion boards
+
+It is provide a complete message board where user can post message and check other message.
 
 
+5 Fee 
 
-How to Mine coin:
-	
-	
-	From the setting page you can download shell script which you need to run from the command line 
-	
-	
+Admin can set fee from both parties and earn money.
 	
 
-
-	
-	
-
-
-
-	
-	
-	
-
-
-Now we added a form using this you can test your SMTP settings
-
+For demo please visit https://escrowsystem.privateielts.com/
  
 
-###Key Features 
+Remember 
 
-£ Set the From Name and Email Address that emails should be sent from.
-£ Set Return Path of your Email or Keep it same as your email address.
-£ Set SMTP Host and Port and Encryption type to be used for sending your emails.
-£ Set to use Authentication or disable Authentication and add SMTP username and password.
+After enableing the plugin you need to create pages with following shortcodes
 
+[aistore_escrow_system]  This will show form for user to create escrow
 
-###Key Usage :
-You can integrate wordpress to your mandrill , sendgrid , getresponse, email-marketing247 SMTP Server, Amazon SES etc.
+[aistore_escrow_list] This will lists all escrow created via user or invited by its partner
 
+[aistore_escrow_detail]  Escrow details page where user do trades.
 
-= Usage =
-
-1. Download and extract   to `wp-content/plugins/`
-2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. "Dashboard"->"Settings"->"Saksh WP SMTP"
-4. There are some examples on the settings page,  
-
+After creating pages please admin and in the form set the pages so that system know which pages is used for which purpose.
 
 
 == Installation ==
 
 1. Download and extract   to `wp-content/plugins/`
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. "Dashboard"->"Settings"->"Saksh WP SMTP"
+3. "Dashboard"->"Settings"->"Saksh Escrow System"
 4. There are some examples on the settings page,  
 
 
 == Changelog ==
 
-= 1.1.0 =
+= 4.8.0 =
  
 
-* First release.
-
-= 2.1.0 =
- 
-
-* Added Test SMTP Details Form.
-
+* First release. 
 
