@@ -77,7 +77,7 @@ After creating pages please admin and in the form set the pages so that system k
 
 == Changelog ==
 
-= 4.8.0 =
+= 1.0.0 =
  
 
 * First release. 

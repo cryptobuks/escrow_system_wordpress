@@ -1,97 +1,83 @@
 <?php
 /*
-  Plugin Name: Saksh Escrow System
-  Version:  1.0
-  Plugin URI: #
-  Author: susheelhbti
-  Author URI: http://www.aistore2030.com/
-  Description: Saksh Escrow System is a plateform allow parties to complete safe payments.  
+Plugin Name: Saksh Escrow System
+Version:  1.0
+Plugin URI: #
+Author: susheelhbti
+Author URI: http://www.aistore2030.com/
+Description: Saksh Escrow System is a plateform allow parties to complete safe payments.  
 
- 
 
 */
 
 
 
-  add_action( 'init', 'aistore_wpdocs_load_textdomain' );
-/**
- * Load plugin textdomain.
- */
- 
- if (!function_exists('aistore_wpdocs_load_textdomain')) {
-     
-     
-function aistore_wpdocs_load_textdomain() {
-  load_plugin_textdomain( 'aistore', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
-}
+add_action('init', 'aistore_wpdocs_load_textdomain');
 
+
+
+function aistore_wpdocs_load_textdomain()
+{
+    load_plugin_textdomain('aistore', FALSE, basename(dirname(__FILE__)) . '/languages/');
 }
 
 
-  if (!function_exists('aistore_scripts_method')) {
-     
-function aistore_scripts_method() {
-  
-    wp_enqueue_style( 'aistore', plugins_url( '/css/custom.css' , __FILE__ ), array( ) );
-       wp_enqueue_script( 'aistore', plugins_url( '/js/custom.js' , __FILE__ ), array( 'jquery' ) );
-}
 
-}
-
-
-add_action( 'wp_enqueue_scripts', 'aistore_scripts_method' );
-
- 
- 
-
-
-
-  if (!function_exists('aistore_isadmin')) {
-      
-      
- function aistore_isadmin()
+function aistore_scripts_method()
 {
     
-$user = wp_get_current_user();
- $allowed_roles = array( 'administrator');
- if (  array_intersect( $allowed_roles, $user->roles ) ) {
-	 return true;
- }
-	else{
-		
-		return false;
-		
-	}
-}
-
+    wp_enqueue_style('aistore', plugins_url('/css/custom.css', __FILE__), array());
+    wp_enqueue_script('aistore', plugins_url('/js/custom.js', __FILE__), array(
+        'jquery'
+    ));
 }
 
 
- 
- 	if ( ! class_exists( 'AistoreEscrowSystem' ) ) {
- 	    include_once dirname( __FILE__) . '/AistoreEscrowSystem.class.php';
- 	}
- 	
- 	
- 	
- 	if ( ! class_exists( 'AistoreSettingsPage' ) ) {
- 	    include_once dirname( __FILE__) . '/AistoreSettingsPage.class.php';
- 	}
 
 
- 
- 
- function aistore_plugin_table_install() {
+add_action('wp_enqueue_scripts', 'aistore_scripts_method');
+
+
+
+
+
+
+
+function aistore_isadmin()
+{
+    
+    $user          = wp_get_current_user();
+    $allowed_roles = array(
+        'administrator'
+    );
+    if (array_intersect($allowed_roles, $user->roles)) {
+        return true;
+    } else {
+        
+        return false;
+        
+    }
+}
+
+
+
+include_once dirname(__FILE__) . '/AistoreEscrowSystem.class.php';
+
+
+include_once dirname(__FILE__) . '/AistoreSettingsPage.class.php';
+
+
+
+
+
+function aistore_plugin_table_install()
+{
     global $wpdb;
-    global $charset_collate;
     
     
-   
     
-
-
-
-  $table_escrow_discussion = "CREATE TABLE  ".$wpdb->prefix."escrow_discussion  (
+    
+    $table_escrow_discussion = "CREATE TABLE  " . $wpdb->prefix . "escrow_discussion  (
   id int(100) NOT NULL  AUTO_INCREMENT,
   eid int(100) NOT NULL,
    message  text  NOT NULL,
@@ -100,11 +86,11 @@ $user = wp_get_current_user();
    created_at  timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id)
 ) ";
-
-
-
-
- $table_escrow_documents= "CREATE TABLE ".$wpdb->prefix."escrow_documents (
+    
+    
+    
+    
+    $table_escrow_documents = "CREATE TABLE " . $wpdb->prefix . "escrow_documents (
   id int(100) NOT NULL  AUTO_INCREMENT,
   eid  int(100) NOT NULL,
   documents  varchar(100)  NOT NULL,
@@ -113,57 +99,57 @@ $user = wp_get_current_user();
   documents_name  varchar(100)  DEFAULT NULL,
   PRIMARY KEY (id)
 )  ";
-
-
- $table_escrow_documents= "CREATE TABLE `".$wpdb->prefix."_escrow_system` (
-  `id` int(100) NOT NULL AUTO_INCREMENT, 
-  `title` varchar(100)   NOT NULL,
-   
-  `amount` int(100) NOT NULL,
-  `receiver_email` varchar(100)  NOT NULL,
-  `sender_email` varchar(100)   NOT NULL,
+    
+    
+    $table_escrow_system = "CREATE TABLE " . $wpdb->prefix . "escrow_system (
+  id int(100) NOT NULL AUTO_INCREMENT, 
+  title varchar(100)   NOT NULL,
+   term_condition text ,
+  amount int(100) NOT NULL,
+  receiver_email varchar(100)  NOT NULL,
+  sender_email varchar(100)   NOT NULL,
   
-  `status` varchar(100)   NOT NULL DEFAULT 'pending',
-  `created_at` timestamp  current_timestamp(),
-   
-   
+  status varchar(100)   NOT NULL DEFAULT 'pending',
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  
+  
   PRIMARY KEY (id)
 )  ";
-
-
- 
-
-  
     
     
     
-     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-     dbDelta( $table_escrow_discussion );
-     
-        dbDelta( $table_escrow_documents );
-        
-           dbDelta( $table_escrow_documents );
+    
+    
+    
+    
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($table_escrow_discussion);
+    
+    dbDelta($table_escrow_system);
+    
+    dbDelta($table_escrow_documents);
 }
-register_activation_hook(__FILE__,'aistore_plugin_table_install');
+register_activation_hook(__FILE__, 'aistore_plugin_table_install');
 
+add_shortcode('aistore_escrow_system', array(
+    'AistoreEscrowSystem',
+    'aistore_escrow_system'
+));
 
+add_shortcode('escrow_system_part2', array(
+    'AistoreEscrowSystem',
+    'escrow_system_part2'
+));
 
+add_shortcode('aistore_escrow_list', array(
+    'AistoreEscrowSystem',
+    'aistore_escrow_list'
+));
 
+add_shortcode('aistore_escrow_detail', array(
+    'AistoreEscrowSystem',
+    'aistore_escrow_detail'
+));
 
-add_shortcode( 'aistore_escrow_system', array( 'AistoreEscrowSystem', 'aistore_escrow_system' ) );
-
-add_shortcode( 'escrow_system_part2', array( 'AistoreEscrowSystem', 'escrow_system_part2' ) );
-
-add_shortcode( 'aistore_escrow_list', array( 'AistoreEscrowSystem', 'aistore_escrow_list' ) );
-
-add_shortcode( 'aistore_escrow_detail', array( 'AistoreEscrowSystem', 'aistore_escrow_detail' ) );
-
-  
-
- add_filter('woo_wallet_disallow_negative_transaction', '__return_false');
- 
- 
- 
-  
-
-
+add_filter('woo_wallet_disallow_negative_transaction', '__return_false'); 

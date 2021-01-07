@@ -15,7 +15,7 @@ class AistoreSettingsPage
      */
     public function __construct()
     {
-        add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
+        add_action( 'admin_menu', array( $this, 'aistore_add_plugin_page' ) );
         add_action( 'admin_init', array( $this, 'aistore_page_register_setting' ) );
         
     
@@ -26,45 +26,48 @@ class AistoreSettingsPage
     /**
      * Add options page
      */
-    public function add_plugin_page()
-    {
-        // This page will be under "Settings"
-        add_options_page(
-            'Settings Admin', 
-            'My Settings', 
-            'administrator', 
-            'my-setting-admin', 
-            array( $this, 'aistore_page_setting' )
-        );
-        
-        
-        
-            
-        add_menu_page('Escrow System', 'Escrow System', 'administrator', 'wallet_list');
-	
- 
- 
-	
-add_submenu_page( 'wallet_list', 'Escrow List', 'Escrow List',
-    'administrator', 'wallet_list', array( $this,'escrow_list'));
-	
-	
-add_submenu_page( 'wallet_list', 'Disputed Escrow List', 'Disputes',
-    'administrator', 'disputed_escrow_list', array( $this,'disputed_escrow_list'));
-	
-	
-	add_submenu_page( 'wallet_list', 'Setting', 'Setting',
-    'administrator', 'aistore_page_setting', array( $this,'aistore_page_setting'));
-	
-	
-    }
+public function aistore_add_plugin_page()
+{
+    // This page will be under "Settings"
+    add_options_page('Settings Admin', 'My Settings', 'administrator', 'my-setting-admin', array(
+        $this,
+        'aistore_page_setting'
+    ));
+    
+    
+    
+    
+    add_menu_page('Escrow System', 'Escrow System', 'administrator', 'wallet_list');
+    
+    
+    
+    
+    add_submenu_page('wallet_list', 'Escrow List', 'Escrow List', 'administrator', 'wallet_list', array(
+        $this,
+        'aistore_escrow_list'
+    ));
+    
+    
+    add_submenu_page('wallet_list', 'Disputed Escrow List', 'Disputes', 'administrator', 'disputed_escrow_list', array(
+        $this,
+        'aistore_disputed_escrow_list'
+    ));
+    
+    
+    add_submenu_page('wallet_list', 'Setting', 'Setting', 'administrator', 'aistore_page_setting', array(
+        $this,
+        'aistore_page_setting'
+    ));
+    
+    
+}
 
     
 
 
 // escrow list
 
-function  escrow_list()
+function  aistore_escrow_list()
 {
 
 
@@ -136,7 +139,7 @@ $page_id=get_option('details_escrow_page_id');
 
 // disputed escrow list
 
-function disputed_escrow_list()
+function aistore_disputed_escrow_list()
 {
 	
 
@@ -446,6 +449,6 @@ function aistore_page_register_setting() {
 
 
 if( is_admin() )
-    $my_settings_page = new AistoreSettingsPage(); 
+    $AistoreSettingsPage = new AistoreSettingsPage(); 
 
 

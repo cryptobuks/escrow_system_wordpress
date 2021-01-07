@@ -195,11 +195,11 @@ if ( ! isset( $_POST['aistore_nonce'] )
 
 $title=sanitize_text_field($_REQUEST['title']);
 $amount=sanitize_text_field($_REQUEST['amount']);
-$receiver_email=sanitize_text_field($_REQUEST['receiver_email']);
+$receiver_email=sanitize_email($_REQUEST['receiver_email']);
+
+ $user_balance=$wallet->get_wallet_balance($user_id,'');
 
 $sender_email = get_the_author_meta( 'user_email', get_current_user_id() );
-$user_balance=$wallet->get_wallet_balance($user_id,'');
-
 
 if($user_balance<$amount){
       _e( 'Insufficent Balance', 'aistore' ); 
@@ -763,8 +763,7 @@ $wallet->credit($user_id,$escrow_amount,$details);
  
  
   if (  aistore_isadmin()) {
- 
-
+  
   $escrow = $wpdb->get_row( 
 $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s", $eid) 
                  );
@@ -773,10 +772,13 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s", $eid)
  
  else
  {
-	
+ 
+	 
+	  
+	 
 	 
 $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE ( sender_email = '".   $email_id."' or receiver_email = '".   $email_id."' ) and id=%s ",$eid ));
- 
+  
  }
  
  
