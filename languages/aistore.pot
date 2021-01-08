@@ -26,6 +26,8 @@ msgid_plural "%s examples"
 msgstr[0] ""
 msgstr[1] ""
 
+
+
 msgid "Thank You"
 msgstr ""
 
@@ -124,3 +126,106 @@ msgstr ""
 
 msgid "Release"
 msgstr ""
+
+msgid "Dispute"
+msgstr ""
+
+msgid "Cancel Escrow"
+msgstr ""
+
+msgid "Accept"
+msgstr ""
+
+msgid "Submit Message"
+msgstr ""
+
+msgid "Upload"
+msgstr ""
+
+msgid "Submit"
+msgstr ""
+
+msgid "All On going escrow"
+msgstr ""
+
+msgid "No Escrow Found"
+msgstr ""
+
+msgid "All disputed escrows"
+msgstr ""
+
+msgid "Escrow Setting"
+msgstr ""
+
+msgid "Create Escrow form"
+msgstr ""
+
+msgid "Escrow Page - 2"
+msgstr ""
+
+msgid "Escrow List page"
+msgstr ""
+
+msgid "Escrow Details Page"
+msgstr ""
+
+msgid "Admin Escrow Setting"
+msgstr ""
+
+msgid "Admin ID"
+msgstr ""
+
+msgid "Create an admin account and set its ID this will be used to hold payments"
+msgstr ""
+
+msgid "Escrow Fee Setting"
+msgstr ""
+
+msgid "Escrow Create Fee"
+msgstr ""
+
+msgid "Escrow Accept Fee"
+msgstr ""
+
+msgid "Escrow Accept Fee"
+msgstr ""
+
+msgid "Successfully  with Escrow id"
+msgstr ""
+
+msgid "Escrow System"
+msgstr ""
+
+msgid "Escrow List"
+msgstr ""
+
+msgid "Disputed Escrow List"
+msgstr ""
+
+msgid "Disputes"
+msgstr ""
+
+msgid "Setting"
+msgstr ""
+
+msgid "My Settings"
+msgstr ""
+
+msgid "Note : We accept only pdf file and
+	You can upload many pdf file then go to next escrow details page."
+msgstr ""
+
+msgid "Payment transaction for the accept escrow with escrow id"
+msgstr ""
+
+msgid "Payment transaction for the release escrow with escrow id"
+msgstr ""
+
+
+msgid "Payment transaction for the cancel escrow with escrow id"
+msgstr ""
+
+
+msgid "Payment transaction for the escrow id"
+msgstr ""
+

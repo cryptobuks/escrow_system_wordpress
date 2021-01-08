@@ -29,7 +29,7 @@ class AistoreSettingsPage
 public function aistore_add_plugin_page()
 {
     // This page will be under "Settings"
-    add_options_page('Settings Admin', 'My Settings', 'administrator', 'my-setting-admin', array(
+    add_options_page('Settings Admin', __( 'My Setting', 'aistore' ), 'administrator', 'my-setting-admin', array(
         $this,
         'aistore_page_setting'
     ));
@@ -37,24 +37,24 @@ public function aistore_add_plugin_page()
     
     
     
-    add_menu_page('Escrow System', 'Escrow System', 'administrator', 'wallet_list');
+    
+    add_menu_page(__( 'Escrow System', 'aistore' ),  __('Escrow System', 'aistore' ), 'administrator', 'wallet_list');
     
     
-    
-    
-    add_submenu_page('wallet_list', 'Escrow List', 'Escrow List', 'administrator', 'wallet_list', array(
+  
+    add_submenu_page('wallet_list', __('Escrow List', 'aistore' ), __('Escrow List', 'aistore' ), 'administrator', 'wallet_list', array(
         $this,
         'aistore_escrow_list'
     ));
     
     
-    add_submenu_page('wallet_list', 'Disputed Escrow List', 'Disputes', 'administrator', 'disputed_escrow_list', array(
+    add_submenu_page('wallet_list', __('Disputed Escrow List','aistore'), __('Disputes','aistore'), 'administrator', 'disputed_escrow_list', array(
         $this,
         'aistore_disputed_escrow_list'
     ));
     
     
-    add_submenu_page('wallet_list', 'Setting', 'Setting', 'administrator', 'aistore_page_setting', array(
+    add_submenu_page('wallet_list', __('Setting','aistore'), __('Setting','aistore'), 'administrator', 'aistore_page_setting', array(
         $this,
         'aistore_page_setting'
     ));
@@ -382,7 +382,7 @@ function aistore_page_register_setting() {
 		  
 		   
         $blogusers = get_users( [ 'role__in' => [ 'administrator' ] ] );
-// Array of WP_User objects.
+
 
                     foreach($blogusers as $user){ 
                         
@@ -401,7 +401,7 @@ function aistore_page_register_setting() {
 	 } ?> 
  
 </select>
-<p>Create an admin account and set its ID this will be used to hold payments</p>
+<p><?php  _e( 'Create an admin account and set its ID this will be used to hold payments', 'aistore' ) ?></p>
 </td>
         </tr>  
         

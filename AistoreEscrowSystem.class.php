@@ -34,7 +34,7 @@ if ( ! isset( $_POST['aistore_nonce'] )
     
     $eid=sanitize_text_field($_REQUEST['eid']);
     $user_id=get_current_user_id();
-   // echo $eid;
+  
     $term_condition=sanitize_text_field(htmlentities($_REQUEST['term_condition']));
     
     global $wpdb; 
@@ -139,11 +139,11 @@ wp_editor( $content, $editor_id,$settings);
 ?><br>
 	<label for="documents"><?php  _e( 'Documents', 'aistore' ) ?>: </label>
      <input type="file" name="file" accept="application/pdf" required /><br>
-     <div><p>Note : We accept only pdf file and
-	You can upload many pdf file then go to next escrow details page.</p></div>
+     <div><p> <?php  _e( 'Note : We accept only pdf file and
+	You can upload many pdf file then go to next escrow details page.', 'aistore' ) ?></p></div>
 <div><a href="<?php echo esc_html($details_escrow_page_url) ; ?>" >
 <br><br>
-<input class="input" type="submit" name="submit" value="Submit"/>
+<input class="input" type="submit" name="submit" value="<?php  _e( 'Submit', 'aistore' ) ?>"/>
 <input type="hidden" name="action" value="create_escrow_page_2" />
     </form>
     
@@ -165,6 +165,7 @@ wp_editor( $content, $editor_id,$settings);
       
 public static function aistore_escrow_system()
 { 
+   
  
       ?>
   <div>
@@ -226,8 +227,9 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title,
 
 $eid = $wpdb->insert_id;
 
+$Payment_details = __( 'Payment transaction for the escrow id', 'aistore' );
 
- $details="Payment transaction for the escrow ".$eid ; 
+ $details=$Payment_details.$eid ; 
  
  
 $wallet->debit($user_id,$amount,$details);
@@ -241,7 +243,6 @@ $txid=$wallet->credit(get_option('escrow_user_id'),$new_amount,$details);
 ), home_url() ) );
 
 
-//echo $create_escrow_page_2_url;
 // email to sender 
 
 
@@ -290,7 +291,7 @@ $subject =$details;
   
   $headers = array('Content-Type: text/html; charset=UTF-8');
      wp_mail( $to, $subject, $body, $headers );
-//echo $create_escrow_page_2_url;
+
 ?>
 
 
@@ -371,7 +372,7 @@ else{
 
 <br><br>
 <input 
- type="submit" class="btn" name="submit" value="Submit"/>
+ type="submit" class="btn" name="submit" value="<?php  _e( 'Submit', 'aistore' ) ?>"/>
 <input type="hidden" name="action" value="escrow_system" />
 </form> 
 <?php
@@ -656,8 +657,11 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
 
 $amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
 
+$Payment_details = __( 'Payment transaction for the accept escrow with escrow id', 'aistore' );
 
-  $details= "Payment transaction for the accept escrow with escrow id ".$eid;
+ $details=$Payment_details.$eid ; 
+ 
+ 
 
 $escrow_fee=(get_option('escrow_accept_fee')/ 100) * $amount;
 
@@ -701,9 +705,11 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
 
 $id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_email  = %s", $escrow_reciever_email_id ) );
 
-//echo $id;
+$Payment_details = __( 'Payment transaction for the release escrow with escrow id', 'aistore' );
 
- $details= "Payment transaction for the release escrow with escrow id ".$eid;
+ $details=$Payment_details.$eid ; 
+
+
  
 $wallet = new Woo_Wallet_Wallet();
 $wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
@@ -736,8 +742,10 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
 $escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
  
 
-  $details= "Payment transaction for the cancel escrow with escrow id ".$eid;
+ 
+$Payment_details = __( 'Payment transaction for the cancel escrow with escrow id', 'aistore' );
 
+ $details=$Payment_details.$eid ; 
 
 
 $wallet = new Woo_Wallet_Wallet();
@@ -758,9 +766,6 @@ $wallet->credit($user_id,$escrow_amount,$details);
 
 
 
-
-////
- 
  
   if (  aistore_isadmin()) {
   
@@ -866,7 +871,7 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $ei
     <form method="post" enctype="multipart/form-data">
 	<label for="documents"> <?php   _e( 'Documents', 'aistore' ); ?> : </label>
      <input type="file" name="file" accept="application/pdf" required />
-     <input type="submit" name="upload_file" value="Upload" />
+     <input type="submit" name="upload_file" value="<?php  _e( 'Upload', 'aistore' ) ?>" />
      </form>
     
      
@@ -892,7 +897,7 @@ if(isset($_POST['submit']) and $_POST['action']=='escrow_discussion')
 if ( ! isset( $_POST['aistore_nonce'] ) 
     || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
 ) {
-   return   _e( ' Sorry, your nonce did not verify.', 'aistore' ) ;
+   return   _e( 'Sorry, your nonce did not verify.', 'aistore' ) ;
 } 
 
 
@@ -943,7 +948,7 @@ wp_editor( $content, $editor_id,   $settings);
 ?>
 
  
-<input class="input btn btn-small" type="submit" name="submit" value="Submit Message"/>
+<input class="input btn btn-small" type="submit" name="submit" value="<?php  _e( 'Submit Message', 'aistore' ) ?>"/>
 <input type="hidden" name="action" value="escrow_discussion" />
 </form> 
 </div>
@@ -1032,7 +1037,7 @@ else
  <form method="POST" action="" name="accepted" enctype="multipart/form-data"> 
  
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-  <input type="submit"  name="submit" value="Accept">
+  <input type="submit"  name="submit" value="<?php  _e( 'Accept', 'aistore' ) ?>">
   <input type="hidden" name="action" value="accepted" />
 </form> <?php } 
 
@@ -1081,7 +1086,7 @@ else
  <form method="POST" action="" name="cancelled" enctype="multipart/form-data"> 
  
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-  <input type="submit"  name="submit" value="Cancel Escrow">
+  <input type="submit"  name="submit" value="<?php  _e( 'Cancel Escrow', 'aistore' ) ?>">
   <input type="hidden" name="action" value="cancelled" />
 </form> <?php  
 
@@ -1139,7 +1144,7 @@ else
  <form method="POST" action="" name="released" enctype="multipart/form-data"> 
  
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-  <input type="submit"  name="submit" value="Release">
+  <input type="submit"  name="submit" value="<?php  _e( 'Release', 'aistore' ) ?>">
   <input type="hidden" name="action" value="released" />
 </form> <?php 
 
@@ -1187,7 +1192,7 @@ else
  <form method="POST" action="" name="disputed" enctype="multipart/form-data"> 
  
 <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-  <input type="submit"  name="submit" value="Dispute">
+  <input type="submit"  name="submit" value="<?php  _e( 'Dispute', 'aistore' ) ?>">
   <input type="hidden" name="action" value="disputed" />
 </form> <?php  }
 
