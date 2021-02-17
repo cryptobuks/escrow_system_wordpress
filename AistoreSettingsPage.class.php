@@ -223,6 +223,7 @@ function aistore_page_register_setting() {
 	
 	register_setting( 'aistore_page', 'escrow_create_fee' );
 	register_setting( 'aistore_page', 'escrow_accept_fee' );
+	register_setting( 'aistore_page', 'escrow_message_page' );
 
 }
 
@@ -237,7 +238,21 @@ function aistore_page_register_setting() {
 	  
 <h3><?php  _e( 'Escrow Setting', 'aistore' ) ?></h3>
  
-	                      
+	                     
+<p><?php  _e( 'Step 1', 'aistore' ) ?></p>
+
+
+<p><?php  _e( 'Install required plugin WooCommerce link https://wordpress.org/plugins/woocommerce/ and tera-wallet link https://wordpress.org/plugins/woo-wallet/ and activate as per their setup process. ', 'aistore' ) ?></p>
+
+<hr />
+
+  
+<p><?php  _e( 'Step 2', 'aistore' ) ?></p>
+
+
+<p><?php  _e( 'Create 4 pages with short codes and select here  ', 'aistore' ) ?></p>
+
+
 <form method="post" action="options.php">
     <?php settings_fields( 'aistore_page' ); ?>
     <?php do_settings_sections( 'aistore_page' ); ?>
@@ -268,7 +283,12 @@ function aistore_page_register_setting() {
 	 } ?> 
 	 
 	 
-</select></td>
+</select>
+
+
+<p>Create a page add this shortcode <strong> [aistore_escrow_system] </strong> and then select that page here. </p>
+
+</td>
         </tr>  
          <tr valign="top">
         <th scope="row"><?php  _e( 'Escrow Page - 2', 'aistore' ) ?></th>
@@ -299,7 +319,14 @@ function aistore_page_register_setting() {
 					  
 					
  
-</select></td>
+</select>
+
+
+
+<p>Create a page add this shortcode <strong> [escrow_system_part2] </strong> and then select that page here. </p>
+
+
+</td>
         </tr> 
         	
 	
@@ -329,7 +356,14 @@ function aistore_page_register_setting() {
 		   
 		   
 		   
-</select></td>
+</select>
+
+
+
+<p>Create a page add this shortcode <strong> [aistore_escrow_list] </strong> and then select that page here. </p>
+
+
+</td>
         </tr>  
 		
 		
@@ -362,11 +396,25 @@ function aistore_page_register_setting() {
 					  
 					
  
-</select></td>
+</select>
+
+
+
+<p>Create a page add this shortcode <strong> [aistore_escrow_detail] </strong> and then select that page here. </p>
+
+
+
+
+</td>
         </tr>  </table>
         
         	<hr/>
         	
+<p><?php  _e( 'Step 3', 'aistore' ) ?></p>
+
+
+<p><?php  _e( 'Create an admin account and set its ID this will be used to hold payments ', 'aistore' ) ?></p>
+
         	
         <table class="form-table">
         
@@ -399,9 +447,28 @@ function aistore_page_register_setting() {
 
 		}  
 	 } ?> 
- 
+  </tr>  
 </select>
-<p><?php  _e( 'Create an admin account and set its ID this will be used to hold payments', 'aistore' ) ?></p>
+
+<p><?php  _e( 'Add an user with admin roll and then select its ID here', 'aistore' ) ?></p>
+ <tr valign="top">
+ <th scope="row"><?php  _e( 'Chat system public people show or not', 'aistore' ) ?></th>
+        <td>
+            <?php $msg_value=get_option('escrow_message_page');?>
+            
+            <select name="escrow_message_page" id="escrow_message_page">
+               
+            <option selected value="yes" <?php selected(
+                $msg_value,
+                'yes'
+            ); ?>>Yes</option>
+            <option value="no" <?php selected(
+                $msg_value,
+                'no'
+            ); ?>>No</option>
+  
+</select>
+	
 </td>
         </tr>  
         
@@ -412,20 +479,26 @@ function aistore_page_register_setting() {
     
     
     	<hr/>
+        	 
         	
-        	
+<p><?php  _e( 'Step 4', 'aistore' ) ?></p>
+
+
+<p><?php  _e( 'Set fee here for the profits percentage ', 'aistore' ) ?></p>
+
+
         <table class="form-table">
         
         <h3><?php  _e( 'Escrow Fee Setting', 'aistore' ) ?></h3>
         
 	 <tr valign="top">
         <th scope="row"><?php  _e( 'Escrow Create Fee', 'aistore' ) ?></th>
-        <td><input type="number" name="escrow_create_fee" value="<?php echo esc_attr( get_option('escrow_create_fee') ); ?>" /></td>
+        <td><input type="number" name="escrow_create_fee" value="<?php echo esc_attr( get_option('escrow_create_fee') ); ?>" />%</td>
         </tr>
         
       <tr valign="top">
         <th scope="row"><?php  _e( 'Escrow Accept Fee', 'aistore' ) ?></th>
-        <td><input type="number" name="escrow_accept_fee" value="<?php echo esc_attr( get_option('escrow_accept_fee') ); ?>" /></td>
+        <td><input type="number" name="escrow_accept_fee" value="<?php echo esc_attr( get_option('escrow_accept_fee') ); ?>" />%</td>
         </tr>
         
        

@@ -9,7 +9,7 @@ Stable tag: 4.8.0
 Requires PHP: 7.0
 Version : 1.0
 
-Saksh Escrow System is a plateform allow parties to complete safe payments.  
+Saksh Escrow System is a plateform allow parties to complete safe payments. Make sure you install Woocommerce and TeraWallet  also. 
 
 
 == Description ==
@@ -59,6 +59,10 @@ Remember
 After enableing the plugin you need to create pages with following shortcodes
 
 [aistore_escrow_system]  This will show form for user to create escrow
+ 
+
+
+[escrow_system_part2]  This will show form for user to create escrow form step 2
 
 [aistore_escrow_list] This will lists all escrow created via user or invited by its partner
 
