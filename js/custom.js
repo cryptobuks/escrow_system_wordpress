@@ -1,7 +1,7 @@
 
 
 jQuery(document).ready(function ($) {
-	"use strict";
+ 
 
 	$('#amount').change(function () {
 
@@ -20,6 +20,78 @@ jQuery(document).ready(function ($) {
 		$(".feeblock").removeClass("hide");
 
 	});
+	
+
 
 });
 
+ 
+jQuery(document).ready(function($) {
+    
+
+
+		var escrow_id = document.getElementById('escrow_id').value;
+
+   var $form = $(this);
+	  $.ajax({
+        type: "GET",
+     url : ajaxurl,
+            data :{action: "escrow_discussion",  id :escrow_id},
+        success: function(data){
+          
+
+            	document.getElementById("feedback").innerHTML = data;
+
+        }
+    });
+      	
+ 
+	$('.wordpress-ajax-form').on('submit', function(e) {
+		e.preventDefault();
+ 
+		var $form = $(this);
+	
+		$.post($form.attr('action'), $form.serialize()+
+        '&my_nonce=' + 'aistore_nonce' +
+        '&action=custom_action', function(data) {
+			alert('This is data returned from the server ' + data);
+		}, 'json');
+		
+		
+	 
+
+	var escrow_id = document.getElementById('escrow_id').value;
+		  $.ajax({
+        type: "GET",
+     url : ajaxurl,
+            data : {action: "escrow_discussion",  id :escrow_id},
+        success: function(data){
+          
+          
+            	document.getElementById("feedback").innerHTML = data;
+
+        }
+    });
+    
+
+		
+	});
+ 
+});
+
+
+
+
+
+
+
+
+jQuery('#newCustomerForm').submit(ajaxSubmit);
+
+function ajaxSubmit() {
+    var newCustomerForm = jQuery(this).serialize();
+
+  
+
+    return false;
+}

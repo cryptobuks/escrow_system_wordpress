@@ -1,0 +1,24 @@
+[01-Mar-2021 05:34:51 America/New_York] PHP Fatal error:  Uncaught Error: Call to undefined function admin_url() in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php:36
+Stack trace:
+#0 {main}
+  thrown in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php on line 36
+[01-Mar-2021 05:35:02 America/New_York] PHP Fatal error:  Uncaught Error: Call to undefined function admin_url() in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php:36
+Stack trace:
+#0 {main}
+  thrown in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php on line 36
+[01-Mar-2021 05:35:41 America/New_York] PHP Fatal error:  Uncaught Error: Call to undefined function admin_url() in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php:37
+Stack trace:
+#0 {main}
+  thrown in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php on line 37
+[01-Mar-2021 05:35:53 America/New_York] PHP Fatal error:  Uncaught Error: Call to undefined function admin_url() in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php:37
+Stack trace:
+#0 {main}
+  thrown in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php on line 37
+[01-Mar-2021 05:36:39 America/New_York] PHP Fatal error:  Uncaught Error: Call to undefined function admin_url() in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php:37
+Stack trace:
+#0 {main}
+  thrown in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php on line 37
+[01-Mar-2021 05:36:51 America/New_York] PHP Fatal error:  Uncaught Error: Call to undefined function admin_url() in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php:37
+Stack trace:
+#0 {main}
+  thrown in /home/aiineujo/escrowsystem.sakshdemo.xyz/wp-content/plugins/saksh-escrow-system/js/custom.php on line 37

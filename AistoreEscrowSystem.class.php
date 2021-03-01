@@ -5,7 +5,6 @@
 
 
 
-
 class AistoreEscrowSystem {
     
     
@@ -1050,45 +1049,21 @@ private	function escrow_discussion($escrow){
       return "";
        
   }
-      
-      
-      
-      
-	
-  
-        
-        
+   
     
 	$user_login = get_the_author_meta( 'user_login', get_current_user_id() );
 
-	 global $wpdb;
-if(isset($_POST['submit']) and $_POST['action']=='escrow_discussion')
-{
 
-if ( ! isset( $_POST['aistore_nonce'] ) 
-    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
-) {
-   return   _e( 'Sorry, your nonce did not verify.', 'aistore' ) ;
-} 
-
-
-$message=sanitize_text_field(htmlentities($_REQUEST['message']));
-  
-$wpdb->query( $wpdb->prepare( " INSERT INTO {$wpdb->prefix}escrow_discussion ( eid, message, user_login ) VALUES ( %d, %s, %s ) ", array( $escrow->id, $message, $user_login ) ) );
-
-} 
-	  ob_start();
 ?>
 
      
 	 
 <div>
     <br>
-<form method="POST" action="" name="escrow_discussion" enctype="multipart/form-data"> 
-
-<?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-
- 
+<form class="wordpress-ajax-form" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>"  >
+<?php 
+wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' );
+?>
    <label for="message">   <?php  _e( 'Message', 'aistore' ) ?></label><br>
 
 
@@ -1117,43 +1092,19 @@ $editor_id = 'message';
 wp_editor( $content, $editor_id,   $settings);
  
 ?>
-
- 
-<input class="input btn btn-small" type="submit" name="submit" value="<?php  _e( 'Submit Message', 'aistore' ) ?>"/>
-<input type="hidden" name="action" value="escrow_discussion" />
+<input type="hidden" name="action" value="custom_action" />
+ <input type="hidden" name="escrow_id"  id="escrow_id" value="<?php echo $escrow->id; ?>" />
+<input class="input btn btn-small" type="submit" name="submit" value="<?php _e('Submit Message', 'aistore') ?>"/>
 </form> 
 </div>
+<div id="feedback"></div>
 <?php
 
-  $discussions = $wpdb->get_results( 
-$wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion WHERE eid=%s order by id desc", $escrow->id) 
-                 );
 
-?> 
-  
-    <table class="table">
-    <?php
-    foreach($discussions as $row):
-     
-    ?> 
-	
-	<div >
-   
-  <p><?php echo html_entity_decode($row->message ); ?></p>
-  
-  <br /><br />
-  <b><?php echo $row->user_login ; ?> </b>
-  <h6 > <?php echo $row->created_at ; ?></h6>
-</div>
- 
-<hr>
-    
-    <?php endforeach;?>
-    </table>
+
+    ?>
 	
 	<?php
-	
- 
 
 }
 
@@ -1366,17 +1317,83 @@ else
   <input type="hidden" name="action" value="disputed" />
 </form> <?php  }
 
+}
+
+
+ add_action( 'wp_ajax_custom_action', 'aistore_chat_box' );
+
+
+function aistore_chat_box() {
+    
+  
+
+	 global $wpdb;
+
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+  return   _e( 'Sorry, your nonce did not verify.', 'aistore' ) ;
+} 
+
+
+$message=sanitize_text_field(htmlentities($_POST['message']));
+  $escrow_id=sanitize_text_field($_POST['escrow_id']);
+  
+
+    $user_login = get_the_author_meta('user_login', get_current_user_id());
+        
 
 
 
 
 
+   $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_discussion ( eid, message, user_login ) VALUES ( %d, %s, %s ) ", array($escrow_id, $message, $user_login)));
+
+   
+
+  wp_die();
 
 
 
 }
 
 
+
+ add_action( 'wp_ajax_escrow_discussion', 'aistore_escrow_discussion' );
+
+   function aistore_escrow_discussion( ) {
+        
+    
+   global  $wpdb;
+$id=sanitize_text_field($_REQUEST['id']);
+
+$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
+
+      $discussions = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion ed , {$wpdb->prefix}escrow_system es WHERE ed.eid= es.id and ed.eid=%s and (es.sender_email=%s or es.receiver_email=%s ) order by ed.id desc", $id,$user_email,$user_email));
+      
+
+        foreach ($discussions as $row):
+            
+?> 
+	
+	<div >
+   
+  <p><?php echo html_entity_decode($row->message); ?></p>
+  
+  <br /><br />
+  <b><?php echo $row->user_login; ?> </b>
+  <h6 > <?php echo $row->created_at; ?></h6>
+</div>
+ 
+<hr>
+    
+    <?php
+        endforeach;   
+        
+       
+    }
+    
+    
 
 
 ?>

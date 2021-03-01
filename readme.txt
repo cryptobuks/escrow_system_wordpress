@@ -51,7 +51,7 @@ It is provide a complete message board where user can post message and check oth
 Admin can set fee from both parties and earn money.
 	
 
-For demo please visit https://escrowsystem.privateielts.com/
+For demo please visit https://escrowsystem.sakshdemo.xyz/
  
 
 Remember 
