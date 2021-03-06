@@ -25,9 +25,29 @@ jQuery(document).ready(function ($) {
 
 });
 
+
+jQuery(document).ready(function($) {
+    
+	$('.dropzone').on('submit', function(e) {
+	    alert("upload files");
+		e.preventDefault();
+		var $form = $(this);
+	
+		$.post($form.attr('action'), $form.serialize(), function(data) {
+			alert('This is data returned from the server ' + data);
+		}, 'json');
+				
+	});
+		
+ 
+		
+});
  
 jQuery(document).ready(function($) {
     
+//alert("hello");
+
+
 
 
 		var escrow_id = document.getElementById('escrow_id').value;
@@ -48,7 +68,7 @@ jQuery(document).ready(function($) {
  
 	$('.wordpress-ajax-form').on('submit', function(e) {
 		e.preventDefault();
- 
+  // alert("hello");
 		var $form = $(this);
 	
 		$.post($form.attr('action'), $form.serialize()+
@@ -61,6 +81,7 @@ jQuery(document).ready(function($) {
 	 
 
 	var escrow_id = document.getElementById('escrow_id').value;
+	alert("Your Escrow id is ::"+escrow_id);
 		  $.ajax({
         type: "GET",
      url : ajaxurl,

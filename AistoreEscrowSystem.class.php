@@ -1,5 +1,7 @@
 <?php
-
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
 
 
@@ -97,12 +99,12 @@ $subject =$details;
 ), home_url() ) );
 
 
- $body="Dear sir, <br>
+ $body="Hello, <br>
  
-     <h2>Your partner ".$receiver_email." have invited successfully for the escrow ".$eid." </h2><br> Below is complete detail of the escrow <br/>
-     Invited to : ".$receiver_email.
+     <h2>Your partner ".$receiver_email." have invited successfully for the escrow ID ".$eid." </h2><br> Below is complete detail of the escrow <br/>
+     Invited to: ".$receiver_email.
      
-     "<br>Escrow ID is:".$eid.
+     "<br>Escrow ID is: ".$eid.
      "<br>Accept Escrow system to :<br>".
          $details_escrow_page_id_url ;
     
@@ -123,7 +125,7 @@ $subject =$details;
 
 
 
- $body="Dear sir, <br>
+ $body="Hello, <br>
      <h2>Your partner ".$sender_email." have invited you for the escrow ".$eid." </h2><br> Below is complete detail of the escrow <br/>
      Invited by : ".$sender_email.
      
@@ -152,12 +154,22 @@ $subject =$details;
  
     public static function escrow_system_part2()
 {
+    if(!sanitize_text_field($_REQUEST['eid'])){
     
+    	 $add_escrow_page_url  =  esc_url( add_query_arg( array(
+    'page_id' => get_option('add_escrow_page_id') ,
+	'eid'=> $eid,
+), home_url() ) );
+
+    ?>
     
-      ?>
-  <div>
-      
-      <?php
+   
+<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($add_escrow_page_url) ; ?>" /> 
+  
+ <?php   }
+ 
+ echo " <div>";
+
     if(isset($_POST['submit']) and $_POST['action']=='create_escrow_page_2' )
 {
 
@@ -219,21 +231,21 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid
 
 __( 'Successfully  with Escrow id %d.', 'aistore' ),
 $eid
-); ?>
-</div>
-<br>
+); 
 
-<?php
+
+
+ echo " </div><br>";
+ 
+ 
+ 
 } 
 
     else{
-    ?>
-    
-    <?php  $eid=sanitize_text_field($_REQUEST['eid']);?>
+   
+     $eid=sanitize_text_field($_REQUEST['eid']);?>
     <div class="alert alert-success" role="alert">
- <?php printf(
-
-__( 'Successfully send payment with Escrow id %d.', 'aistore' ),
+ <?php printf(__( 'Successfully send payment with Escrow id %d.', 'aistore' ),
 $eid
 ); ?>
 </div>
@@ -290,9 +302,8 @@ wp_editor( $content, $editor_id,$settings);
     } 
     
     
-    ?>
-    </div>
-    <?php
+  
+ echo " </div>";
     }
     
     
@@ -305,16 +316,16 @@ public static function aistore_escrow_system()
 { 
    
  
-      ?>
-  <div>
-      
-      <?php
+
       
 if ( !is_user_logged_in() ) {
-    return "Kindly login and then visit this page";
+    return "<div class='no-login'>Kindly login and then visit this page </div>";
 }
 
-
+  
+ echo " <div>";
+      
+  
 
 $wallet = new Woo_Wallet_Wallet();
 $user_id=get_current_user_id();
@@ -394,7 +405,7 @@ $subject =$details;
 ), home_url() ) );
 
 
- $body="Dear sir, <br>
+ $body="Hello, <br>
  
      <h2>Your partner ".$receiver_email." have invited successfully for the escrow ".$eid." </h2><br> Below is complete detail of the escrow <br/>
      Invited to : ".$receiver_email.
@@ -420,15 +431,15 @@ $subject =$details;
 
 
 
- $body="Dear sir, <br>
+ $body="Hello, <br>
      <h2>Your partner ".$sender_email." have invited you for the escrow ".$eid." </h2><br> Below is complete detail of the escrow <br/>
      Invited by : ".$sender_email.
      
-     "<br>Escrow ID is:".$eid.
-     "<br>Accept Escrow system to :<br>".
+     "<br>Escrow ID is : ".$eid.
+     "<br>Accept Escrow system to : <br>".
          $details_escrow_page_id_url ;
     
-  $body  .="<br /> If you are not registered in the portal kindly visit my account page and register.";
+  $body  .="<br /> <strong>If you are not registered in the portal kindly visit my account page and register.</strong>";
   
   $headers = array('Content-Type: text/html; charset=UTF-8');
      wp_mail( $to, $subject, $body, $headers );
@@ -490,6 +501,8 @@ else{
  $deposit_link= get_home_url()."/my-account/woo-wallet/";
  
  
+ // issue 3
+ 
  
   ?><p>  <?php   _e('In case you have low balance please deposit balance ', 'aistore' );
   ?>
@@ -499,16 +512,15 @@ else{
     </a> </p>
  <div class="feeblock hide" >
       <?php   _e( 'Amount', 'aistore' ); ?> :
-      <b id="escrow_amount"></b>/-  &#8377;<br>
+      <b id="escrow_amount"></b>/-  <?php echo get_woocommerce_currency_symbol(); ?><br>
  
   <?php   _e('Escrow Fee', 'aistore' ); ?>
   
-  :  <b id="escrow_fee" ></b>/-  &#8377;  (<?php echo get_option('escrow_create_fee');?> %)<br>
+  :  <b id="escrow_fee" ></b>/- <?php echo get_woocommerce_currency_symbol(); ?>  (<?php echo get_option('escrow_create_fee');?> %)<br>
   
     
      
-   <?php   _e('Total  Amount', 'aistore' ); ?> :   
-  :  <b id="total"></b>/-  &#8377;
+   <?php   _e('Total Amount', 'aistore' ); ?> :   <b id="total"></b>/- <?php echo get_woocommerce_currency_symbol(); ?>
   
   
   </div>
@@ -523,7 +535,7 @@ else{
 
 <br><br>
 <input 
- type="submit" class="btn" name="submit" value="<?php  _e( 'Submit', 'aistore' ) ?>"/>
+ type="submit" class="btn" name="submit" value="<?php  _e( 'Create Escrow', 'aistore' ) ?>"/>
 <input type="hidden" name="action" value="escrow_system" />
 </form> 
 <?php
@@ -562,11 +574,14 @@ global $wpdb;
 ?>
 <h3><u><?php   _e( 'Top 100 Out Going Escrow', 'aistore' ); ?></u> </h3>
 <?php 
+
+ 
  if($results==null)
 	{
-	    
+	      echo "<div class='no-result'>";
+	      
 	     _e( 'Escrow List Not Found', 'aistore' ); 
-	
+	  echo "</div>";
 	}
 	else{
    
@@ -612,7 +627,7 @@ global $wpdb;
 
 		   <?php echo $row->id ; ?> </a> </td>
   <td> 		   <?php echo $row->title ; ?> </td>
-		  	   <td> 		   <?php echo $row->amount ; ?>&#8377; </td>
+		  	   <td> 		   <?php echo $row->amount .  get_woocommerce_currency_symbol();?>  </td>
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
 		    <td> 		   <?php echo $row->status ; ?> </td>
@@ -638,7 +653,9 @@ global $wpdb;
 
     if($results==null)
 	{
-	    _e( 'Escrow List Not Found', 'aistore' );
+	     echo "<div class='no-result'>";
+	  _e( 'Escrow List Not Found', 'aistore' );
+	    echo "/<div>";
 	
 	}
 	else{
@@ -671,6 +688,8 @@ global $wpdb;
     'eid' => $row->id,
 ), home_url() ) ); 
 
+
+// issue 2
     ?> 
       <tr>
            
@@ -678,15 +697,18 @@ global $wpdb;
 		   <td> 	<a href="<?php echo $details_escrow_page_url; ?>" >
 		   <?php echo $row->id ; ?> </a> </td>
 		   <td> 		   <?php echo $row->title ; ?> </td>
-		   <td> 		   <?php echo $row->amount ; ?>&#8377; </td>
+		   
+		   
+		   <td> 		   <?php echo $row->amount  .  get_woocommerce_currency_symbol(); ?>  </td>
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
 		     <td> 		   <?php echo $row->status ; ?> </td>
 		  
     </tr>
-    <?php endforeach;
-	
-	}?>
+    <?php endforeach; }
+    
+    
+    ?>
 
 
 
@@ -706,7 +728,19 @@ public static function aistore_escrow_detail( ){
     if ( !is_user_logged_in() ) {
     return ;
 }
+   if(!sanitize_text_field($_REQUEST['eid'])){
+    
+    	 $add_escrow_page_url  =  esc_url( add_query_arg( array(
+    'page_id' => get_option('add_escrow_page_id') ,
+	'eid'=> $eid,
+), home_url() ) );
 
+    ?>
+    
+   
+<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($add_escrow_page_url) ; ?>" /> 
+  
+ <?php   }
    $eid=sanitize_text_field($_REQUEST['eid']);
    
    
@@ -912,11 +946,7 @@ $wallet->credit($user_id,$escrow_amount,$details);
 }
  
 
-
-
-
-
-
+ 
  
   if (  aistore_isadmin()) {
   
@@ -947,7 +977,7 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_sy
      
      
   printf(__( "Term Condition : %s", 'aistore' ),html_entity_decode($escrow->term_condition)."<br>");
-  printf(__( "Sender:  %s", 'aistore' ),$escrow->sender_email."<br>");
+  printf(__( "Sender :  %s", 'aistore' ),$escrow->sender_email."<br>");
   printf(__( "Receiver : %s", 'aistore' ),$escrow->receiver_email."<br>");
   printf(__( "Status : %s", 'aistore' ),$escrow->status."<br><br>");
   
@@ -993,8 +1023,7 @@ $eid=  $escrow->id;
  
   global $wpdb;
    $escrow_documents = $wpdb->get_results( 
-$wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $eid) 
-                 );
+$wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $eid)  );
  
   
 ?> 
@@ -1005,7 +1034,7 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $ei
      
     ?> 
 	
-	<div >
+	<div class="document_list">
    
 
 
@@ -1016,18 +1045,38 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $ei
 
 <hr>
     
-    <?php endforeach;?>
+    <?php endforeach;
+    
+    
+    ?>
     </table>
 <br>
 	   <div>  
-        
-    <form method="post" enctype="multipart/form-data">
-	<label for="documents"> <?php   _e( 'Documents', 'aistore' ); ?> : </label>
-     <input type="file" name="file" accept="application/pdf" required />
-     <input type="submit" name="upload_file" value="<?php  _e( 'Upload', 'aistore' ) ?>" />
-     </form>
     
-     
+
+  <link  rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css">
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+
+	<label for="documents"> <?php   _e( 'Documents', 'aistore' ); ?> : </label>
+<form  method="post"  action="<?php echo admin_url('admin-ajax.php').'?action=custom_action&eid='.$eid; ?>" class="dropzone" id="dropzone">
+    <?php 
+wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' );
+?>
+  <div class="fallback">
+    <input id="file" name="file" type="file" multiple  />
+    <input type="hidden" name="action" value="custom_action" type="submit"  />
+  </div>
+
+</form>
+
+
+       
+    
+    
+     <!--<div id="feedback"></div>-->
      
      </div>
      <br>
@@ -1097,12 +1146,9 @@ wp_editor( $content, $editor_id,   $settings);
 <input class="input btn btn-small" type="submit" name="submit" value="<?php _e('Submit Message', 'aistore') ?>"/>
 </form> 
 </div>
+
 <div id="feedback"></div>
-<?php
-
-
-
-    ?>
+ 
 	
 	<?php
 
@@ -1320,6 +1366,63 @@ else
 }
 
 
+
+ add_action( 'wp_ajax_custom_action', 'aistore_upload_file' );
+
+
+function aistore_upload_file() {
+    
+  
+
+	 global $wpdb;
+
+
+
+  $eid=sanitize_text_field($_REQUEST['eid']);
+
+$user_id= get_current_user_id();
+
+$email_id = get_the_author_meta( 'user_email', get_current_user_id() );
+$escrow = $wpdb->get_row($wpdb->prepare( "SELECT count(id) as count FROM {$wpdb->prefix}escrow_system WHERE ( sender_email = '".   $email_id."' or receiver_email = '".   $email_id."' ) and id=%s ",$eid ));
+
+  $c=(int)$escrow->count;
+ if($c>0){
+     
+    
+ if ( isset($_POST['aistore_nonce']) ) {
+        $upload_dir = wp_upload_dir();
+ 
+        if ( ! empty( $upload_dir['basedir'] ) ) {
+            $user_dirname = $upload_dir['basedir'].'/documents/'.$eid;
+            if ( ! file_exists( $user_dirname ) ) {
+                wp_mkdir_p( $user_dirname );
+            }
+ 
+            $filename = wp_unique_filename( $user_dirname, $_FILES['file']['name'] );
+            
+            echo "filename".$filename;
+            
+            move_uploaded_file(sanitize_text_field($_FILES['file']['tmp_name']), $user_dirname .'/'. $filename);
+            
+            
+            $image=$upload_dir['baseurl'].'/documents/'.$eid.'/'.$filename;
+//             // save into database $image;
+      
+
+
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
+        }
+    }
+
+  wp_die();
+}
+else{
+   echo "Unauthorized user"; 
+}
+
+
+}
+
  add_action( 'wp_ajax_custom_action', 'aistore_chat_box' );
 
 
@@ -1345,6 +1448,7 @@ $message=sanitize_text_field(htmlentities($_POST['message']));
 
 
 
+//issue 1
 
 
    $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_discussion ( eid, message, user_login ) VALUES ( %d, %s, %s ) ", array($escrow_id, $message, $user_login)));
@@ -1376,7 +1480,7 @@ $user_email = get_the_author_meta( 'user_email', get_current_user_id() );
             
 ?> 
 	
-	<div >
+	<div class="discussionmsg">
    
   <p><?php echo html_entity_decode($row->message); ?></p>
   

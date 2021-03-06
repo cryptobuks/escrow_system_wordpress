@@ -9,7 +9,9 @@ Description: Saksh Escrow System is a plateform allow parties to complete safe p
 
 
 */
-
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
 
 add_action('init', 'aistore_wpdocs_load_textdomain');
@@ -22,9 +24,11 @@ function aistore_wpdocs_load_textdomain()
 }
 
 
-
 function aistore_scripts_method()
 {
+    
+
+
     
     wp_enqueue_style('aistore', plugins_url('/css/custom.css', __FILE__), array());
     wp_enqueue_script('aistore', plugins_url('/js/custom.js', __FILE__), array(
@@ -58,17 +62,7 @@ function aistore_isadmin()
         
     }
 }
-
-
-
-include_once dirname(__FILE__) . '/AistoreEscrowSystem.class.php';
-
-
-include_once dirname(__FILE__) . '/AistoreSettingsPage.class.php';
-
-
-
-
+ 
 
 function aistore_plugin_table_install()
 {
@@ -77,7 +71,7 @@ function aistore_plugin_table_install()
     
     
     
-    $table_escrow_discussion = "CREATE TABLE  " . $wpdb->prefix . "escrow_discussion  (
+    $table_escrow_discussion = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "escrow_discussion  (
   id int(100) NOT NULL  AUTO_INCREMENT,
   eid int(100) NOT NULL,
    message  text  NOT NULL,
@@ -90,7 +84,7 @@ function aistore_plugin_table_install()
     
     
     
-    $table_escrow_documents = "CREATE TABLE " . $wpdb->prefix . "escrow_documents (
+    $table_escrow_documents = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "escrow_documents (
   id int(100) NOT NULL  AUTO_INCREMENT,
   eid  int(100) NOT NULL,
   documents  varchar(100)  NOT NULL,
@@ -101,7 +95,7 @@ function aistore_plugin_table_install()
 )  ";
     
     
-    $table_escrow_system = "CREATE TABLE " . $wpdb->prefix . "escrow_system (
+    $table_escrow_system = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "escrow_system (
   id int(100) NOT NULL AUTO_INCREMENT, 
   title varchar(100)   NOT NULL,
    term_condition text ,
@@ -118,19 +112,28 @@ function aistore_plugin_table_install()
     
     
     
-    
-    
-    
-    
-    
+     
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    
     dbDelta($table_escrow_discussion);
     
     dbDelta($table_escrow_system);
     
     dbDelta($table_escrow_documents);
+    
+   
+
+
 }
 register_activation_hook(__FILE__, 'aistore_plugin_table_install');
+ 
+
+ 
+include_once dirname(__FILE__) . '/AistoreEscrowSystem.class.php';
+
+
+include_once dirname(__FILE__) . '/AistoreSettingsPage.class.php';
+
 
 add_shortcode('aistore_escrow_system', array(
     'AistoreEscrowSystem',
@@ -153,4 +156,4 @@ add_shortcode('aistore_escrow_detail', array(
 ));
 
 add_filter('woo_wallet_disallow_negative_transaction', '__return_false'); 
-
+ 
