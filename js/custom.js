@@ -10,7 +10,7 @@ jQuery(document).ready(function ($) {
 
 		var escrow_fee = (fee / 100) * amount;
 
-		var total = parseInt(amount) + parseInt(escrow_fee);
+		var total = parseInt(amount) - parseInt(escrow_fee);
 
 
 		document.getElementById("escrow_fee").innerHTML = Intl.NumberFormat().format(escrow_fee);
@@ -81,7 +81,7 @@ jQuery(document).ready(function($) {
 	 
 
 	var escrow_id = document.getElementById('escrow_id').value;
-	alert("Your Escrow id is ::"+escrow_id);
+//	alert("Your Escrow id is ::"+escrow_id);
 		  $.ajax({
         type: "GET",
      url : ajaxurl,

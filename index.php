@@ -98,11 +98,11 @@ function aistore_plugin_table_install()
     $table_escrow_system = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "escrow_system (
   id int(100) NOT NULL AUTO_INCREMENT, 
   title varchar(100)   NOT NULL,
-   term_condition text ,
+  term_condition text ,
   amount int(100) NOT NULL,
   receiver_email varchar(100)  NOT NULL,
   sender_email varchar(100)   NOT NULL,
-  
+  escrow_fee int(100) NOT NULL,
   status varchar(100)   NOT NULL DEFAULT 'pending',
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   

@@ -65,7 +65,7 @@ $escrow_fee =(get_option('escrow_create_fee') / 100) * $amount;
     
     global $wpdb;   
 
-$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition  ) VALUES ( %s, %d, %s, %s  )", array( $title, $amount, $receiver_email,$sender_email  ,$term_condition ) ) );
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee  ) VALUES ( %s, %d, %s, %s ,%d,%d )", array( $title, $new_amount, $receiver_email,$sender_email  ,$term_condition ,$escrow_fee) ) );
 
 
 
@@ -370,8 +370,8 @@ $escrow_fee =(get_option('escrow_create_fee') / 100) * $amount;
     
     global $wpdb;   
 
-$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email  ) VALUES ( %s, %d, %s, %s  )", array( $title, $amount, $receiver_email,$sender_email   ) ) );
 
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee  ) VALUES ( %s, %d, %s, %s ,%d ,%d)", array( $title, $new_amount, $receiver_email,$sender_email  ,$term_condition ,$escrow_fee) ) );
 
 
 $eid = $wpdb->insert_id;
@@ -520,7 +520,7 @@ else{
   
     
      
-   <?php   _e('Total Amount', 'aistore' ); ?> :   <b id="total"></b>/- <?php echo get_woocommerce_currency_symbol(); ?>
+   <?php   _e('Total Escrow Amount', 'aistore' ); ?> :   <b id="total"></b>/- <?php echo get_woocommerce_currency_symbol(); ?>
   
   
   </div>
@@ -853,7 +853,7 @@ $escrow_fee=(get_option('escrow_accept_fee')/ 100) * $amount;
 
 $wallet = new Woo_Wallet_Wallet();
 
-
+$user_id=get_current_user_id();
 
 $wallet->debit($user_id,$escrow_fee,$details);
 $wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
