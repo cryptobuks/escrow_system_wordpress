@@ -65,7 +65,7 @@ $escrow_fee =(get_option('escrow_create_fee') / 100) * $amount;
     
     global $wpdb;   
 
-$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee  ) VALUES ( %s, %d, %s, %s ,%d,%d )", array( $title, $new_amount, $receiver_email,$sender_email  ,$term_condition ,$escrow_fee) ) );
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee  ) VALUES ( %s, %s, %s, %s ,%s,%s )", array( $title, $new_amount, $receiver_email,$sender_email  ,$term_condition ,$escrow_fee) ) );
 
 
 
@@ -805,7 +805,7 @@ global $wpdb;
 if(isset($_POST['submit']) and $_POST['action']=='disputed')
 {
 if ( ! isset( $_POST['aistore_nonce'] ) 
-    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action') 
 ) {
    return  _e( 'Sorry, your nonce did not verify', 'aistore' ) ;
   
@@ -910,6 +910,10 @@ $wallet->credit($id,$escrow_amount,$details);
 
 
 
+
+// Sender Create escrow  to excute cancel button 
+// Receiver  accept or cancel escrow
+
 if(isset($_POST['submit']) and $_POST['action']=='cancelled')
 {
 
@@ -925,9 +929,14 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
    'cancelled' , $eid   ) );
 
 $escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
- 
 
+$sender_escrow_fee = $wpdb->get_var( $wpdb->prepare( "SELECT escrow_fee from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
  
+$sender_email = $wpdb->get_var( $wpdb->prepare( "SELECT sender_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+
+$sender_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_email  = %s", $sender_email ) );
+
+
 $Payment_details = __( 'Payment transaction for the cancel escrow with escrow id', 'aistore' );
 
  $details=$Payment_details.$eid ; 
@@ -937,11 +946,19 @@ $wallet = new Woo_Wallet_Wallet();
 
 
 $wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
-$wallet->credit($user_id,$escrow_amount,$details);
+$wallet->credit($sender_id,$escrow_amount,$details);
 
+  $cancel_escrow_fee  = get_option('cancel_escrow_fee');
+    
+   if($cancel_escrow_fee=='yes'){
+    $wallet->debit(get_option('escrow_user_id'),$sender_escrow_fee,$details);
+    $wallet->credit($sender_id,$sender_escrow_fee,$details);
+ 
+       
+  }
 ?>
 <div>
-<strong><?php  _e( ' Cancelled Successfully', 'aistore' ) ?></strong></div>
+<strong><?php  _e( 'Cancelled Successfully', 'aistore' ) ?></strong></div>
 <?php
 }
  

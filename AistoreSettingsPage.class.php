@@ -224,6 +224,7 @@ function aistore_page_register_setting() {
 	register_setting( 'aistore_page', 'escrow_create_fee' );
 	register_setting( 'aistore_page', 'escrow_accept_fee' );
 	register_setting( 'aistore_page', 'escrow_message_page' );
+	register_setting( 'aistore_page', 'cancel_escrow_fee' );
 
 }
 
@@ -577,7 +578,28 @@ else{
 </td>
         </tr>  
         
-      
+
+ <tr valign="top">
+ <th scope="row"><?php  _e( 'Cancel Escrow fee refund or not ', 'aistore' ) ?></th>
+        <td>
+            <?php $msg_value=get_option('cancel_escrow_fee');?>
+            
+            <select name="cancel_escrow_fee" id="cancel_escrow_fee">
+               
+            <option selected value="yes" <?php selected(
+                $msg_value,
+                'yes'
+            ); ?>>Yes</option>
+            <option value="no" <?php selected(
+                $msg_value,
+                'no'
+            ); ?>>No</option>
+  
+</select>
+	
+</td>
+        </tr>  
+              
   
     </table>
     
