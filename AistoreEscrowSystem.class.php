@@ -346,7 +346,8 @@ if ( ! isset( $_POST['aistore_nonce'] )
 $title=sanitize_text_field($_REQUEST['title']);
 $amount=sanitize_text_field($_REQUEST['amount']);
 $receiver_email=sanitize_email($_REQUEST['receiver_email']);
-
+$term_condition=sanitize_text_field(htmlentities($_REQUEST['term_condition']));
+ 
  $user_balance=$wallet->get_wallet_balance($user_id,'');
 
 $sender_email = get_the_author_meta( 'user_email', get_current_user_id() );
@@ -371,10 +372,33 @@ $escrow_fee =(get_option('escrow_create_fee') / 100) * $amount;
     global $wpdb;   
 
 
-$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee  ) VALUES ( %s, %d, %s, %s ,%d ,%d)", array( $title, $new_amount, $receiver_email,$sender_email  ,$term_condition ,$escrow_fee) ) );
-
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee  ) VALUES ( %s, %d, %s, %s ,%s ,%s)", array( $title, $new_amount, $receiver_email,$sender_email  ,$term_condition ,$escrow_fee) ) );
 
 $eid = $wpdb->insert_id;
+
+  $upload_dir = wp_upload_dir();
+ 
+        if ( ! empty( $upload_dir['basedir'] ) ) {
+            $user_dirname = $upload_dir['basedir'].'/documents/'.$eid;
+            if ( ! file_exists( $user_dirname ) ) {
+                wp_mkdir_p( $user_dirname );
+            }
+ 
+            $filename = wp_unique_filename( $user_dirname, $_FILES['file']['name'] );
+            move_uploaded_file(sanitize_text_field($_FILES['file']['tmp_name']), $user_dirname .'/'. $filename);
+            
+            $image= $upload_dir['baseurl'].'/documents/'.$eid.'/'.$filename;
+            
+            // save into database  $image
+            
+                     
+
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
+        }
+        
+
+
+
 
 $Payment_details = __( 'Payment transaction for the escrow id', 'aistore' );
 
@@ -451,7 +475,7 @@ $subject =$details;
 
 <br>
 
-<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($create_escrow_page_2_url) ; ?>" />
+<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($details_escrow_page_id_url) ; ?>" />
 
 <div><h1><?php   _e( 'Thank You', 'aistore' ); ?> </h1></div>
 
@@ -529,11 +553,47 @@ else{
 <label for="receiver_email"><?php   _e('Receiver Email', 'aistore' ); ?>:</label><br>
   <input class="input" type="email" id="receiver_email" name="receiver_email" required><br>
   
+   <label for="term_condition"> <?php  _e( 'Term And Condition', 'aistore' ) ?></label><br>
+   
+   
+
+
+
+  
+  <?php
+  
+$content   = '';
+$editor_id = 'term_condition';
+
+ 
+   $settings = array(
+    'tinymce'       => array(
+        'toolbar1'      => 'bold,italic,underline,separator,alignleft,aligncenter,alignright   ',
+        'toolbar2'      => '',
+        'toolbar3'      => ''
+       
+   
+      ),   
+         'textarea_rows' => 1 ,
+    'teeny' => true,
+    'quicktags' => false,
+     'media_buttons' => false 
+);
+
+
+
+wp_editor( $content, $editor_id,$settings);
+?>
   
 
 
 
 <br><br>
+
+	<label for="documents"><?php  _e( 'Documents', 'aistore' ) ?>: </label>
+     <input type="file" name="file" accept="application/pdf" required /><br>
+     <div><p> <?php  _e( 'Note : We accept only pdf file and
+	You can upload many pdf file then go to next escrow details page.', 'aistore' ) ?></p></div>
 <input 
  type="submit" class="btn" name="submit" value="<?php  _e( 'Create Escrow', 'aistore' ) ?>"/>
 <input type="hidden" name="action" value="escrow_system" />
@@ -857,6 +917,8 @@ $user_id=get_current_user_id();
 
 $wallet->debit($user_id,$escrow_fee,$details);
 $wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
+
+sendNotificationAccepted($eid);
 
 ?>
 <div>

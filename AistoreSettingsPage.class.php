@@ -47,12 +47,22 @@ public function aistore_add_plugin_page()
         'aistore_escrow_list'
     ));
     
+     
+    add_submenu_page('wallet_list', __('Escrow List', 'aistore' ), __('', 'aistore' ), 'administrator', 'aistore_user_escrow_list', array(
+        $this,
+        'aistore_user_escrow_list'
+    ));
+    
     
     add_submenu_page('wallet_list', __('Disputed Escrow List','aistore'), __('Disputes','aistore'), 'administrator', 'disputed_escrow_list', array(
         $this,
         'aistore_disputed_escrow_list'
     ));
     
+       add_submenu_page('wallet_list', __('Disputed Escrow Details','aistore'), __('','aistore'), 'administrator', 'disputed_escrow_details', array(
+        $this,
+        'aistore_disputed_escrow_details'
+    ));
     
     add_submenu_page('wallet_list', __('Setting','aistore'), __('Setting','aistore'), 'administrator', 'aistore_page_setting', array(
         $this,
@@ -62,29 +72,40 @@ public function aistore_add_plugin_page()
     
 }
 
+function aistore_user_escrow_list(){
     
-
-
-// escrow list
-
-function  aistore_escrow_list()
-{
-
-
 	
 global  $wpdb;
+
+
+  
+   
+
+
+$id=sanitize_text_field($_REQUEST['id']);
+
+$user_email = get_the_author_meta( 'user_email', $id );
+
+
 
 $page_id=get_option('details_escrow_page_id'); 
 
  $results = $wpdb->get_results( 
-   $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE status = %s",  'accepted') 
+   $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE (sender_email=%s or receiver_email=%s ) order by id desc", $user_email,$user_email)
                  );
      
   ?>
-  <h1> <?php  _e( 'All On going escrow', 'aistore' ) ?> </h1>
+  <h1> <?php  _e( 'Escrow List', 'aistore' ) ?> </h1>
   <table class="widefat fixed striped">
         
-     
+     <tr>
+         <th>Id</th>
+      <th>Title</th>
+       <th>Status</th>
+        <th>Amount</th>
+      <th>Sender </th>
+       <th>Receiver</th>       <th>Date</th>
+     </tr>
       
 
     <?php 
@@ -116,7 +137,7 @@ $page_id=get_option('details_escrow_page_id');
 		   <td> 		   <?php echo $row->amount ; ?> </td>
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
-		  
+		     <td> 		   <?php echo $row->created_at ; ?> </td>
        
                 
             </tr>
@@ -129,7 +150,558 @@ $page_id=get_option('details_escrow_page_id');
 
     </table>
 	<?php 
+
+
+}
+
+    //aistore_disputed_escrow_details
+    
+    function aistore_disputed_escrow_details(){
+        
+   
+
+
+   $eid=sanitize_text_field($_REQUEST['eid']);
+   
+   
+$user_id= get_current_user_id();
+	 
+$email_id = get_the_author_meta( 'user_email',$user_id );
+
+if ( isset($_POST['upload_file']) ) {
+        $upload_dir = wp_upload_dir();
+ 
+        if ( ! empty( $upload_dir['basedir'] ) ) {
+            $user_dirname = $upload_dir['basedir'].'/documents/'.$eid;
+            if ( ! file_exists( $user_dirname ) ) {
+                wp_mkdir_p( $user_dirname );
+            }
+ 
+            $filename = wp_unique_filename( $user_dirname, $_FILES['file']['name'] );
+            
+            move_uploaded_file(sanitize_text_field($_FILES['file']['tmp_name']), $user_dirname .'/'. $filename);
+            
+            $image=$upload_dir['baseurl'].'/documents/'.$eid.'/'.$filename;
+            // save into database $image;
+      
+            global $wpdb;   
+
+$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
+        }
+    }
+
+
+  
+
+ 
+
+ob_start();
+
+
+if(!isset($eid))
+{
+
 	
+	 $url  =  "/wp-admin/admin.php?page=disputed_escrow_list";
+
+?>
+	<div><a href="<?php echo $url ; ?>" >
+	    <?php   _e( 'Go To Escrow List Page', 'aistore' ); ?> 
+	     </a></div>
+<?php	
+
+return ob_get_clean();  
+}
+
+
+
+global $wpdb;
+
+ 
+if(isset($_POST['submit']) and $_POST['action']=='disputed')
+{
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action') 
+) {
+   return  _e( 'Sorry, your nonce did not verify', 'aistore' ) ;
+  
+    
+} 
+
+$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
+    SET status = '%s'  WHERE id = '%d'", 
+   'disputed' , $eid   ) );
+
+?>
+<div>
+<strong> <?php  _e( 'Disputed Successfully', 'aistore' ) ?></strong></div>
+<?php
+
+
+}
+
+
+
+if(isset($_POST['submit']) and $_POST['action']=='accepted')
+{
+
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+   return  _e( 'Sorry, your nonce did not verify', 'aistore' ) ;
+    
+} 
+
+$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
+    SET status = '%s'  WHERE id = '%d'", 
+   'accepted' , $eid   ) );
+
+$amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+
+$Payment_details = __( 'Payment transaction for the accept escrow with escrow id', 'aistore' );
+
+ $details=$Payment_details.$eid ; 
+ 
+ 
+
+$escrow_fee=(get_option('escrow_accept_fee')/ 100) * $amount;
+
+
+$wallet = new Woo_Wallet_Wallet();
+
+$user_id=get_current_user_id();
+
+$wallet->debit($user_id,$escrow_fee,$details);
+$wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
+
+//sendNotificationAccepted($eid);
+
+?>
+<div>
+    
+<strong> <?php  _e( 'Accepted Successfully', 'aistore' ) ?></strong></div>
+<?php
+ printf(__( "Escrow Fee %d.", 'aistore'),$escrow_fee ); 
+
+}
+
+if(isset($_POST['submit']) and $_POST['action']=='released')
+{
+
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+   return  _e( 'Sorry, your nonce did not verify', 'aistore' ) ;
+    
+}  
+
+$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
+    SET status = '%s'  WHERE id = '%d'", 
+   'released' , $eid) );
+   
+	$escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+	
+	$escrow_reciever_email_id = $wpdb->get_var( $wpdb->prepare( "SELECT receiver_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+
+
+
+
+$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_email  = %s", $escrow_reciever_email_id ) );
+
+$Payment_details = __( 'Payment transaction for the release escrow with escrow id', 'aistore' );
+
+ $details=$Payment_details.$eid ; 
+
+
+ 
+$wallet = new Woo_Wallet_Wallet();
+$wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
+$wallet->credit($id,$escrow_amount,$details);
+
+?>
+<div>
+<strong> <?php  _e( 'Released Successfully', 'aistore' ) ?></strong></div>
+<?php
+}
+ 
+
+
+
+if(isset($_POST['submit']) and $_POST['action']=='chat_custom_action')
+{
+
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+   return  _e( 'Sorry, your nonce did not verify', 'aistore' ) ;
+    
+}
+
+$message=sanitize_text_field(htmlentities($_POST['message']));
+  $escrow_id=sanitize_text_field($_POST['escrow_id']);
+    $user_login = get_the_author_meta('user_login', get_current_user_id());
+
+//issue 1
+
+   $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_discussion ( eid, message, user_login ) VALUES ( %d, %s, %s ) ", array($escrow_id, $message, $user_login)));
+
+    //$url  = "/wp-admin/admin.php?page=disputed_escrow_details";
+   
+  
+
+
+  
+  wp_die();
+
+
+}
+
+
+
+
+// Sender Create escrow  to excute cancel button 
+// Receiver  accept or cancel escrow
+
+if(isset($_POST['submit']) and $_POST['action']=='cancelled')
+{
+
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+   return  _e( 'Sorry, your nonce did not verify', 'aistore' ) ;
+    
+} 
+
+$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
+    SET status = '%s'  WHERE id = '%d'", 
+   'cancelled' , $eid   ) );
+
+$escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+
+$sender_escrow_fee = $wpdb->get_var( $wpdb->prepare( "SELECT escrow_fee from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+ 
+$sender_email = $wpdb->get_var( $wpdb->prepare( "SELECT sender_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+
+$sender_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_email  = %s", $sender_email ) );
+
+
+$Payment_details = __( 'Payment transaction for the cancel escrow with escrow id', 'aistore' );
+
+ $details=$Payment_details.$eid ; 
+
+
+$wallet = new Woo_Wallet_Wallet();
+
+
+$wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
+$wallet->credit($sender_id,$escrow_amount,$details);
+
+  $cancel_escrow_fee  = get_option('cancel_escrow_fee');
+    
+   if($cancel_escrow_fee=='yes'){
+    $wallet->debit(get_option('escrow_user_id'),$sender_escrow_fee,$details);
+    $wallet->credit($sender_id,$sender_escrow_fee,$details);
+ 
+       
+  }
+?>
+<div>
+<strong><?php  _e( 'Cancelled Successfully', 'aistore' ) ?></strong></div>
+<?php
+}
+ 
+
+ 
+ 
+  if (  aistore_isadmin()) {
+  
+  $escrow = $wpdb->get_row( 
+$wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s", $eid) 
+                 );
+ 
+ }
+ 
+ else
+ {
+ 
+	 
+	  
+	 
+	 
+$escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE ( sender_email = '".   $email_id."' or receiver_email = '".   $email_id."' ) and id=%s ",$eid ));
+  
+ }
+ 
+ 
+ 
+ 
+ ?>
+	  <div>
+	      <?php
+     echo "<h1>#". $escrow->id ." ".$escrow->title ."</h1><br>";
+     
+     
+  printf(__( "Term Condition : %s", 'aistore' ),html_entity_decode($escrow->term_condition)."<br>");
+  printf(__( "Sender :  %s", 'aistore' ),$escrow->sender_email."<br>");
+  printf(__( "Receiver : %s", 'aistore' ),$escrow->receiver_email."<br>");
+  printf(__( "Status : %s", 'aistore' ),$escrow->status."<br><br>");
+  
+  
+  
+ $object=new AistoreEscrowSystem();
+
+$object->accept_escrow_btn($escrow);
+
+
+
+$object->cancel_escrow_btn($escrow);
+
+
+
+$object->release_escrow_btn($escrow);
+ 
+
+$object->dispute_escrow_btn($escrow);
+
+$eid=  $escrow->id;
+ 
+  global $wpdb;
+   $escrow_documents = $wpdb->get_results( 
+$wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $eid)  );
+ 
+  
+?> 
+  
+    <table class="table">
+    <?php
+    foreach($escrow_documents as $row):
+     
+    ?> 
+	
+	<div class="document_list">
+   
+
+
+  <p><a href="<?php echo $row->documents; ?>" target="_blank">
+	       <b><?php echo $row->documents_name ; ?></b></a></p>
+  <h6 > <?php echo $row->created_at; ?></h6>
+</div>
+
+<hr>
+    
+    <?php endforeach;
+    
+    
+    ?>
+    </table>
+<br>
+	   <div>  
+    
+
+  <link  rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css">
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+
+	<label for="documents"> <?php   _e( 'Documents', 'aistore' ); ?> : </label>
+<form  method="post"  action="<?php echo admin_url('admin-ajax.php').'?action=custom_action&eid='.$eid; ?>" class="dropzone" id="dropzone">
+    <?php 
+wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' );
+?>
+  <div class="fallback">
+    <input id="file" name="file" type="file" multiple  />
+    <input type="hidden" name="action" value="custom_action" type="submit"  />
+  </div>
+
+</form>
+
+
+       
+    
+    
+     <!--<div id="feedback"></div>-->
+     
+     </div>
+     <br>
+     
+     <?php 
+      
+          $message_page_url  =    get_option('escrow_message_page');
+    
+   if($message_page_url=='no'){
+      return "";
+       
+  }
+   
+    
+	$user_login = get_the_author_meta( 'user_login', get_current_user_id() );
+
+
+?>
+
+     
+	 
+<div>
+    <br>
+<form method="POST" action="" name="chat_custom_action" enctype="multipart/form-data"  >
+<?php 
+wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' );
+?>
+   <label for="message">   <?php  _e( 'Message', 'aistore' ) ?></label><br>
+
+
+
+  
+  <?php
+  
+$content   = '';
+$editor_id = 'message';
+
+
+   $settings = array(
+    'tinymce'       => array(
+        'toolbar1'      => 'bold,italic,underline,separator,alignleft,aligncenter,alignright, link,unlink,  ',
+        'toolbar2'      => '', 
+        'toolbar3'      => ''  
+       
+           ),   
+         'textarea_rows' => 1 ,
+    'teeny' => true,
+    'quicktags' => false,
+     'media_buttons' => false 
+);
+
+   
+wp_editor( $content, $editor_id,   $settings);
+ 
+?>
+
+ 
+ <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
+ 
+ <input type="hidden" name="action" value="chat_custom_action" />
+ <input type="hidden" name="escrow_id"  id="escrow_id" value="<?php echo $escrow->id; ?>" />
+ 
+  <input type="submit"  name="submit" value="<?php  _e( 'Submit Message', 'aistore' ) ?>">
+
+</form> 
+</div>
+
+<!--<div id="feedback"></div>-->
+
+ <br>
+ <div class="card">
+	
+	<?php
+        
+      global  $wpdb;
+$id=sanitize_text_field($_REQUEST['eid']);
+
+$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
+
+      $discussions = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion ed , {$wpdb->prefix}escrow_system es WHERE ed.eid= es.id and ed.eid=%s and (es.sender_email=%s or es.receiver_email=%s ) order by ed.id desc", $id,$user_email,$user_email));
+      
+
+        foreach ($discussions as $row):
+            
+?> 
+	
+	<div class="discussionmsg">
+   
+  <p><?php echo html_entity_decode($row->message); ?></p>
+  
+  <br /><br />
+  <b><?php echo $row->user_login; ?> </b>
+  <h6 > <?php echo $row->created_at; ?></h6>
+</div>
+ 
+<hr>
+    
+    <?php
+        endforeach;   
+        
+    
+
+
+ 
+    
+    ?>
+</div>
+</div>
+<?php
+
+}
+
+ 
+	
+
+
+
+// escrow list
+
+function  aistore_escrow_list()
+{
+
+global  $wpdb;
+
+$page_id=get_option('details_escrow_page_id'); 
+$results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_system" ) ;
+     
+  ?>
+  <h1> <?php  _e( 'Escrow List', 'aistore' ) ?> </h1>
+  <table class="widefat fixed striped">
+        
+     <tr>
+         <th>Id</th>
+      <th>Title</th>
+       <th>Status</th>
+        <th>Amount</th>
+      <th>Sender </th>
+       <th>Receiver</th>       <th>Date</th>
+     </tr>
+      
+
+    <?php 
+    
+    if($results==null)
+	{
+	     _e( "No Escrow Found", 'aistore' );
+
+	}
+	else{
+    foreach($results as $row):
+      
+	 $link= '<a href="/wp-admin/admin.php?page=disputed_escrow_details&eid='.$row->id.'">'.$row->id.'</a>';
+    ?> 
+      <tr>
+
+		   <td> <?php echo $link; ?>
+		   
+	</td>
+		  
+		   
+		   <td> 		   <?php echo $row->title ; ?> </td>
+		  
+		   <td> 		   <?php echo $row->status ; ?> </td>
+		   
+		   <td> 		   <?php echo $row->amount ; ?> </td>
+		   <td> 		   <?php echo $row->sender_email ; ?> </td>
+		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
+		     <td> 		   <?php echo $row->created_at ; ?> </td>
+       
+                
+            </tr>
+    <?php endforeach;
+	}
+	
+	?>
+
+
+
+    </table>
+	<?php 
+
 
 }
 
@@ -174,17 +746,14 @@ $page_id=get_option('details_escrow_page_id');
 		
     foreach($results as $row):
      
-	 
-	 $url  =  esc_url( add_query_arg( array(
-    'page_id' => $page_id,
-    'eid' => $row->id,
-), home_url() ) ); 
+
+ $link= '<a href="/wp-admin/admin.php?page=disputed_escrow_details&eid='.$row->id.'">'.$row->id.'</a>';
     ?> 
       <tr>
 
 		   
-		   <td> 	<a href="<?php echo $url ; ?>" >	  
-		   <?php echo $row->id ; ?> </a> </td>
+		   <td> 	 
+		   <?php echo $link ; ?>  </td>
 		  
 		   
 		   <td> 		   <?php echo $row->title ; ?> </td>
@@ -646,6 +1215,46 @@ else{
 
 }
 
+// add_action( 'wp_ajax_custom_action', 'aistore_chat_box' );
+
+
+// function aistore_chat_box() {
+    
+  
+
+// 	 global $wpdb;
+
+// if ( ! isset( $_POST['aistore_nonce'] ) 
+//     || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+// ) {
+//   return   _e( 'Sorry, your nonce did not verify.', 'aistore' ) ;
+// } 
+
+
+// $message=sanitize_text_field(htmlentities($_POST['message']));
+//   $escrow_id=sanitize_text_field($_POST['escrow_id']);
+  
+
+//     $user_login = get_the_author_meta('user_login', get_current_user_id());
+        
+
+
+
+// //issue 1
+
+
+//   $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_discussion ( eid, message, user_login ) VALUES ( %d, %s, %s ) ", array($escrow_id, $message, $user_login)));
+
+   
+
+//   wp_die();
+
+
+
+// }
+
+
+    
 
 
 if( is_admin() )
