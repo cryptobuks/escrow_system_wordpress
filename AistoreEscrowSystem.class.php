@@ -60,7 +60,7 @@ $escrow_fee =(get_option('escrow_create_fee') / 100) * $amount;
 
 
     
-    $new_amount=$amount-$escrow_fee ;
+    $new_amount=double($amount-$escrow_fee) ;
     
     
     global $wpdb;   

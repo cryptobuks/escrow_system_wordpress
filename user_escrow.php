@@ -28,7 +28,7 @@ function aistore_user_escrow_list( $val, $column_name, $user_id ) {
  
         case 'escrow_list':
  
-         $link= '<a href="/wp-admin/admin.php?page=wp_list_table_class&id='.$user_id.'">Escrow List</a>';
+         $link= '<a href="/wp-admin/admin.php?page=escrow_list&id='.$user_id.'">Escrow List</a>';
 
    
        

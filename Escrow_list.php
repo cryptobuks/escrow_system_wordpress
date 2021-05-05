@@ -215,8 +215,12 @@ public function search_box( $text, $input_id ) {
 
 		global $wpdb;
 		
-	//	if(!empty(sanitize_text_field($_REQUEST['id'])))
-		   $id=1; 
+			if(empty(sanitize_text_field($_REQUEST['id']))){
+			    	$sql = "SELECT * FROM {$wpdb->prefix}escrow_system ";
+			}
+		
+		if(!empty(sanitize_text_field($_REQUEST['id']))){
+		  // $id=1; 
 $id=sanitize_text_field($_REQUEST['id']);
 
 $user_email = get_the_author_meta( 'user_email', $id );
@@ -225,6 +229,7 @@ $user_email = get_the_author_meta( 'user_email', $id );
 		$sql = "SELECT * FROM {$wpdb->prefix}escrow_system  WHERE (sender_email='$user_email' or receiver_email='$user_email' )  ";
 
 //echo $sql;
+}
 $sql .=  Escrow_List::prepareWhereClouse();
 
 
@@ -531,24 +536,7 @@ function form(){
 		
 		
 		
-// 		// If the delete bulk action is triggered
-// 		if ( ( isset( $_POST['action'] ) && $_POST['action'] == 'bulk-removepayment' )
-// 		     || ( isset( $_POST['action2'] ) && $_POST['action2'] == 'bulk-removepayment' )
-// 		) {
 
-// 			$delete_ids = esc_sql( $_POST['bulk-delete'] );
-
-// 			// loop over the array of record IDs and delete them
-// 			foreach ( $delete_ids as $id ) {
-// 				self::remove_payment_escrow( $id );
-
-// 			}
-
-// 			// esc_url_raw() is used to prevent converting ampersand in url to "#038;"
-// 		        // add_query_arg() return the current url
-// 		        wp_redirect( esc_url_raw(add_query_arg()) );
-// 			exit;
-// 		}
 	}
 
 }
@@ -579,7 +567,7 @@ class SP_Plugin {
 			'All Escrow List',
 			'Escrow List',
 			'manage_options',
-			'wp_list_table_class',
+			'escrow_list',
 			[ $this, 'plugin_settings_page' ]
 		);
 

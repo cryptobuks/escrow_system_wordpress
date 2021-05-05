@@ -10,7 +10,7 @@ jQuery(document).ready(function ($) {
 
 		var escrow_fee = (fee / 100) * amount;
 
-		var total = parseInt(amount) - parseInt(escrow_fee);
+		var total = (amount) - parseInt(escrow_fee);
 
 
 		document.getElementById("escrow_fee").innerHTML = Intl.NumberFormat().format(escrow_fee);

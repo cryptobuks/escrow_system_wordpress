@@ -596,12 +596,12 @@ wp_editor( $content, $editor_id,   $settings);
 	<?php
         
       global  $wpdb;
-$id=sanitize_text_field($_REQUEST['eid']);
+//$id=sanitize_text_field($_REQUEST['eid']);
 
-$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
+//$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
 
-      $discussions = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion ed , {$wpdb->prefix}escrow_system es WHERE ed.eid= es.id and ed.eid=%s and (es.sender_email=%s or es.receiver_email=%s ) order by ed.id desc", $id,$user_email,$user_email));
-      
+  $discussions = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion  WHERE eid=%d order by id desc", $eid));
+      	
 
         foreach ($discussions as $row):
             
