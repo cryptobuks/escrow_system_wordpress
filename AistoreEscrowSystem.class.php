@@ -152,161 +152,6 @@ $subject =$details;
 }
  
  
-    public static function escrow_system_part2()
-{
-    if(!sanitize_text_field($_REQUEST['eid'])){
-    
-    	 $add_escrow_page_url  =  esc_url( add_query_arg( array(
-    'page_id' => get_option('add_escrow_page_id') ,
-	'eid'=> $eid,
-), home_url() ) );
-
-    ?>
-    
-   
-<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($add_escrow_page_url) ; ?>" /> 
-  
- <?php   }
- 
- echo " <div>";
-
-    if(isset($_POST['submit']) and $_POST['action']=='create_escrow_page_2' )
-{
-
-if ( ! isset( $_POST['aistore_nonce'] ) 
-    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
-) {
-   return  _e( 'Sorry, your nonce did not verify.', 'aistore' );
-
-   exit;
-} 
-
-    
-    $eid=sanitize_text_field($_REQUEST['eid']);
-    $user_id=get_current_user_id();
-  
-    $term_condition=sanitize_text_field(htmlentities($_REQUEST['term_condition']));
-    
-    global $wpdb; 
-    
-    $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
-    SET term_condition = '%s'  WHERE id = '%d'", 
-   $term_condition , $eid   ) );
-    
-     
-        $upload_dir = wp_upload_dir();
- 
-        if ( ! empty( $upload_dir['basedir'] ) ) {
-            $user_dirname = $upload_dir['basedir'].'/documents/'.$eid;
-            if ( ! file_exists( $user_dirname ) ) {
-                wp_mkdir_p( $user_dirname );
-            }
- 
-            $filename = wp_unique_filename( $user_dirname, $_FILES['file']['name'] );
-            move_uploaded_file(sanitize_text_field($_FILES['file']['tmp_name']), $user_dirname .'/'. $filename);
-            
-            $image= $upload_dir['baseurl'].'/documents/'.$eid.'/'.$filename;
-            
-            // save into database  $image
-            
-                     
-
-$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
-        }
-        
-   
-	 
-	 $details_escrow_page_url  =  esc_url( add_query_arg( array(
-    'page_id' => get_option('details_escrow_page_id') ,
-	'eid'=> $eid,
-), home_url() ) );
-
-    ?>
-    
-   
-<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($details_escrow_page_url) ; ?>" /> 
-
-<div class="alert alert-success" role="alert">
- <?php printf(
-
-__( 'Successfully  with Escrow id %d.', 'aistore' ),
-$eid
-); 
-
-
-
- echo " </div><br>";
- 
- 
- 
-} 
-
-    else{
-   
-     $eid=sanitize_text_field($_REQUEST['eid']);?>
-    <div class="alert alert-success" role="alert">
- <?php printf(__( 'Successfully send payment with Escrow id %d.', 'aistore' ),
-$eid
-); ?>
-</div>
-
-    <form method="POST" action="" name="create_escrow_page_2" enctype="multipart/form-data"> 
-    <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
-    
-
- 
-   <label for="term_condition"> <?php  _e( 'Term And Condition', 'aistore' ) ?></label><br>
-   
-   
-
-
-
-  
-  <?php
-  
-$content   = '';
-$editor_id = 'term_condition';
-
- 
-   $settings = array(
-    'tinymce'       => array(
-        'toolbar1'      => 'bold,italic,underline,separator,alignleft,aligncenter,alignright   ',
-        'toolbar2'      => '',
-        'toolbar3'      => ''
-       
-   
-      ),   
-         'textarea_rows' => 1 ,
-    'teeny' => true,
-    'quicktags' => false,
-     'media_buttons' => false 
-);
-
-
-
-wp_editor( $content, $editor_id,$settings);
-
-?><br>
-	<label for="documents"><?php  _e( 'Documents', 'aistore' ) ?>: </label>
-     <input type="file" name="file" accept="application/pdf" required /><br>
-     <div><p> <?php  _e( 'Note : We accept only pdf file and
-	You can upload many pdf file then go to next escrow details page.', 'aistore' ) ?></p></div>
-<div><a href="<?php echo esc_html($details_escrow_page_url) ; ?>" >
-<br><br>
-<input class="input" type="submit" name="submit" value="<?php  _e( 'Submit', 'aistore' ) ?>"/>
-<input type="hidden" name="action" value="create_escrow_page_2" />
-    </form>
-    
-
-    <?php
-    } 
-    
-    
-  
- echo " </div>";
-    }
-    
-    
     
 
     
@@ -627,12 +472,13 @@ $current_user_email_id = get_the_author_meta( 'user_email', get_current_user_id(
 
 global $wpdb;
 
- $results = $wpdb->get_results( 
-                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE sender_email=%s order by id desc limit 100", $current_user_email_id) 
+  $results = $wpdb->get_results( 
+                     $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email=%s or sender_email=%s order by id desc limit 100", $current_user_email_id,$current_user_email_id) 
+
                  );
 
 ?>
-<h3><u><?php   _e( 'Top 100 Out Going Escrow', 'aistore' ); ?></u> </h3>
+<h3><u><?php   _e( 'Top 100  Escrow', 'aistore' ); ?></u> </h3>
 <?php 
 
  
@@ -655,6 +501,7 @@ global $wpdb;
       
     <th><?php   _e( 'Id', 'aistore' ); ?></th>
         <th><?php   _e( 'Title', 'aistore' ); ?></th>
+         <th><?php   _e( 'Role', 'aistore' ); ?></th>
           <th><?php   _e( 'Amount', 'aistore' ); ?></th> 
 		  <th><?php   _e( 'Sender', 'aistore' ); ?></th>
 		  <th><?php   _e( 'Receiver', 'aistore' ); ?></th>
@@ -687,6 +534,25 @@ global $wpdb;
 
 		   <?php echo $row->id ; ?> </a> </td>
   <td> 		   <?php echo $row->title ; ?> </td>
+    <td> 	
+
+  <?php 
+			 
+if($row->sender_email ==$current_user_email_id)
+{
+     $role="Sender";
+	$email=$row->receiver_email; 
+}
+  else
+  {
+ 	 $role="Receiver";
+	 $email=$row->sender_email;
+  }
+echo $role;
+?>
+
+		  </td>
+		   
 		  	   <td> 		   <?php echo $row->amount .  get_woocommerce_currency_symbol();?>  </td>
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
@@ -703,76 +569,7 @@ global $wpdb;
 	
 	
 	
-	<br><br>
-	<h3><u><?php   _e( 'Top 100 Incoming Escrow', 'aistore' ); ?> </u></h3>
-<?php
 
- $results = $wpdb->get_results( 
-                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email=%s order by id desc limit 100", $current_user_email_id) 
-                 );
-
-    if($results==null)
-	{
-	     echo "<div class='no-result'>";
-	  _e( 'Escrow List Not Found', 'aistore' );
-	    echo "/<div>";
-	
-	}
-	else{
-     
-  ?>
-  
-    <table class="table">
-     
-      
-        <tr>
-      
-     <th><?php   _e( 'Id', 'aistore' ); ?></th>
-        <th><?php   _e( 'Title', 'aistore' ); ?></th>
-          <th><?php   _e( 'Amount', 'aistore' ); ?></th> 
-		  <th><?php   _e( 'Sender', 'aistore' ); ?></th>
-		  <th><?php   _e( 'Receiver', 'aistore' ); ?></th>
-		   <th><?php   _e( 'Status', 'aistore' ); ?></th>
-</tr>
-
-    <?php 
-    
-     
-
-    foreach($results as $row):
-	
- 
-	 
-	 $details_escrow_page_url =  esc_url( add_query_arg( array(
-    'page_id' => get_option('details_escrow_page_id'),
-    'eid' => $row->id,
-), home_url() ) ); 
-
-
-// issue 2
-    ?> 
-      <tr>
-           
- 
-		   <td> 	<a href="<?php echo $details_escrow_page_url; ?>" >
-		   <?php echo $row->id ; ?> </a> </td>
-		   <td> 		   <?php echo $row->title ; ?> </td>
-		   
-		   
-		   <td> 		   <?php echo $row->amount  .  get_woocommerce_currency_symbol(); ?>  </td>
-		   <td> 		   <?php echo $row->sender_email ; ?> </td>
-		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
-		     <td> 		   <?php echo $row->status ; ?> </td>
-		  
-    </tr>
-    <?php endforeach; }
-    
-    
-    ?>
-
-
-
-    </table>
     <?php 
  return ob_get_clean();   
 
@@ -1051,6 +848,10 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_sy
  
  ?>
 	  <div>
+	      <div class="alert alert-success" role="alert">
+ <strong>Escrow Status   <?php echo $escrow->status;?></strong>
+  </div>
+	  
 	      <?php
      echo "<h1>#". $escrow->id ." ".$escrow->title ."</h1><br>";
      
@@ -1153,9 +954,6 @@ wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' );
 
 
        
-    
-    
-     <!--<div id="feedback"></div>-->
      
      </div>
      <br>
@@ -1573,7 +1371,7 @@ $user_email = get_the_author_meta( 'user_email', get_current_user_id() );
     <?php
         endforeach;   
         
-       
+        wp_die();
     }
     
     

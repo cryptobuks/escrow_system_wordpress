@@ -38,33 +38,27 @@ public function aistore_add_plugin_page()
     
     
     
-    add_menu_page(__( 'Escrow System', 'aistore' ),  __('Escrow System', 'aistore' ), 'administrator', 'wallet_list');
+    add_menu_page(__( 'Escrow System', 'aistore' ),  __('Escrow System', 'aistore' ), 'administrator', 'disputed_escrow_list');
     
-    
-  
-    add_submenu_page('wallet_list', __('Escrow List', 'aistore' ), __('Escrow List', 'aistore' ), 'administrator', 'wallet_list', array(
-        $this,
-        'aistore_escrow_list'
-    ));
     
      
-    add_submenu_page('wallet_list', __('Escrow List', 'aistore' ), __('', 'aistore' ), 'administrator', 'aistore_user_escrow_list', array(
+    add_submenu_page('disputed_escrow_list', __('Escrow List', 'aistore' ), __('', 'aistore' ), 'administrator', 'aistore_user_escrow_list', array(
         $this,
         'aistore_user_escrow_list'
     ));
     
     
-    add_submenu_page('wallet_list', __('Disputed Escrow List','aistore'), __('Disputes','aistore'), 'administrator', 'disputed_escrow_list', array(
+    add_submenu_page('disputed_escrow_list', __('Disputed Escrow List','aistore'), __('Disputes','aistore'), 'administrator', 'disputed_escrow_list', array(
         $this,
         'aistore_disputed_escrow_list'
     ));
     
-       add_submenu_page('wallet_list', __('Disputed Escrow Details','aistore'), __('','aistore'), 'administrator', 'disputed_escrow_details', array(
+       add_submenu_page('disputed_escrow_list', __('Disputed Escrow Details','aistore'), __('','aistore'), 'administrator', 'disputed_escrow_details', array(
         $this,
         'aistore_disputed_escrow_details'
     ));
     
-    add_submenu_page('wallet_list', __('Setting','aistore'), __('Setting','aistore'), 'administrator', 'aistore_page_setting', array(
+    add_submenu_page('disputed_escrow_list', __('Setting','aistore'), __('Setting','aistore'), 'administrator', 'aistore_page_setting', array(
         $this,
         'aistore_page_setting'
     ));
@@ -638,74 +632,6 @@ wp_editor( $content, $editor_id,   $settings);
 
 
 
-// escrow list
-
-function  aistore_escrow_list()
-{
-
-global  $wpdb;
-
-$page_id=get_option('details_escrow_page_id'); 
-$results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_system" ) ;
-     
-  ?>
-  <h1> <?php  _e( 'Escrow List', 'aistore' ) ?> </h1>
-  <table class="widefat fixed striped">
-        
-     <tr>
-         <th>Id</th>
-      <th>Title</th>
-       <th>Status</th>
-        <th>Amount</th>
-      <th>Sender </th>
-       <th>Receiver</th>       <th>Date</th>
-     </tr>
-      
-
-    <?php 
-    
-    if($results==null)
-	{
-	     _e( "No Escrow Found", 'aistore' );
-
-	}
-	else{
-    foreach($results as $row):
-      
-	 $link= '<a href="/wp-admin/admin.php?page=disputed_escrow_details&eid='.$row->id.'">'.$row->id.'</a>';
-    ?> 
-      <tr>
-
-		   <td> <?php echo $link; ?>
-		   
-	</td>
-		  
-		   
-		   <td> 		   <?php echo $row->title ; ?> </td>
-		  
-		   <td> 		   <?php echo $row->status ; ?> </td>
-		   
-		   <td> 		   <?php echo $row->amount ; ?> </td>
-		   <td> 		   <?php echo $row->sender_email ; ?> </td>
-		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
-		     <td> 		   <?php echo $row->created_at ; ?> </td>
-       
-                
-            </tr>
-    <?php endforeach;
-	}
-	
-	?>
-
-
-
-    </table>
-	<?php 
-
-
-}
-
-
 
  
 
@@ -830,6 +756,7 @@ if ( ! isset( $_POST['aistore_nonce'] )
 
    exit;
 }
+$escrow_user_id=sanitize_text_field($_REQUEST['escrow_user_id']);
 
  $my_post = array(
    'post_title'     => 'Create Escrow',
@@ -846,21 +773,6 @@ $add_escrow_page_id=wp_insert_post( $my_post );
 update_option( 'add_escrow_page_id', $add_escrow_page_id);
 
 
-
-
- $my_post = array(
-   'post_title'     => 'Create Escrow Step 2',
-    'post_type'     => 'page',
-   'post_content'  => '[escrow_system_part2]',
-   'post_status'   => 'publish',
-   'post_author'   => 1
- );
-
- // Insert the post into the database
-$create_escrow_page_2=wp_insert_post( $my_post );
-
-
-update_option( 'create_escrow_page_2', $create_escrow_page_2);
 
 
  $my_post = array(
@@ -890,19 +802,20 @@ $details_escrow_page_id=wp_insert_post( $my_post );
 
 update_option( 'details_escrow_page_id', $details_escrow_page_id);
 
-   $user_id = username_exists( 'skashk' );
+   $user_id = username_exists( $escrow_user_id );
    
 if ( ! $user_id ) {
 $user_id = wp_insert_user( array(
-  'user_login' => 'skashk',
-  'user_pass' => 'sakshk2019@gmail.com',
-  'user_email' => 'sakshk2019@gmail.com',
-  'first_name' => 'Saksh',
-  'last_name' => 'K',
-  'display_name' => 'Saksham',
+  'user_login' => $escrow_user_id,
+  'user_pass' => $escrow_user_id,
+  'user_email' => $escrow_user_id,
+  'first_name' => $escrow_user_id,
+  'last_name' => $escrow_user_id,
+  'display_name' => $escrow_user_id,
   'role' => 'administrator'
 ));
 update_option( 'escrow_user_id', $user_id);
+update_option( 'escrow_user_name', $escrow_user_id);
 }
  
 
@@ -916,8 +829,10 @@ else{
     <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
     
 <p><?php  _e( 'Create all pages with short codes automatically to ', 'aistore' ) ?>
+<br><br>
+<?php  _e( 'Escrow Admin Email ID: ', 'aistore' ) ?>
+<input type="email" name="escrow_user_id" value="<?php echo esc_attr( get_option('escrow_user_name') ); ?>" />
 
-<!--<a href="#">Click here</a></p>-->
 <input class="input" type="submit" name="submit" value="<?php  _e( 'Click here', 'aistore' ) ?>"/>
 <input type="hidden" name="action"  value="create_all_pages"/>
     </form>
@@ -965,44 +880,7 @@ else{
 
 </td>
         </tr>  
-         <tr valign="top">
-        <th scope="row"><?php  _e( 'Escrow Page - 2', 'aistore' ) ?></th>
-        <td>
-		<select name="create_escrow_page_2" >
-		 
-		 
-		  <?php 
-                    foreach($pages as $page){ 
-                        
-				
-
-					if($page->ID==get_option('create_escrow_page_2'))
-					{
-		 echo '	<option selected value="'.$page->ID.'">'.$page->post_title .'</option>';
-		 
-		  } else {
-                      
-   echo '	<option  value="'.$page->ID.'">'.$page->post_title .'</option>';
-		 
-		
-
-		}  
-	 } ?> 
-	 
-	 
-		 
-					  
-					
- 
-</select>
-
-
-
-<p>Create a page add this shortcode <strong> [escrow_system_part2] </strong> and then select that page here. </p>
-
-
-</td>
-        </tr> 
+        
         	
 	
 	
@@ -1096,7 +974,7 @@ else{
         <h3><?php  _e( 'Admin Escrow Setting', 'aistore' ) ?></h3>
         
 		 <tr valign="top">
-        <th scope="row"><?php  _e( 'Admin ID', 'aistore' ) ?></th>
+        <th scope="row"><?php  _e( 'Escrow Admin ID ', 'aistore' ) ?></th>
         <td>
 		<select name="escrow_user_id" >
 		 
@@ -1173,7 +1051,8 @@ else{
     </table>
     
     
-    
+    [ Admin who will manage escrow fee/disputes etc ]
+
     	<hr/>
         	 
         	
@@ -1214,44 +1093,6 @@ else{
 
 
 }
-
-// add_action( 'wp_ajax_custom_action', 'aistore_chat_box' );
-
-
-// function aistore_chat_box() {
-    
-  
-
-// 	 global $wpdb;
-
-// if ( ! isset( $_POST['aistore_nonce'] ) 
-//     || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
-// ) {
-//   return   _e( 'Sorry, your nonce did not verify.', 'aistore' ) ;
-// } 
-
-
-// $message=sanitize_text_field(htmlentities($_POST['message']));
-//   $escrow_id=sanitize_text_field($_POST['escrow_id']);
-  
-
-//     $user_login = get_the_author_meta('user_login', get_current_user_id());
-        
-
-
-
-// //issue 1
-
-
-//   $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_discussion ( eid, message, user_login ) VALUES ( %d, %s, %s ) ", array($escrow_id, $message, $user_login)));
-
-   
-
-//   wp_die();
-
-
-
-// }
 
 
     
