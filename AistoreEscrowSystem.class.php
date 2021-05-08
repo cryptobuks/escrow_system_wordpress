@@ -672,7 +672,7 @@ if ( ! isset( $_POST['aistore_nonce'] )
 $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'disputed' , $eid   ) );
-
+sendNotificationDisputed($eid);
 ?>
 <div>
 <strong> <?php  _e( 'Disputed Successfully', 'aistore' ) ?></strong></div>
@@ -758,7 +758,7 @@ $Payment_details = __( 'Payment transaction for the release escrow with escrow i
 $wallet = new Woo_Wallet_Wallet();
 $wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
 $wallet->credit($id,$escrow_amount,$details);
-
+sendNotificationReleased($eid  );
 ?>
 <div>
 <strong> <?php  _e( 'Released Successfully', 'aistore' ) ?></strong></div>
@@ -812,7 +812,7 @@ $wallet->credit($sender_id,$escrow_amount,$details);
    if($cancel_escrow_fee=='yes'){
     $wallet->debit(get_option('escrow_user_id'),$sender_escrow_fee,$details);
     $wallet->credit($sender_id,$sender_escrow_fee,$details);
- 
+ sendNotificationCancelled($eid  );
        
   }
 ?>
@@ -1375,6 +1375,7 @@ $user_email = get_the_author_meta( 'user_email', get_current_user_id() );
     }
     
     
+
 
 
 ?>

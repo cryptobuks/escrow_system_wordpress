@@ -1,8 +1,5 @@
 <?php 
-// redirect after escrow created 
- 
- 
-//sendNotification($eid ,'disputed');
+
 
 
 function sendNotificationAccepted($eid )
@@ -20,8 +17,8 @@ wp_insert_post( $my_post );
 
  
 	 global $wpdb;
-$headers[] = 'From: Globalescrow.uk <admin@globalescrow.uk>'."\r\n";
- 
+
+   $headers = array('Content-Type: text/html; charset=UTF-8');
  
 $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s ",$eid ));
 
@@ -103,7 +100,7 @@ function sendNotificationDisputed($eid  )
 {
  
 	 
-$headers[] = 'From: Globalescrow.uk <admin@globalescrow.uk>'."\r\n";
+$headers = array('Content-Type: text/html; charset=UTF-8');
  
  global $wpdb;
 $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE   id=%s ",$eid ));
@@ -113,15 +110,15 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_sy
 $user_id=get_current_user_id();
 $user_email = get_the_author_meta('user_email', $user_id);
 
-  if($user_email == $escrow->buyer_email)
+  if($user_email == $escrow->sender_email)
   {
  
-  $party_email= $escrow->seller_email ;
+  $party_email= $escrow->receiver_email ;
 	
   }
 else
 {
-	 $party_email=$escrow->buyer_email;
+	 $party_email=$escrow->sender_email;
  
 }
 
@@ -129,13 +126,28 @@ else
 $message="Your partner ". $user_email ." has Disputed the escrow ";
  $subject="Your partner ". $user_email ." has Disputed the escrow ";
  
+   $my_post = array(
+  'post_title'    => __LINE__,
+  'post_content'  => $message.$user_email,
+  'post_status'   => 'draft' 
+);
+ 
+// Insert the post into the database
+wp_insert_post( $my_post );
 wp_mail($party_email,$subject,$message, $headers);
 
 //send email to self
 
-$message="You have successfully Disputed the escrow ";
+$message="You have successfully Disputed the escrow";
  $subject="You have successfully Disputed the escrow ";
+   $my_post = array(
+  'post_title'    => __LINE__,
+  'post_content'  => $message.$party_email,
+  'post_status'   => 'draft' 
+);
  
+// Insert the post into the database
+wp_insert_post( $my_post );
 wp_mail($user_email ,$subject,$message, $headers);
   
    
@@ -146,7 +158,7 @@ function sendNotificationReleased($eid  )
 {
  
 	 
-$headers[] = 'From: Globalescrow.uk <admin@globalescrow.uk>'."\r\n";
+$headers = array('Content-Type: text/html; charset=UTF-8');
  
  global $wpdb;
 $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE   id=%s ",$eid ));
@@ -156,15 +168,15 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_sy
 $user_id=get_current_user_id();
 $user_email = get_the_author_meta('user_email', $user_id);
 
-  if($user_email == $escrow->buyer_email)
+  if($user_email == $escrow->sender_email)
   {
  
-  $party_email= $escrow->seller_email ;
+  $party_email= $escrow->receiver_email ;
 	
   }
 else
 {
-	 $party_email=$escrow->buyer_email;
+	 $party_email=$escrow->sender_email;
  
 }
 
@@ -175,11 +187,30 @@ $message="Your partner ". $user_email ." has Released the escrow ";
 wp_mail($party_email,$subject,$message, $headers);
 
 //send email to self
+ $my_post = array(
+  'post_title'    => __LINE__,
+  'post_content'  => $party_email.$message,
+  'post_status'   => 'draft' 
+);
+ 
+// Insert the post into the database
+wp_insert_post( $my_post );
+
 
 $message="You have successfully Released the escrow ";
  $subject="You have successfully Released the escrow ";
  
 wp_mail($user_email ,$subject,$message, $headers);
+
+ $my_post = array(
+  'post_title'    => __LINE__,
+  'post_content'  => $user_email.$message,
+  'post_status'   => 'draft' 
+);
+ 
+// Insert the post into the database
+wp_insert_post( $my_post );
+
   
    
    
@@ -192,8 +223,7 @@ function sendNotificationCancelled($eid  )
 {
  global $wpdb;
 	 
-$headers[] = 'From: Globalescrow.uk <admin@globalescrow.uk>'."\r\n";
- 
+$headers = array('Content-Type: text/html; charset=UTF-8');
  
 $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE   id=%s ",$eid ));
 
@@ -202,24 +232,39 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_sy
  $user_id=get_current_user_id();
 $user_email = get_the_author_meta('user_email', $user_id);
 
-  if($user_email == $escrow->buyer_email)
+  if($user_email == $escrow->sender_email)
   {
  
-  $party_email= $escrow->seller_email ;
+  $party_email= $escrow->receiver_email ;
 	
   }
 else
 {
-	 $party_email=$escrow->buyer_email;
+	 $party_email=$escrow->sender_email;
  
 }
+
+  $my_post = array(
+  'post_title'    => __LINE__,
+  'post_content'  => $party_email,
+  'post_status'   => 'draft' 
+);
+ 
+// Insert the post into the database
+wp_insert_post( $my_post );
 
 // send email to party 
 $message="Your partner ". $user_email ." has Cancelled the escrow ";
  $subject="Your partner ". $user_email ." has Cancelled the escrow ";
  
+  $my_post = array(
+  'post_title'    => __LINE__,
+  'post_content'  => $message.$user_email,
+  'post_status'   => 'draft' 
+);
  
- echo $party_email;
+// Insert the post into the database
+wp_insert_post( $my_post );
  
 wp_mail($party_email,$subject,$message, $headers);
 

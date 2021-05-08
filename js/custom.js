@@ -45,13 +45,11 @@ jQuery(document).ready(function($) {
  
 jQuery(document).ready(function($) {
     
-//alert("hello");
+		  if (document.getElementById('escrow_id') !==null) {
+     console.log('it exists!');
 
-
-
-
-		var escrow_id = document.getElementById('escrow_id').value;
-
+	
+var escrow_id = document.getElementById('escrow_id').value;
    var $form = $(this);
 	  $.ajax({
         type: "GET",
@@ -97,7 +95,7 @@ jQuery(document).ready(function($) {
 
 		
 	});
- 
+	}
 });
 
 

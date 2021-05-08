@@ -129,10 +129,8 @@ register_activation_hook(__FILE__, 'aistore_plugin_table_install');
  include_once dirname(__FILE__) . '/Escrow_list.php';
  include_once dirname(__FILE__) . '/user_escrow.php';
 include_once dirname(__FILE__) . '/email/sendnotification.php';
-// include_once dirname(__FILE__) . '/email/notification/partner_accept_escrow.php';
-// include_once dirname(__FILE__) . '/email/notification/payment_credit_buyer.php';
-// include_once dirname(__FILE__) . '/email/notification/payment_credit_seller.php';
-// include_once dirname(__FILE__) . '/email/notification/self_accept_escrow.php';
+include_once dirname(__FILE__) . '/user_email_verification.php';
+
 
 include_once dirname(__FILE__) . '/AistoreEscrowSystem.class.php';
 
