@@ -214,21 +214,19 @@ public function search_box( $text, $input_id ) {
 	public static function get_escrow( $per_page = 5, $page_number = 1 ) {
 
 		global $wpdb;
-		
-			if(empty(sanitize_text_field($_REQUEST['id']))){
-			    	$sql = "SELECT * FROM {$wpdb->prefix}escrow_system ";
+
+			if( empty( $_REQUEST['id'] ) ){
+		$sql = "SELECT * FROM {$wpdb->prefix}escrow_system  WHERE 1=1 ";
 			}
 		
-		if(!empty(sanitize_text_field($_REQUEST['id']))){
-		  // $id=1; 
+		else{
+		  
 $id=sanitize_text_field($_REQUEST['id']);
 
 $user_email = get_the_author_meta( 'user_email', $id );
 
 
-		$sql = "SELECT * FROM {$wpdb->prefix}escrow_system  WHERE (sender_email='$user_email' or receiver_email='$user_email' )  ";
-
-//echo $sql;
+		$sql = "SELECT * FROM {$wpdb->prefix}escrow_system  WHERE (sender_email='$user_email' or receiver_email='$user_email' ) ";
 }
 $sql .=  Escrow_List::prepareWhereClouse();
 
@@ -236,7 +234,12 @@ $sql .=  Escrow_List::prepareWhereClouse();
 
 		if ( ! empty( $_REQUEST['orderby'] ) ) {
 			$sql .= ' ORDER BY ' . esc_sql( $_REQUEST['orderby'] );
-			$sql .= ! empty( $_REQUEST['order'] ) ? ' ' . esc_sql( $_REQUEST['order'] ) : ' DESC';
+			$sql .= ! empty( $_REQUEST['order'] ) ? ' ' . esc_sql( $_REQUEST['order'] ) : 'DESC';
+		}
+		
+		else{
+			
+			$sql .= ' ORDER BY  created_at desc';
 		}
 
 		$sql .= " LIMIT $per_page";
@@ -261,7 +264,7 @@ $sql .=  Escrow_List::prepareWhereClouse();
       $endDate   = $_POST["endDate"]; 
 
     //sql will be 
-    $sql .= " and   DATE( `created_at`) BETWEEN '{$fromDate}' AND '{$endDate}'";
+    $sql .= "and  DATE('created_at') BETWEEN '{$fromDate}' AND '{$endDate}'  ";
  
 
   }
@@ -303,18 +306,7 @@ else
 	}
 
 
-public static function remove_payment_escrow( $id ) {
-	 
-	 global $wpdb;
-	 // steps to remove payments
-	 
-	 
-$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
-    SET payment_status = 'pending' WHERE id = '%d'",  $id   ) );
-	 
-	 
-	}
-	
+
 	
 
 	/**
@@ -434,8 +426,10 @@ $sql .=  Escrow_List::prepareWhereClouse();
 			'amount' => array( 'amount', false ),
 
 			'status' => array( 'status', true ),
-			'created_at' => array( 'created_at', false )
+			'created_at' => array( 'created_at', false ),
+		
 		);
+		
 
 		return $sortable_columns;
 	}
@@ -542,7 +536,7 @@ function form(){
 }
 
 
-class SP_Plugin {
+class Escrow_Plugin {
 
 	// class instance
 	static $instance;
@@ -650,5 +644,5 @@ class SP_Plugin {
 
 
 add_action( 'plugins_loaded', function () {
-	SP_Plugin::get_instance();
+	Escrow_Plugin::get_instance();
 } );
