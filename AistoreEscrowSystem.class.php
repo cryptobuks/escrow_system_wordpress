@@ -24,6 +24,16 @@ return (get_option('escrow_create_fee') / 100) * $amount;
     
 }
 
+    public  function accept_escow_fee($amount )
+{
+    
+     
+return (get_option('escrow_accept_fee') / 100) * $amount;
+
+
+
+    
+}
  //it take parameters and create escrow
  
  
@@ -53,7 +63,7 @@ if($user_balance<$amount){
  
  
      
-$escrow_fee =(get_option('escrow_create_fee') / 100) * $amount;
+$escrow_fee =get_escow_fee($amount);
 
 
 
@@ -204,7 +214,7 @@ if($user_balance<$amount){
 else
 {
      
-$escrow_fee =(get_option('escrow_create_fee') / 100) * $amount;
+$escrow_fee =get_escow_fee($amount);
 
 
 
@@ -506,6 +516,7 @@ global $wpdb;
 		  <th><?php   _e( 'Sender', 'aistore' ); ?></th>
 		  <th><?php   _e( 'Receiver', 'aistore' ); ?></th>
 		    <th><?php   _e( 'Status', 'aistore' ); ?></th>
+		    <th><?php   _e( 'Action', 'aistore' ); ?></th>
 </tr>
 
     <?php 
@@ -549,6 +560,12 @@ if($row->sender_email ==$current_user_email_id)
 	 $email=$row->sender_email;
   }
 echo $role;
+
+	 $invoice_url =  esc_url( add_query_arg( array(
+    'page_id' => 120,
+    'eid' => $row->id,
+), home_url() ) ); 
+
 ?>
 
 		  </td>
@@ -557,7 +574,7 @@ echo $role;
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
 		    <td> 		   <?php echo $row->status ; ?> </td>
-           
+  <td>	<a href="<?php echo $invoice_url; ?>" ><input type="submit" class="btn" name="submit" value="<?php  _e( 'Invoice', 'aistore' ) ?>"/></a></td>
             </tr>
     <?php endforeach;
 	
@@ -589,7 +606,6 @@ public static function aistore_escrow_detail( ){
     
     	 $add_escrow_page_url  =  esc_url( add_query_arg( array(
     'page_id' => get_option('add_escrow_page_id') ,
-	'eid'=> $eid,
 ), home_url() ) );
 
     ?>
@@ -598,6 +614,7 @@ public static function aistore_escrow_detail( ){
 <meta http-equiv="refresh" content="0; URL=<?php echo esc_html($add_escrow_page_url) ; ?>" /> 
   
  <?php   }
+ 
    $eid=sanitize_text_field($_REQUEST['eid']);
    
    
@@ -628,7 +645,7 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid
 
 
   
-$user_id= get_current_user_id();
+
 	 
 $email_id = get_the_author_meta( 'user_email',$user_id );
  
@@ -653,7 +670,7 @@ if(!isset($eid))
 return ob_get_clean();  
 }
 
- $eid=sanitize_text_field($_REQUEST['eid']);
+
 
 
 global $wpdb;
@@ -672,12 +689,12 @@ if ( ! isset( $_POST['aistore_nonce'] )
 $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'disputed' , $eid   ) );
-sendNotificationDisputed($eid);
+
 ?>
 <div>
 <strong> <?php  _e( 'Disputed Successfully', 'aistore' ) ?></strong></div>
 <?php
-
+sendNotificationDisputed($eid);
 
 }
 
@@ -696,8 +713,12 @@ if ( ! isset( $_POST['aistore_nonce'] )
 $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'accepted' , $eid   ) );
+   
+   $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ",$eid ));
+  
+ 
 
-$amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+$amount = $escrow->amount;
 
 $Payment_details = __( 'Payment transaction for the accept escrow with escrow id', 'aistore' );
 
@@ -705,8 +726,8 @@ $Payment_details = __( 'Payment transaction for the accept escrow with escrow id
  
  
 
-$escrow_fee=(get_option('escrow_accept_fee')/ 100) * $amount;
 
+$escrow_fee=accept_escow_fee($amount);
 
 $wallet = new Woo_Wallet_Wallet();
 
@@ -715,7 +736,7 @@ $user_id=get_current_user_id();
 $wallet->debit($user_id,$escrow_fee,$details);
 $wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
 
-sendNotificationAccepted($eid);
+
 
 ?>
 <div>
@@ -723,8 +744,10 @@ sendNotificationAccepted($eid);
 <strong> <?php  _e( 'Accepted Successfully', 'aistore' ) ?></strong></div>
 <?php
  printf(__( "Escrow Fee %d.", 'aistore'),$escrow_fee ); 
-
+sendNotificationAccepted($eid);
 }
+
+
 
 if(isset($_POST['submit']) and $_POST['action']=='released')
 {
@@ -740,14 +763,14 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'released' , $eid) );
    
-	$escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+      $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ",$eid ));
+      
+	$escrow_amount = $escrow->amount;
 	
-	$escrow_reciever_email_id = $wpdb->get_var( $wpdb->prepare( "SELECT receiver_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
-
-
-
-
-$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_email  = %s", $escrow_reciever_email_id ) );
+	
+	$escrow_reciever_email_id = $escrow->receiver_email;
+$user = get_user_by( 'email', $escrow_reciever_email_id);
+$id = $user->ID;
 
 $Payment_details = __( 'Payment transaction for the release escrow with escrow id', 'aistore' );
 
@@ -758,11 +781,12 @@ $Payment_details = __( 'Payment transaction for the release escrow with escrow i
 $wallet = new Woo_Wallet_Wallet();
 $wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
 $wallet->credit($id,$escrow_amount,$details);
-sendNotificationReleased($eid  );
+
 ?>
 <div>
 <strong> <?php  _e( 'Released Successfully', 'aistore' ) ?></strong></div>
 <?php
+sendNotificationReleased($eid  );
 }
  
 
@@ -786,14 +810,14 @@ if ( ! isset( $_POST['aistore_nonce'] )
 $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'cancelled' , $eid   ) );
-
-$escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
-
-$sender_escrow_fee = $wpdb->get_var( $wpdb->prepare( "SELECT escrow_fee from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
- 
-$sender_email = $wpdb->get_var( $wpdb->prepare( "SELECT sender_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
-
-$sender_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_email  = %s", $sender_email ) );
+  $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ",$eid ));
+      
+	$escrow_amount = $escrow->amount;
+	
+	$sender_escrow_fee = $escrow->escrow_fee;
+	$sender_email = $escrow->sender_email;
+$user = get_user_by( 'email', $sender_email);
+$sender_id = $user->ID;
 
 
 $Payment_details = __( 'Payment transaction for the cancel escrow with escrow id', 'aistore' );
@@ -812,13 +836,15 @@ $wallet->credit($sender_id,$escrow_amount,$details);
    if($cancel_escrow_fee=='yes'){
     $wallet->debit(get_option('escrow_user_id'),$sender_escrow_fee,$details);
     $wallet->credit($sender_id,$sender_escrow_fee,$details);
- sendNotificationCancelled($eid  );
+
        
   }
 ?>
 <div>
 <strong><?php  _e( 'Cancelled Successfully', 'aistore' ) ?></strong></div>
+
 <?php
+ sendNotificationCancelled($eid  );
 }
  
 
@@ -884,13 +910,14 @@ $object->escrow_file_uploads($escrow);
  
 
  
- return ob_get_clean();  
+
  
     
     ?>
 </div>
+
 <?php
-    
+     return ob_get_clean();  
 }
 
 
@@ -946,7 +973,7 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $ei
 wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' );
 ?>
   <div class="fallback">
-    <input id="file" name="file" type="file" multiple  />
+    <input id="file" name="file" type="file"  accept="application/pdf" multiple   />
     <input type="hidden" name="action" value="custom_action" type="submit"  />
   </div>
 
