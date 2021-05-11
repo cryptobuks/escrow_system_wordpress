@@ -11,29 +11,19 @@ class AistoreEscrowSystem {
     
     
 // get escrow feecccc
-
-
-    public  function get_escow_fee($amount )
+    public function get_escrow_fee($amount )
 {
-    
-     
 return (get_option('escrow_create_fee') / 100) * $amount;
-
-
-
-    
+  
 }
 
-    public  function accept_escow_fee($amount )
+    public function accept_escow_fee($amount )
 {
-    
-     
+
 return (get_option('escrow_accept_fee') / 100) * $amount;
-
-
-
-    
 }
+
+
  //it take parameters and create escrow
  
  
@@ -62,8 +52,11 @@ if($user_balance<$amount){
 }
  
  
-     
-$escrow_fee =get_escow_fee($amount);
+      
+  $object=new AistoreEscrowSystem();
+
+$escrow_fee=$object->get_escrow_fee($amount);
+
 
 
 
@@ -214,7 +207,10 @@ if($user_balance<$amount){
 else
 {
      
-$escrow_fee =get_escow_fee($amount);
+  
+  $object=new AistoreEscrowSystem();
+
+$escrow_fee=$object->get_escrow_fee($amount);
 
 
 
@@ -232,8 +228,12 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title,
 $eid = $wpdb->insert_id;
 
   $upload_dir = wp_upload_dir();
- 
+  
+ $fileType = $_FILES['file']['type'];
+            if($fileType=="application/pdf"){
         if ( ! empty( $upload_dir['basedir'] ) ) {
+            
+            
             $user_dirname = $upload_dir['basedir'].'/documents/'.$eid;
             if ( ! file_exists( $user_dirname ) ) {
                 wp_mkdir_p( $user_dirname );
@@ -251,8 +251,14 @@ $eid = $wpdb->insert_id;
 $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
         }
         
+        else{
+            ?>
+            <p> <?php  _e( 'Note : We accept only pdf file', 'aistore' ) ?></p><?php
+        
+        }
+        
 
-
+}
 
 
 $Payment_details = __( 'Payment transaction for the escrow id', 'aistore' );
@@ -332,20 +338,7 @@ $subject =$details;
 
 <meta http-equiv="refresh" content="0; URL=<?php echo esc_html($details_escrow_page_id_url) ; ?>" />
 
-<div><h1><?php   _e( 'Thank You', 'aistore' ); ?> </h1></div>
 
-
-
-
-<div><?php  
-printf(__( 'Escrow Fee %s.', 'aistore' ),
-$escrow_fee
-); ?> </div>
-
-<div>   <?php   printf(__( 'Sender %s.', 'aistore'),$sender_email ); ?>   </div>
-
-
-<div>  <?php   printf(__( 'Receiver %s.', 'aistore'),$receiver_email ); ?> </div>
 
 
 
@@ -725,13 +718,13 @@ $Payment_details = __( 'Payment transaction for the accept escrow with escrow id
  $details=$Payment_details.$eid ; 
  
  
+  $object=new AistoreEscrowSystem();
 
+$escrow_fee=$object->accept_escow_fee($amount);
 
-$escrow_fee=accept_escow_fee($amount);
 
 $wallet = new Woo_Wallet_Wallet();
 
-$user_id=get_current_user_id();
 
 $wallet->debit($user_id,$escrow_fee,$details);
 $wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
@@ -1276,12 +1269,7 @@ else
 
 function aistore_upload_file() {
     
-  
-
 	 global $wpdb;
-
-
-
   $eid=sanitize_text_field($_REQUEST['eid']);
 
 $user_id= get_current_user_id();
@@ -1301,11 +1289,14 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT count(id) as count FROM {$wpdb-
             if ( ! file_exists( $user_dirname ) ) {
                 wp_mkdir_p( $user_dirname );
             }
- 
+ $fileType = $_FILES['file']['type'];
+            if($fileType=="application/pdf"){
             $filename = wp_unique_filename( $user_dirname, $_FILES['file']['name'] );
             
             echo "filename".$filename;
             
+            
+                
             move_uploaded_file(sanitize_text_field($_FILES['file']['tmp_name']), $user_dirname .'/'. $filename);
             
             
@@ -1315,6 +1306,11 @@ $escrow = $wpdb->get_row($wpdb->prepare( "SELECT count(id) as count FROM {$wpdb-
 
 
 $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
+}
+
+else{
+    echo "We accept only pdf file"; 
+}
         }
     }
 
