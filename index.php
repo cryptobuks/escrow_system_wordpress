@@ -130,7 +130,7 @@ register_activation_hook(__FILE__, 'aistore_plugin_table_install');
  include_once dirname(__FILE__) . '/user_escrow.php';
 include_once dirname(__FILE__) . '/email/sendnotification.php';
 include_once dirname(__FILE__) . '/user_email_verification.php';
-include_once dirname(__FILE__) . '/invoice.php';
+//include_once dirname(__FILE__) . '/invoice.php';
 
 include_once dirname(__FILE__) . '/AistoreEscrowSystem.class.php';
 

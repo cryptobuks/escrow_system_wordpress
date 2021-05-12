@@ -509,7 +509,7 @@ global $wpdb;
 		  <th><?php   _e( 'Sender', 'aistore' ); ?></th>
 		  <th><?php   _e( 'Receiver', 'aistore' ); ?></th>
 		    <th><?php   _e( 'Status', 'aistore' ); ?></th>
-		    <th><?php   _e( 'Action', 'aistore' ); ?></th>
+		 
 </tr>
 
     <?php 
@@ -554,10 +554,7 @@ if($row->sender_email ==$current_user_email_id)
   }
 echo $role;
 
-	 $invoice_url =  esc_url( add_query_arg( array(
-    'page_id' => 120,
-    'eid' => $row->id,
-), home_url() ) ); 
+
 
 ?>
 
@@ -567,7 +564,7 @@ echo $role;
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
 		    <td> 		   <?php echo $row->status ; ?> </td>
-  <td>	<a href="<?php echo $invoice_url; ?>" ><input type="submit" class="btn" name="submit" value="<?php  _e( 'Invoice', 'aistore' ) ?>"/></a></td>
+
             </tr>
     <?php endforeach;
 	
