@@ -121,7 +121,7 @@ function aistore_plugin_table_install()
     
     dbDelta($table_escrow_documents);
     
-   
+     email_notification_message();
 
 
 }
@@ -158,5 +158,66 @@ add_shortcode('aistore_escrow_detail', array(
     'aistore_escrow_detail'
 ));
 
+
+
+function email_notification_message(){
+    //notification
+    
+    
+	update_option(  'created_escrow','You have successfully created the escrow # [EID]' );
+	update_option( 'partner_created_escrow', 'Your partner have successfully created the escrow # [EID]' );
+	update_option( 'accept_escrow', 'You have successfully  accepted the escrow # [EID]' );
+	update_option( 'partner_accept_escrow', 'Your partner have successfully accepted the escrow # [EID]' );
+	
+	update_option( 'dispute_escrow', 'You have successfully  disputed the escrow # [EID]' );
+	update_option( 'partner_dispute_escrow', 'Your partner have successfully disputed the escrow # [EID]' );
+	update_option( 'release_escrow', 'You have successfully  released the escrow # [EID]' );
+	update_option( 'partner_release_escrow', 'Your partner have successfully released the escrow # [EID]' );
+	
+	
+	update_option( 'cancel_escrow', 'You have successfully  cancelled the escrow # [EID]' );
+	update_option( 'partner_cancel_escrow', 'Your partner have successfully cancelled the escrow # [EID]' );
+	update_option( 'shipping_escrow', 'you have updated the shipping details for the escrow# [EID]' );
+	update_option( 'partner_shipping_escrow', 'Your partner has updated the shipping details for the escrow# [EID]' );
+	
+	update_option( 'buyer_deposit', 'Your payment  has been accepted for the escrow  # [EID]' );
+	update_option( 'seller_deposit', 'You have deposited the payment into  the escrow for  the transaction  escrow # [EID]' );
+	update_option( 'Buyer_Mark_Paid', 'You have successfully  marked escrow # [EID]' );
+
+//email
+
+update_option( 'email_created_escrow' ,'You have successfully created the escrow # [EID]');
+	update_option( 'email_partner_created_escrow', 'Your partner have successfully created the escrow # [EID]' );
+	update_option( 'email_accept_escrow', 'You have successfully  accepted the escrow # [EID]' );
+	update_option( 'email_partner_accept_escrow', 'Your partner have successfully accepted the escrow # [EID]' );
+	
+	update_option( 'email_dispute_escrow', 'You have successfully  disputed the escrow # [EID]' );
+	update_option( 'email_partner_dispute_escrow', 'Your partner have successfully disputed the escrow # [EID]' );
+	update_option( 'email_release_escrow', 'You have successfully  released the escrow # [EID]' );
+	update_option( 'email_partner_release_escrow', 'Your partner have successfully released the escrow # [EID]' );
+	
+	
+	update_option( 'email_cancel_escrow', 'You have successfully  cancelled the escrow # [EID]' );
+	update_option( 'email_partner_cancel_escrow', 'Your partner have successfully cancelled the escrow # [EID]' );
+	update_option( 'email_shipping_escrow', 'you have updated the shipping details for the escrow# [EID]' );
+	update_option( 'email_partner_shipping_escrow', 'Your partner has updated the shipping details for the escrow# [EID]' );
+	
+	update_option( 'email_buyer_deposit', 'Your payment  has been accepted for the escrow  # [EID]' );
+	update_option( 'email_seller_deposit', 'You have deposited the payment into  the escrow for  the transaction  escrow # [EID]' );
+	update_option( 'email_Buyer_Mark_Paid', 'You have successfully  marked escrow # [EID]' );
+
+}
+
+
+
 add_filter('woo_wallet_disallow_negative_transaction', '__return_false'); 
+
+function  Aistore_process_placeholder_Text($str,$escrow)
+ {
+     
+   $str = str_replace("[EID]", $escrow->id, $str);
+     return $str;
+ }
+
+
  

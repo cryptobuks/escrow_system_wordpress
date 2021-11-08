@@ -63,6 +63,18 @@ public function aistore_add_plugin_page()
         'aistore_page_setting'
     ));
     
+       add_submenu_page('disputed_escrow_list', __('Notification Setting','aistore'), __('Notification Setting','aistore'), 'administrator', 'notification_setting', array(
+        $this,
+        'aistore_notification_setting'
+    ));
+    
+    
+     add_submenu_page('disputed_escrow_list', __('Email Setting','aistore'), __('Email Setting','aistore'), 'administrator', 'email_setting', array(
+        $this,
+        'aistore_email_setting'
+    ));
+    
+    
     
 }
 
@@ -720,8 +732,55 @@ function aistore_page_register_setting() {
 	register_setting( 'aistore_page', 'escrow_accept_fee' );
 	register_setting( 'aistore_page', 'escrow_message_page' );
 	register_setting( 'aistore_page', 'cancel_escrow_fee' );
+    register_setting( 'aistore_page', 'currency' );
+}
+
+
+function aistore_notification_register_setting() {	
+	register_setting( 'aistore_notification_page', 'created_escrow' );
+	register_setting( 'aistore_notification_page', 'partner_created_escrow' );
+	register_setting( 'aistore_notification_page', 'accept_escrow' );
+	register_setting( 'aistore_notification_page', 'partner_accept_escrow' );
+	
+	register_setting( 'aistore_notification_page', 'dispute_escrow' );
+	register_setting( 'aistore_notification_page', 'partner_dispute_escrow' );
+	register_setting( 'aistore_notification_page', 'release_escrow' );
+	register_setting( 'aistore_notification_page', 'partner_release_escrow' );
+	
+	
+	register_setting( 'aistore_notification_page', 'cancel_escrow' );
+	register_setting( 'aistore_notification_page', 'partner_cancel_escrow' );
+	register_setting( 'aistore_notification_page', 'shipping_escrow' );
+	register_setting( 'aistore_notification_page', 'partner_shipping_escrow' );
+	
+	register_setting( 'aistore_notification_page', 'buyer_deposit' );
+	register_setting( 'aistore_notification_page', 'seller_deposit' );
+	register_setting( 'aistore_notification_page', 'Buyer_Mark_Paid' );
 
 }
+//email
+function aistore_email_register_setting() {
+register_setting( 'aistore_email_page', 'email_created_escrow' );
+	register_setting( 'aistore_email_page', 'email_partner_created_escrow' );
+	register_setting( 'aistore_email_page', 'email_accept_escrow' );
+	register_setting( 'aistore_email_page', 'email_partner_accept_escrow' );
+	
+	register_setting( 'aistore_email_page', 'email_dispute_escrow' );
+	register_setting( 'aistore_email_page', 'email_partner_dispute_escrow' );
+	register_setting( 'aistore_email_page', 'email_release_escrow' );
+	register_setting( 'aistore_email_page', 'email_partner_release_escrow' );
+	
+	
+	register_setting( 'aistore_email_page', 'email_cancel_escrow' );
+	register_setting( 'aistore_email_page', 'email_partner_cancel_escrow' );
+	register_setting( 'aistore_email_page', 'email_shipping_escrow' );
+	register_setting( 'aistore_email_page', 'email_partner_shipping_escrow' );
+	
+	register_setting( 'aistore_email_page', 'email_buyer_deposit' );
+	register_setting( 'aistore_email_page', 'email_seller_deposit' );
+	register_setting( 'aistore_email_page', 'email_Buyer_Mark_Paid' );
+}
+
 
  function aistore_page_setting() {
 	 
@@ -1025,6 +1084,41 @@ else{
 </td>
         </tr>  
         
+        
+        
+             
+         <tr valign="top">
+        <th scope="row"><?php  _e( 'Currency', 'aistore' ) ?></th>
+        <td>
+            
+       <?php $currency=get_option('currency');?>
+                
+            <select name="currency" id="currency">
+               
+            <option selected value="INR" <?php selected(
+                $currency,
+                'INR'
+            ); ?>>INR</option>
+            <option value="EUR" <?php selected(
+                $currency,
+                'EUR'
+            ); ?>>EUR</option>
+                <option selected value="USD" <?php selected(
+                $currency,
+                'USD'
+            ); ?>>USD</option>
+            <option value="GDP" <?php selected(
+                $currency,
+                'GDP'
+            ); ?>>GDP</option>
+  
+</select>
+            
+            
+</td>
+        </tr> 
+        
+        
 
  <tr valign="top">
  <th scope="row"><?php  _e( 'Cancel Escrow fee refund or not ', 'aistore' ) ?></th>
@@ -1091,6 +1185,488 @@ else{
  }
 
 
+function aistore_notification_setting(){
+    ?>
+      <h3><?php  _e( 'Notification Setting', 'aistore' ) ?></h3>
+      
+<form method="post" action="options.php">
+    <?php settings_fields( 'aistore_notification_page' ); ?>
+    <?php do_settings_sections( 'aistore_notification_page' ); ?>
+    
+       <table class="form-table">
+        
+     
+        
+	 <tr valign="top">
+        <th scope="row"><?php  _e( 'Created Escrow', 'aistore' ) ?></th>
+        <td>
+            <textarea id="created_escrow" name="created_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('created_escrow') ); ?>
+</textarea>
+          </td>
+        </tr>
+        
+         <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Created Escrow', 'aistore' ) ?></th>
+        <td>
+             <textarea id="partner_created_escrow" name="partner_created_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('partner_created_escrow') ); ?>
+</textarea>
+           </td>
+        </tr>
+        
+      <tr valign="top">
+        <th scope="row"><?php  _e( 'Accept Escrow', 'aistore' ) ?></th>
+        <td>
+             <textarea id="accept_escrow" name="accept_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('accept_escrow') ); ?>
+</textarea>
+            </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Accept Escrow', 'aistore' ) ?></th>
+        <td>
+              <textarea id="partner_accept_escrow" name="partner_accept_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('partner_accept_escrow') ); ?>
+</textarea>
+           </td>
+        </tr>
+  
+  
+      
+      <tr valign="top">
+        <th scope="row"><?php  _e( 'Dispute Escrow', 'aistore' ) ?></th>
+        <td>
+             <textarea id="dispute_escrow" name="dispute_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('dispute_escrow') ); ?>
+</textarea>
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Dispute Escrow', 'aistore' ) ?></th>
+        <td>
+              <textarea id="partner_dispute_escrow" name="partner_dispute_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('partner_dispute_escrow') ); ?>
+</textarea>
+          </td>
+        </tr>
+  
+  
+  
+     
+      <tr valign="top">
+        <th scope="row"><?php  _e( 'Release Escrow', 'aistore' ) ?></th>
+        <td>
+             <textarea id="release_escrow" name="release_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('release_escrow') ); ?>
+</textarea>
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Release Escrow', 'aistore' ) ?></th>
+        <td>
+              <textarea id="partner_release_escrow" name="partner_release_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('partner_release_escrow') ); ?>
+</textarea>
+          </td>
+        </tr>
+        
+        
+             <tr valign="top">
+        <th scope="row"><?php  _e( 'Cancel Escrow', 'aistore' ) ?></th>
+        <td>
+             <textarea id="cancel_escrow" name="cancel_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('cancel_escrow') ); ?>
+</textarea>
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Cancel Escrow', 'aistore' ) ?></th>
+        <td>
+              <textarea id="partner_cancel_escrow" name="partner_cancel_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('partner_cancel_escrow') ); ?>
+</textarea>
+          </td>
+        </tr>
+        
+        
+        
+             <tr valign="top">
+        <th scope="row"><?php  _e( 'Buyer Deposit', 'aistore' ) ?></th>
+        <td>
+             <textarea id="buyer_deposit" name="buyer_deposit" rows="2" cols="50">
+<?php echo esc_attr( get_option('buyer_deposit') ); ?>
+</textarea>
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Seller Deposit', 'aistore' ) ?></th>
+        <td>
+              <textarea id="seller_deposit" name="seller_deposit" rows="2" cols="50">
+<?php echo esc_attr( get_option('seller_deposit') ); ?>
+</textarea>
+          </td>
+        </tr>
+        
+        
+        
+        
+           <tr valign="top">
+        <th scope="row"><?php  _e( 'Shipping Escrow', 'aistore' ) ?></th>
+        <td>
+             <textarea id="shipping_escrow" name="shipping_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('shipping_escrow') ); ?>
+</textarea>
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Shipping Escrow', 'aistore' ) ?></th>
+        <td>
+              <textarea id="partner_shipping_escrow" name="partner_shipping_escrow" rows="2" cols="50">
+<?php echo esc_attr( get_option('partner_shipping_escrow') ); ?>
+</textarea>
+          </td>
+        </tr>
+        
+                  <tr valign="top">
+        <th scope="row"><?php  _e( 'Buyer Mark Paid', 'aistore' ) ?></th>
+        <td>
+              <textarea id="Buyer_Mark_Paid" name="Buyer_Mark_Paid" rows="2" cols="50">
+<?php echo esc_attr( get_option('Buyer_Mark_Paid') ); ?>
+</textarea>
+          </td>
+        </tr>
+  
+    </table>
+       <?php submit_button(); ?>
+
+</form>
+      <?php
+}
+
+
+
+
+
+
+
+
+
+
+
+function aistore_email_setting(){
+    
+    ?>
+      <h3><?php  _e( 'Email Setting', 'aistore' ) ?></h3>
+        
+  <?php
+  
+  $editor=array(
+    'tinymce'       => array(
+        'toolbar1'      => 'bold,italic,underline,separator,alignleft,aligncenter,alignright, link,unlink,  ',
+        'toolbar2'      => '', 
+        'toolbar3'      => ''  
+       
+           ),   
+         'textarea_rows' => 1 ,
+    'teeny' => true,
+    'quicktags' => false,
+     'media_buttons' => false 
+);
+
+?>
+<form method="post" action="options.php">
+    <?php settings_fields( 'aistore_email_page' ); ?>
+    <?php do_settings_sections( 'aistore_email_page' ); ?>
+    
+       <table class="form-table">
+        
+     
+        
+	 <tr valign="top">
+        <th scope="row"><?php  _e( 'Created Escrow', 'aistore' ) ?></th>
+        <td>
+              <?php
+  
+$content   =esc_attr( get_option('email_created_escrow') );;
+$editor_id = 'email_created_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+          </td>
+        </tr>
+        
+         <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Created Escrow', 'aistore' ) ?></th>
+        <td>
+            
+            <?php
+  
+$content   =esc_attr( get_option('email_partner_created_escrow') );;
+$editor_id = 'email_partner_created_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+           </td>
+        </tr>
+        
+      <tr valign="top">
+        <th scope="row"><?php  _e( 'Accept Escrow', 'aistore' ) ?></th>
+        <td>
+            <?php
+  
+$content   =esc_attr( get_option('email_accept_escrow') );;
+$editor_id = 'email_accept_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+            </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Accept Escrow', 'aistore' ) ?></th>
+        <td>
+            <?php
+  
+$content   =esc_attr( get_option('email_partner_accept_escrow') );;
+$editor_id = 'email_partner_accept_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+           </td>
+        </tr>
+  
+  
+      
+      <tr valign="top">
+        <th scope="row"><?php  _e( 'Dispute Escrow', 'aistore' ) ?></th>
+        <td>
+            <?php
+  
+$content   =esc_attr( get_option('email_dispute_escrow') );;
+$editor_id = 'email_dispute_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Dispute Escrow', 'aistore' ) ?></th>
+        <td>
+            <?php
+  
+$content   =esc_attr( get_option('email_partner_dispute_escrow') );;
+$editor_id = 'email_partner_dispute_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+           
+          </td>
+        </tr>
+  
+  
+  
+     
+      <tr valign="top">
+        <th scope="row"><?php  _e( 'Release Escrow', 'aistore' ) ?></th>
+        <td>
+            
+            <?php
+  
+$content   =esc_attr( get_option('email_release_escrow') );;
+$editor_id = 'email_release_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Release Escrow', 'aistore' ) ?></th>
+        <td>
+            <?php
+  
+$content   =esc_attr( get_option('email_partner_release_escrow') );;
+$editor_id = 'email_partner_release_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+          </td>
+        </tr>
+        
+        
+             <tr valign="top">
+        <th scope="row"><?php  _e( 'Cancel Escrow', 'aistore' ) ?></th>
+        <td>
+            
+            <?php
+  
+$content   =esc_attr( get_option('email_cancel_escrow') );;
+$editor_id = 'email_cancel_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+         
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Cancel Escrow', 'aistore' ) ?></th>
+        <td>
+            <?php
+  
+$content   =esc_attr( get_option('email_partner_cancel_escrow') );;
+$editor_id = 'email_partner_cancel_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+          </td>
+        </tr>
+        
+        
+        
+             <tr valign="top">
+        <th scope="row"><?php  _e( 'Buyer Deposit', 'aistore' ) ?></th>
+        <td>
+            <?php
+  
+$content   =esc_attr( get_option('email_buyer_deposit') );;
+$editor_id = 'email_buyer_deposit';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Seller Deposit', 'aistore' ) ?></th>
+        <td>
+            
+            <?php
+  
+$content   =esc_attr( get_option('email_seller_deposit') );;
+$editor_id = 'email_seller_deposit';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          </td>
+        </tr>
+        
+        
+        
+        
+           <tr valign="top">
+        <th scope="row"><?php  _e( 'Shipping Escrow', 'aistore' ) ?></th>
+        <td>
+            <?php
+  
+$content   =esc_attr( get_option('email_shipping_escrow') );;
+$editor_id = 'email_shipping_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+        </td>
+        </tr>
+        
+          <tr valign="top">
+        <th scope="row"><?php  _e( 'Partner Shipping Escrow', 'aistore' ) ?></th>
+        <td>
+            
+            <?php
+  
+$content   =esc_attr( get_option('email_partner_shipping_escrow') );;
+$editor_id = 'email_partner_shipping_escrow';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+            
+          </td>
+        </tr>
+        
+                  <tr valign="top">
+        <th scope="row"><?php  _e( 'Buyer Mark Paid', 'aistore' ) ?></th>
+        <td>
+            
+            <?php
+  
+$content   =esc_attr( get_option('email_Buyer_Mark_Paid') );;
+$editor_id = 'email_Buyer_Mark_Paid';
+
+ 
+   
+wp_editor( $content, $editor_id,   $editor);
+ 
+?>
+          
+          </td>
+        </tr>
+  
+    </table>
+       <?php submit_button(); ?>
+
+</form>
+      <?php
+}
 
 }
 

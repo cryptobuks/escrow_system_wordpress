@@ -35,8 +35,11 @@ return (get_option('escrow_accept_fee') / 100) * $amount;
 
 $ar=array();
 
-
- $user_balance=$wallet->get_wallet_balance($user_id,'');
+ $wallet = new AistoreWallet();
+  $currency=get_option('currency');
+    // $old_balance = $wallet->aistore_balance($user_id, $currency);
+    
+ $user_balance=$wallet->aistore_balance($user_id,$currency);
 
 $sender_email = get_the_author_meta( 'user_email', $user_id );
 
@@ -78,69 +81,21 @@ $Payment_details = __( 'Payment transaction for the escrow id', 'aistore' );
 
  $details=$Payment_details.$eid ; 
  
- 
-$wallet->debit($user_id,$amount,$details);
+  $currency=get_option('currency');
+$res=$wallet->aistore_debit($user_id, $amount, $currency, $details);
 
-$wallet->credit(get_option('escrow_user_id'),$escrow_fee ,$details);
+$res=$wallet->aistore_credit(get_option('escrow_user_id'), $escrow_fee, $currency, $details);
+$res=$wallet->aistore_credit(get_option('escrow_user_id'), $new_amount, $currency, $details);
+// $wallet->debit($user_id,$amount,$details);
 
-$txid=$wallet->credit(get_option('escrow_user_id'),$new_amount,$details);
+// $wallet->credit(get_option('escrow_user_id'),$escrow_fee ,$details);
 
-
-
-
-
-// email to sender 
-
-
-$to = $sender_email;
-$subject =$details;
-
-
-	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
-    'page_id' => get_option('details_escrow_page_id') ,
-	'eid'=> $eid,
-), home_url() ) );
-
-
- $body="Hello, <br>
- 
-     <h2>Your partner ".$receiver_email." have invited successfully for the escrow ID ".$eid." </h2><br> Below is complete detail of the escrow <br/>
-     Invited to: ".$receiver_email.
-     
-     "<br>Escrow ID is: ".$eid.
-     "<br>Accept Escrow system to :<br>".
-         $details_escrow_page_id_url ;
-    
-  $body  .="<br /> If you are not registered in the portal kindly visit my account page and register.";
-  
-  //$body.=__( 'Your Recevier Email'.$receiver_email, 'aistore' );
-  
-  $headers = array('Content-Type: text/html; charset=UTF-8');
-     wp_mail( $to, $subject, $body, $headers );
-
-
-// email to receiver
-
-
-$to = $receiver_email;
-$subject =$details;
+// $txid=$wallet->credit(get_option('escrow_user_id'),$new_amount,$details);
 
 
 
 
- $body="Hello, <br>
-     <h2>Your partner ".$sender_email." have invited you for the escrow ".$eid." </h2><br> Below is complete detail of the escrow <br/>
-     Invited by : ".$sender_email.
-     
-     "<br>Escrow ID is:".$eid.
-     "<br>Accept Escrow system to :<br>".
-         $details_escrow_page_id_url ;
-    
-  $body  .="<br /> If you are not registered in the portal kindly visit my account page and register.";
-  
-  $headers = array('Content-Type: text/html; charset=UTF-8');
-     wp_mail( $to, $subject, $body, $headers );
-  
+sendNotificationCreated($eid);
     
 
 
@@ -174,8 +129,8 @@ if ( !is_user_logged_in() ) {
  echo " <div>";
       
   
-
-$wallet = new Woo_Wallet_Wallet();
+$wallet = new AistoreWallet();
+// $wallet = new Woo_Wallet_Wallet();
 $user_id=get_current_user_id();
 
 if(isset($_POST['submit']) and $_POST['action']=='escrow_system' )
@@ -190,13 +145,13 @@ if ( ! isset( $_POST['aistore_nonce'] )
 
 
 
-
+  $currency=get_option('currency');
 $title=sanitize_text_field($_REQUEST['title']);
 $amount=sanitize_text_field($_REQUEST['amount']);
 $receiver_email=sanitize_email($_REQUEST['receiver_email']);
 $term_condition=sanitize_text_field(htmlentities($_REQUEST['term_condition']));
- 
- $user_balance=$wallet->get_wallet_balance($user_id,'');
+  $user_balance=$wallet->aistore_balance($user_id,$currency);
+//  $user_balance=$wallet->get_wallet_balance($user_id,'');
 
 $sender_email = get_the_author_meta( 'user_email', get_current_user_id() );
 
@@ -265,69 +220,24 @@ $Payment_details = __( 'Payment transaction for the escrow id', 'aistore' );
 
  $details=$Payment_details.$eid ; 
  
+   $currency=get_option('currency');
  
-$wallet->debit($user_id,$amount,$details);
+ $res=$wallet->aistore_debit($user_id, $amount, $currency, $details);
 
-$wallet->credit(get_option('escrow_user_id'),$escrow_fee ,$details);
-$txid=$wallet->credit(get_option('escrow_user_id'),$new_amount,$details);
+$res=$wallet->aistore_credit(get_option('escrow_user_id'), $escrow_fee, $currency, $details);
+$txid=$wallet->aistore_credit(get_option('escrow_user_id'), $new_amount, $currency, $details);
+
+// $wallet->debit($user_id,$amount,$details);
+
+// $wallet->credit(get_option('escrow_user_id'),$escrow_fee ,$details);
+// $txid=$wallet->credit(get_option('escrow_user_id'),$new_amount,$details);
 
 	 $create_escrow_page_2_url  =  esc_url( add_query_arg( array(
     'page_id' => get_option('create_escrow_page_2'),
 	'eid'=> $eid,
 ), home_url() ) );
 
-
-// email to sender 
-
-
-$to = $sender_email;
-$subject =$details;
-
-
-	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
-    'page_id' => get_option('details_escrow_page_id') ,
-	'eid'=> $eid,
-), home_url() ) );
-
-
- $body="Hello, <br>
- 
-     <h2>Your partner ".$receiver_email." have invited successfully for the escrow ".$eid." </h2><br> Below is complete detail of the escrow <br/>
-     Invited to : ".$receiver_email.
-     
-     "<br>Escrow ID is:".$eid.
-     "<br>Accept Escrow system to :<br>".
-         $details_escrow_page_id_url ;
-    
-  $body  .="<br /> If you are not registered in the portal kindly visit my account page and register.";
-  
-  //$body.=__( 'Your Recevier Email'.$receiver_email, 'aistore' );
-  
-  $headers = array('Content-Type: text/html; charset=UTF-8');
-     wp_mail( $to, $subject, $body, $headers );
-
-
-// email to receiver
-
-
-$to = $receiver_email;
-$subject =$details;
-
-
-
-
- $body="Hello, <br>
-     <h2>Your partner ".$sender_email." have invited you for the escrow ".$eid." </h2><br> Below is complete detail of the escrow <br/>
-     Invited by : ".$sender_email.
-     
-     "<br>Escrow ID is : ".$eid.
-     "<br>Accept Escrow system to : <br>".
-         $details_escrow_page_id_url ;
-    
-  $body  .="<br /> <strong>If you are not registered in the portal kindly visit my account page and register.</strong>";
-  
-  $headers = array('Content-Type: text/html; charset=UTF-8');
-     wp_mail( $to, $subject, $body, $headers );
+sendNotificationCreated($eid);
 
 ?>
 
@@ -358,14 +268,20 @@ else{
                  
 <label for="title"><?php   _e('Title', 'aistore' ); ?></label><br>
   <input class="input" type="text" id="title" name="title" required><br>
-  <?php  $user_balance=$wallet->get_wallet_balance($user_id,''); ?>
+  <?php 
+      $currency=get_option('currency');
+   $user_balance=$wallet->aistore_balance($user_id,$currency);
+//   $user_balance=$wallet->get_wallet_balance($user_id,''); 
+  ?>
 
   <label for="amount"><?php   _e( 'Amount', 'aistore' ); ?></label><br>
   <input class="input" type="number" id="amount" name="amount" min="1" max="<?php echo $user_balance ?>" required><br>
  
    <input class="input" type="hidden" id="escrow_create_fee" name="escrow_create_fee" value= "<?php echo get_option('escrow_create_fee');?>">
   <?php
-   $balance=$wallet->get_wallet_balance ($user_id);
+  
+   $balance=$wallet->aistore_balance($user_id,$currency);
+//   $balance=$wallet->get_wallet_balance ($user_id);
 
    printf(__('Available balance is %s', 'aistore'), $balance) ;
  
@@ -375,24 +291,19 @@ else{
  
  // issue 3
  
- 
-  ?><p>  <?php   _e('In case you have low balance please deposit balance ', 'aistore' );
+   $currency=get_option('currency');
   ?>
-  
-  <a href="<?php echo $deposit_link; ?>" >  
-  <?php   _e('Deposit Fund', 'aistore' ); ?>
-    </a> </p>
  <div class="feeblock hide" >
       <?php   _e( 'Amount', 'aistore' ); ?> :
-      <b id="escrow_amount"></b>/-  <?php echo get_woocommerce_currency_symbol(); ?><br>
+      <b id="escrow_amount"></b>/- <?php echo $currency;?><br>
  
   <?php   _e('Escrow Fee', 'aistore' ); ?>
   
-  :  <b id="escrow_fee" ></b>/- <?php echo get_woocommerce_currency_symbol(); ?>  (<?php echo get_option('escrow_create_fee');?> %)<br>
+  :  <b id="escrow_fee" ></b>/- <?php echo $currency;?>  (<?php echo get_option('escrow_create_fee');?> %)<br>
   
     
      
-   <?php   _e('Total Escrow Amount', 'aistore' ); ?> :   <b id="total"></b>/- <?php echo get_woocommerce_currency_symbol(); ?>
+   <?php   _e('Total Escrow Amount', 'aistore' ); ?> :   <b id="total"></b>/- <?php echo $currency;?>
   
   
   </div>
@@ -560,7 +471,7 @@ echo $role;
 
 		  </td>
 		   
-		  	   <td> 		   <?php echo $row->amount .  get_woocommerce_currency_symbol();?>  </td>
+		  	   <td> 		   <?php echo $row->amount ?> USD </td>
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
 		    <td> 		   <?php echo $row->status ; ?> </td>
@@ -718,13 +629,16 @@ $Payment_details = __( 'Payment transaction for the accept escrow with escrow id
   $object=new AistoreEscrowSystem();
 
 $escrow_fee=$object->accept_escow_fee($amount);
+  $currency=get_option('currency');
+$wallet = new AistoreWallet();
+$res=$wallet->aistore_debit($user_id, $escrow_fee, $currency, $details);
+$res=$wallet->aistore_credit(get_option('escrow_user_id'), $escrow_fee, $currency, $details);
+
+// $wallet = new Woo_Wallet_Wallet();
 
 
-$wallet = new Woo_Wallet_Wallet();
-
-
-$wallet->debit($user_id,$escrow_fee,$details);
-$wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
+// $wallet->debit($user_id,$escrow_fee,$details);
+// $wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
 
 
 
@@ -765,12 +679,15 @@ $id = $user->ID;
 $Payment_details = __( 'Payment transaction for the release escrow with escrow id', 'aistore' );
 
  $details=$Payment_details.$eid ; 
-
+  $currency=get_option('currency');
+$wallet = new AistoreWallet();
+$res=$wallet->aistore_debit(get_option('escrow_user_id'), $escrow_amount, $currency, $details);
+$res=$wallet->aistore_credit($id, $escrow_amount, $currency, $details);
 
  
-$wallet = new Woo_Wallet_Wallet();
-$wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
-$wallet->credit($id,$escrow_amount,$details);
+// $wallet = new Woo_Wallet_Wallet();
+// $wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
+// $wallet->credit($id,$escrow_amount,$details);
 
 ?>
 <div>
@@ -814,18 +731,27 @@ $Payment_details = __( 'Payment transaction for the cancel escrow with escrow id
 
  $details=$Payment_details.$eid ; 
 
+  $currency=get_option('currency');
 
-$wallet = new Woo_Wallet_Wallet();
+$wallet = new AistoreWallet();
+$res=$wallet->aistore_debit(get_option('escrow_user_id'), $escrow_amount, $currency, $details);
+$res=$wallet->aistore_credit($sender_id, $escrow_amount, $currency, $details);
+
+// $wallet = new Woo_Wallet_Wallet();
 
 
-$wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
-$wallet->credit($sender_id,$escrow_amount,$details);
+// $wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
+// $wallet->credit($sender_id,$escrow_amount,$details);
 
   $cancel_escrow_fee  = get_option('cancel_escrow_fee');
     
    if($cancel_escrow_fee=='yes'){
-    $wallet->debit(get_option('escrow_user_id'),$sender_escrow_fee,$details);
-    $wallet->credit($sender_id,$sender_escrow_fee,$details);
+         $currency=get_option('currency');
+       $res=$wallet->aistore_debit(get_option('escrow_user_id'), $sender_escrow_fee, $currency, $details);
+$res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $currency, $details);
+
+    // $wallet->debit(get_option('escrow_user_id'),$sender_escrow_fee,$details);
+    // $wallet->credit($sender_id,$sender_escrow_fee,$details);
 
        
   }
