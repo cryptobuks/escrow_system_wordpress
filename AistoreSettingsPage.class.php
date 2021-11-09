@@ -273,14 +273,15 @@ $Payment_details = __( 'Payment transaction for the accept escrow with escrow id
 $escrow_fee=(get_option('escrow_accept_fee')/ 100) * $amount;
 
 
-$wallet = new Woo_Wallet_Wallet();
+$wallet = new AistoreWallet();
 
 $user_id=get_current_user_id();
 
-$wallet->debit($user_id,$escrow_fee,$details);
-$wallet->credit(get_option('escrow_user_id'),$escrow_fee,$details);
+$currency=get_option('currency');
+$res=$wallet->aistore_debit($user_id, $escrow_fee, $currency, $details);
 
-//sendNotificationAccepted($eid);
+$res=$wallet->aistore_credit(get_option('escrow_user_id'), $escrow_fee, $currency, $details);
+sendNotificationAccepted($eid);
 
 ?>
 <div>
@@ -318,11 +319,15 @@ $Payment_details = __( 'Payment transaction for the release escrow with escrow i
 
  $details=$Payment_details.$eid ; 
 
+$wallet = new AistoreWallet();
 
- 
-$wallet = new Woo_Wallet_Wallet();
-$wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
-$wallet->credit($id,$escrow_amount,$details);
+$user_id=get_current_user_id();
+
+$currency=get_option('currency');
+$res=$wallet->aistore_debit(get_option('escrow_user_id'), $escrow_amount, $currency, $details);
+
+$res=$wallet->aistore_credit($id, $escrow_amount, $currency, $details);
+
 
 ?>
 <div>
@@ -351,8 +356,7 @@ $message=sanitize_text_field(htmlentities($_POST['message']));
 
    $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_discussion ( eid, message, user_login ) VALUES ( %d, %s, %s ) ", array($escrow_id, $message, $user_login)));
 
-    //$url  = "/wp-admin/admin.php?page=disputed_escrow_details";
-   
+
   
 
 
@@ -396,17 +400,22 @@ $Payment_details = __( 'Payment transaction for the cancel escrow with escrow id
  $details=$Payment_details.$eid ; 
 
 
-$wallet = new Woo_Wallet_Wallet();
+$wallet = new AistoreWallet();
 
 
-$wallet->debit(get_option('escrow_user_id'),$escrow_amount,$details);
-$wallet->credit($sender_id,$escrow_amount,$details);
+$currency=get_option('currency');
+$res=$wallet->aistore_debit(get_option('escrow_user_id'), $escrow_amount, $currency, $details);
+
+$res=$wallet->aistore_credit($sender_id, $escrow_amount, $currency, $details);
+
+
 
   $cancel_escrow_fee  = get_option('cancel_escrow_fee');
     
    if($cancel_escrow_fee=='yes'){
-    $wallet->debit(get_option('escrow_user_id'),$sender_escrow_fee,$details);
-    $wallet->credit($sender_id,$sender_escrow_fee,$details);
+       $res=$wallet->aistore_debit(get_option('escrow_user_id'), $sender_escrow_fee, $currency, $details);
+
+$res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $currency, $details);
  
        
   }
@@ -797,7 +806,7 @@ register_setting( 'aistore_email_page', 'email_created_escrow' );
 <p><?php  _e( 'Step 1', 'aistore' ) ?></p>
 
 
-<p><?php  _e( 'Install required plugin WooCommerce link https://wordpress.org/plugins/woocommerce/ and tera-wallet link https://wordpress.org/plugins/woo-wallet/ and activate as per their setup process. ', 'aistore' ) ?></p>
+<p><?php  _e( 'Install required plugin Saksh Wallet link https://wordpress.org/plugins/woocommerce/  activate as per their setup process. ', 'aistore' ) ?></p>
 
 <hr />
 

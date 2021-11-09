@@ -209,6 +209,9 @@ update_option( 'email_created_escrow' ,'You have successfully created the escrow
 }
 
 
+
+add_filter('woo_wallet_disallow_negative_transaction', '__return_false'); 
+
 function  Aistore_process_placeholder_Text($str,$escrow)
  {
      

@@ -229,3 +229,26 @@ msgstr ""
 msgid "Payment transaction for the escrow id"
 msgstr ""
 
+
+
+msgid "Please make sure user is allowed to register in the website"
+msgstr ""
+
+msgid "This plugin require your suggestion plz message aistore2030@gmail.com"
+msgstr ""
+
+msgid "Please remember payment deposit will complete only when order status will be marked completed."
+msgstr ""
+
+
+msgid "In Escrow details page their is a make payment button or after the escrow create it redirect to the woo commerce for the payment deposit."
+msgstr ""
+
+
+msgid "For any support please message me at aistore2030@gmail.com"
+msgstr ""
+
+
+msgid "All Escrow List"
+msgstr ""
+

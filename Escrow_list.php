@@ -450,13 +450,13 @@ $sql .=  Escrow_List::prepareWhereClouse();
 
 function form(){
  
-		$from = ( isset( $_GET['mishaDateFrom'] ) && $_GET['mishaDateFrom'] ) ? $_GET['mishaDateFrom'] : '';
-		$to = ( isset( $_GET['mishaDateTo'] ) && $_GET['mishaDateTo'] ) ? $_GET['mishaDateTo'] : '';
+		$from = ( isset( $_GET['EscrowDateFrom'] ) && $_GET['EscrowDateFrom'] ) ? $_GET['EscrowDateFrom'] : '';
+		$to = ( isset( $_GET['EscrowDateTo'] ) && $_GET['EscrowDateTo'] ) ? $_GET['EscrowDateTo'] : '';
  
 		echo ' 
  
-		<input type="date" name="mishaDateFrom" placeholder="Date From" value="' . esc_attr( $from ) . '" />
-		<input type="date" name="mishaDateTo" placeholder="Date To" value="' . esc_attr( $to ) . '" />
+		<input type="date" name="EscrowDateFrom" placeholder="Date From" value="' . esc_attr( $from ) . '" />
+		<input type="date" name="EscrowDateTo" placeholder="Date To" value="' . esc_attr( $to ) . '" />
  
 		 ';
  
