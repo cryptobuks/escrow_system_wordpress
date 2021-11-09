@@ -28,8 +28,10 @@ function aistore_scripts_method()
 {
     
 
-
-    
+ wp_enqueue_style( 'wpdocs-bootstrap-style', 'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css' );
+ 
+     wp_enqueue_script( 'wpdocs-bootstrap-bundle-script', 'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js', array(), null, true );
+     
     wp_enqueue_style('aistore', plugins_url('/css/custom.css', __FILE__), array());
     wp_enqueue_script('aistore', plugins_url('/js/custom.js', __FILE__), array(
         'jquery'

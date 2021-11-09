@@ -174,6 +174,10 @@ global $wpdb;
    $eid=sanitize_text_field($_REQUEST['eid']);
    
    
+  $object_escrow=new AistoreEscrowSystem();
+  $aistore_escrow_currency=$object_escrow->get_escrow_currency();
+  $escrow_user_id=$object_escrow->get_escrow_user_id();
+  
 $user_id= get_current_user_id();
 	 
 $email_id = get_the_author_meta( 'user_email',$user_id );
@@ -216,7 +220,7 @@ if(!isset($eid))
 	
 
 ?>
-	<div><a href="<?php echo $url ; ?>" >
+	<div><a href="<?php echo esc_html($url) ; ?>" >
 	    <?php   _e( 'Go To Escrow List Page', 'aistore' ); ?> 
 	     </a></div>
 <?php	
@@ -283,12 +287,13 @@ $escrow_fee=$object_escrow_fee->accept_escow_fee($amount);
 $wallet = new AistoreWallet();
 
 $user_id=get_current_user_id();
-$escrow_user_id=get_option('escrow_user_id');
 
-$escrow_currency=get_option('aistore_escrow_currency');
-$aistore_debit_res=$wallet->aistore_debit($user_id, $escrow_fee, $escrow_currency, $details);
 
-$aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $escrow_currency, $details);
+  
+  
+$aistore_debit_res=$wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $details);
+
+$aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
 sendNotificationAccepted($eid);
 
 ?>
@@ -329,11 +334,10 @@ $details = 'Payment transaction for the release escrow with escrow id # '. $eid;
 $wallet = new AistoreWallet();
 
 $user_id=get_current_user_id();
-$escrow_user_id=get_option('escrow_user_id');
-$escrow_currency=get_option('aistore_escrow_currency');
-$aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $escrow_currency, $details);
 
-$aistore_credit_res=$wallet->aistore_credit($id, $escrow_amount, $escrow_currency, $details);
+$aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
+
+$aistore_credit_res=$wallet->aistore_credit($id, $escrow_amount, $aistore_escrow_currency, $details);
 
 
 ?>
@@ -407,20 +411,19 @@ $sender_id = $user->ID;
 
 $wallet = new AistoreWallet();
 
-$escrow_user_id=get_option('escrow_user_id');
-$escrow_currency=get_option('aistore_escrow_currency');
-$aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $escrow_currency, $details);
 
-$aistore_credit_res=$wallet->aistore_credit($sender_id, $escrow_amount, $escrow_currency, $details);
+$aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
+
+$aistore_credit_res=$wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $details);
 
 
 
   $cancel_escrow_fee  = get_option('cancel_escrow_fee');
     
    if($cancel_escrow_fee=='yes'){
-       $aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $sender_escrow_fee, $escrow_currency, $details);
+       $aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
 
-$aistore_credit_res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $escrow_currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
  
        
   }
@@ -516,12 +519,7 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $ei
 	   <div>  
     
 
-  <link  rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css">
-
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
-
+ 
 	<label for="documents"> <?php   _e( 'Documents', 'aistore' ); ?> : </label>
 <form  method="post"  action="<?php echo admin_url('admin-ajax.php').'?action=custom_action&eid='.$eid; ?>" class="dropzone" id="dropzone">
     <?php 

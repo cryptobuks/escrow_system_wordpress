@@ -5,12 +5,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 
-
+  
+  
 
 class AistoreEscrowSystem {
     
     
 // get escrow feecccc
+    public function get_escrow_user_id( )
+{
+  $escrow_user_id=get_option('escrow_user_id');
+return $escrow_user_id;
+  
+}
+
+    public function get_escrow_currency( )
+{
+  $aistore_escrow_currency=get_option('aistore_escrow_currency');
+return $aistore_escrow_currency;
+  
+}
+
+
     public function get_escrow_fee($amount )
 {
 
@@ -44,7 +60,11 @@ return $escrow_fee;
 $ar=array();
 
  $wallet = new AistoreWallet();
-  $aistore_escrow_currency=get_option('aistore_escrow_currency');
+  $object_escrow=new AistoreEscrowSystem();
+  $aistore_escrow_currency=$object_escrow->get_escrow_currency();
+  $escrow_user_id=$object_escrow->get_escrow_user_id();
+  
+
  $user_balance=$wallet->aistore_balance($user_id,$aistore_escrow_currency);
 
 $sender_email = get_the_author_meta( 'user_email', $user_id );
@@ -86,8 +106,7 @@ $eid = $wpdb->insert_id;
 
  
   $details = 'Payment transaction for the escrow id # '. $eid;
-  $aistore_escrow_currency=get_option('aistore_escrow_currency');
-  $escrow_user_id=get_option('escrow_user_id');
+
 $aistore_debit_res=$wallet->aistore_debit($user_id, $amount, $aistore_escrow_currency, $details);
 
 $aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
@@ -120,8 +139,11 @@ public static function aistore_escrow_system()
 { 
    
  
-
+  $object_escrow=new AistoreEscrowSystem();
+ $aistore_escrow_currency=$object_escrow->get_escrow_currency();
+   $escrow_user_id=$object_escrow->get_escrow_user_id();
       
+    
 if ( !is_user_logged_in() ) {
     return "<div class='no-login'>Kindly login and then visit this page </div>";
 }
@@ -145,12 +167,11 @@ if ( ! isset( $_POST['aistore_nonce'] )
 
 
 
-  $aistore_escrow_currency=get_option('aistore_escrow_currency');
 $title=sanitize_text_field($_REQUEST['title']);
 $amount=sanitize_text_field($_REQUEST['amount']);
 $receiver_email=sanitize_email($_REQUEST['receiver_email']);
 $term_condition=sanitize_text_field(htmlentities($_REQUEST['term_condition']));
-  $user_balance=$wallet->aistore_balance($user_id,$aistore_escrow_currency);
+$user_balance=$wallet->aistore_balance($user_id,$aistore_escrow_currency);
 
 $sender_email = get_the_author_meta( 'user_email', get_current_user_id() );
 
@@ -217,8 +238,8 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid
 
  
    $details = 'Payment transaction for the escrow id # '. $eid;
-   $aistore_escrow_currency=get_option('aistore_escrow_currency');
- $escrow_user_id=get_option('escrow_user_id');
+
+
  $aistore_debit_res=$wallet->aistore_debit($user_id, $amount, $aistore_escrow_currency, $details);
 
 $aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
@@ -262,7 +283,7 @@ else{
 <label for="title"><?php   _e('Title', 'aistore' ); ?></label><br>
   <input class="input" type="text" id="title" name="title" required><br>
   <?php 
-      $aistore_escrow_currency=get_option('aistore_escrow_currency');
+   
    $user_balance=$wallet->aistore_balance($user_id,$aistore_escrow_currency);
   ?>
 
@@ -281,7 +302,6 @@ else{
  
  // issue 3
  
-   $aistore_escrow_currency=get_option('aistore_escrow_currency');
   ?>
  <div class="feeblock hide" >
       <?php   _e( 'Amount', 'aistore' ); ?> :
@@ -370,7 +390,8 @@ if ( !is_user_logged_in() ) {
    return "<div class='loginerror'>Kindly login and then visit this page</div>";
 }
 
-   
+     $object_escrow_currency=new AistoreEscrowSystem();
+  $aistore_escrow_currency=$object_escrow_currency->get_escrow_currency();
 	 
 $current_user_email_id = get_the_author_meta( 'user_email', get_current_user_id() );
 
@@ -454,7 +475,7 @@ if($row->sender_email ==$current_user_email_id)
 	 $email=$row->sender_email;
   }
 echo $role;
- $aistore_escrow_currency=get_option('aistore_escrow_currency');
+ 
 
 
 ?>
@@ -508,7 +529,9 @@ public static function aistore_escrow_detail( ){
  
    $eid=sanitize_text_field($_REQUEST['eid']);
    
-   
+  $object_escrow=new AistoreEscrowSystem();
+ $aistore_escrow_currency=$object_escrow->get_escrow_currency();
+   $escrow_user_id=$object_escrow->get_escrow_user_id();
 $user_id= get_current_user_id();
 
 
@@ -619,8 +642,7 @@ $amount = $escrow->amount;
   $object=new AistoreEscrowSystem();
 
 $escrow_fee=$object->accept_escow_fee($amount);
-  $aistore_escrow_currency=get_option('aistore_escrow_currency');
-  $escrow_user_id=get_option('escrow_user_id');
+
 $wallet = new AistoreWallet();
 $aistore_debit_res=$wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $details);
 $aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
@@ -665,7 +687,7 @@ $id = $user->ID;
  
  $details = 'Payment transaction for the release escrow with escrow id # '. $eid;
    
-  $aistore_escrow_currency=get_option('aistore_escrow_currency');
+  
   $escrow_user_id=get_option('escrow_user_id');
 $wallet = new AistoreWallet();
 $aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
@@ -716,8 +738,8 @@ $sender_id = $user->ID;
   
  $details = 'Payment transaction for the cancel escrow with escrow id # '. $eid;
 
-  $aistore_escrow_currency=get_option('aistore_escrow_currency');
-$escrow_user_id=get_option('escrow_user_id');
+
+
 $wallet = new AistoreWallet();
 $aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
 $aistore_credit_res=$wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $details);
@@ -726,7 +748,6 @@ $aistore_credit_res=$wallet->aistore_credit($sender_id, $escrow_amount, $aistore
   $cancel_escrow_fee  = get_option('cancel_escrow_fee');
     
    if($cancel_escrow_fee=='yes'){
-         $aistore_escrow_currency=get_option('aistore_escrow_currency');
        $aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
 $aistore_credit_res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
 
@@ -822,6 +843,7 @@ private	function escrow_file_uploads($escrow){
 $eid=  $escrow->id;
  
   global $wpdb;
+  
    $escrow_documents = $wpdb->get_results( 
 $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $eid)  );
  
@@ -854,11 +876,6 @@ $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $ei
 	   <div>  
     
 
-  <link  rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css">
-
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 
 	<label for="documents"> <?php   _e( 'Documents', 'aistore' ); ?> : </label>
 <form  method="post"  action="<?php echo admin_url('admin-ajax.php').'?action=custom_action&eid='.$eid; ?>" class="dropzone" id="dropzone">
