@@ -105,12 +105,16 @@ $page_id=get_option('details_escrow_page_id');
   <table class="widefat fixed striped">
         
      <tr>
-         <th>Id</th>
-      <th>Title</th>
-       <th>Status</th>
-        <th>Amount</th>
-      <th>Sender </th>
-       <th>Receiver</th>       <th>Date</th>
+  
+       
+         <th><?php   _e( 'Id', 'aistore' ); ?></th>
+        <th><?php   _e( 'Title', 'aistore' ); ?></th>
+		    <th><?php   _e( 'Status', 'aistore' ); ?></th>
+          <th><?php   _e( 'Amount', 'aistore' ); ?></th> 
+		  <th><?php   _e( 'Sender', 'aistore' ); ?></th>
+		  <th><?php   _e( 'Receiver', 'aistore' ); ?></th>
+	  <th><?php   _e( 'Date', 'aistore' ); ?></th>
+		 
      </tr>
       
 
@@ -165,7 +169,7 @@ $page_id=get_option('details_escrow_page_id');
     function aistore_disputed_escrow_details(){
         
    
-
+global $wpdb;
 
    $eid=sanitize_text_field($_REQUEST['eid']);
    
@@ -190,7 +194,7 @@ if ( isset($_POST['upload_file']) ) {
             $image=$upload_dir['baseurl'].'/documents/'.$eid.'/'.$filename;
             // save into database $image;
       
-            global $wpdb;   
+             
 
 $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array( $eid,$image,$user_id,$filename) ) );
         }
@@ -208,7 +212,8 @@ if(!isset($eid))
 {
 
 	
-	 $url  =  "/wp-admin/admin.php?page=disputed_escrow_list";
+	 $url  =  admin_url('admin.php?page=disputed_escrow_list', 'https' );
+	
 
 ?>
 	<div><a href="<?php echo $url ; ?>" >
@@ -221,7 +226,7 @@ return ob_get_clean();
 
 
 
-global $wpdb;
+
 
  
 if(isset($_POST['submit']) and $_POST['action']=='disputed')
@@ -306,14 +311,14 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'released' , $eid) );
    
-	$escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
+      $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ",$eid ));
+      
+	$escrow_amount = $escrow->amount;
 	
-	$escrow_reciever_email_id = $wpdb->get_var( $wpdb->prepare( "SELECT receiver_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
-
-
-
-
-$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_email  = %s", $escrow_reciever_email_id ) );
+	
+	$escrow_reciever_email_id = $escrow->receiver_email;
+$user = get_user_by( 'email', $escrow_reciever_email_id);
+$id = $user->ID;
 
 $Payment_details = __( 'Payment transaction for the release escrow with escrow id', 'aistore' );
 
@@ -371,7 +376,6 @@ $message=sanitize_text_field(htmlentities($_POST['message']));
 
 // Sender Create escrow  to excute cancel button 
 // Receiver  accept or cancel escrow
-
 if(isset($_POST['submit']) and $_POST['action']=='cancelled')
 {
 
@@ -385,20 +389,19 @@ if ( ! isset( $_POST['aistore_nonce'] )
 $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d'", 
    'cancelled' , $eid   ) );
+  $escrow = $wpdb->get_row($wpdb->prepare( "SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ",$eid ));
+      
+	$escrow_amount = $escrow->amount;
+	
+	$sender_escrow_fee = $escrow->escrow_fee;
+	$sender_email = $escrow->sender_email;
+$user = get_user_by( 'email', $sender_email);
+$sender_id = $user->ID;
 
-$escrow_amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
 
-$sender_escrow_fee = $wpdb->get_var( $wpdb->prepare( "SELECT escrow_fee from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
- 
-$sender_email = $wpdb->get_var( $wpdb->prepare( "SELECT sender_email from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
-
-$sender_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID from {$wpdb->prefix}users where user_email  = %s", $sender_email ) );
-
-
-$Payment_details = __( 'Payment transaction for the cancel escrow with escrow id', 'aistore' );
+$Payment_details = __( 'Payment transaction for the cancel escrow with escrow id #', 'aistore' );
 
  $details=$Payment_details.$eid ; 
-
 
 $wallet = new AistoreWallet();
 
@@ -479,8 +482,6 @@ $object->release_escrow_btn($escrow);
 $object->dispute_escrow_btn($escrow);
 
 $eid=  $escrow->id;
- 
-  global $wpdb;
    $escrow_documents = $wpdb->get_results( 
 $wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $eid)  );
  
@@ -610,10 +611,7 @@ wp_editor( $content, $editor_id,   $settings);
 	
 	<?php
         
-      global  $wpdb;
-//$id=sanitize_text_field($_REQUEST['eid']);
 
-//$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
 
   $discussions = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion  WHERE eid=%d order by id desc", $eid));
       	
@@ -692,15 +690,17 @@ $page_id=get_option('details_escrow_page_id');
 	else{
 		
     foreach($results as $row):
-     
+        
+        
+	 $url  =  admin_url('admin.php?page=disputed_escrow_details&eid='.$row->id.'', 'https' );
+	
 
- $link= '<a href="/wp-admin/admin.php?page=disputed_escrow_details&eid='.$row->id.'">'.$row->id.'</a>';
-    ?> 
+?>
       <tr>
 
 		   
 		   <td> 	 
-		   <?php echo $link ; ?>  </td>
+		  <a href="<?php echo $url ; ?>"></a></td>
 		  
 		   
 		   <td> 		   <?php echo $row->title ; ?> </td>
@@ -803,15 +803,10 @@ register_setting( 'aistore_email_page', 'email_created_escrow' );
 <h3><?php  _e( 'Escrow Setting', 'aistore' ) ?></h3>
  
 	                     
-<p><?php  _e( 'Step 1', 'aistore' ) ?></p>
 
-
-<p><?php  _e( 'Install required plugin Saksh Wallet link https://wordpress.org/plugins/woocommerce/  activate as per their setup process. ', 'aistore' ) ?></p>
-
-<hr />
 
   
-<p><?php  _e( 'Step 2', 'aistore' ) ?></p>
+<p><?php  _e( 'Step 1', 'aistore' ) ?></p>
 
 <?php
 if(isset($_POST['submit']) and $_POST['action']=='create_all_pages' )
@@ -887,11 +882,11 @@ update_option( 'escrow_user_name', $escrow_user_id);
 }
  
 
- $pages = get_pages(); 
+
 }
 else{
     
-     $pages = get_pages(); 
+     
 ?>
  <form method="POST" action="" name="create_all_pages" enctype="multipart/form-data"> 
     <?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>

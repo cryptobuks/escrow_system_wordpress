@@ -209,7 +209,6 @@ update_option( 'email_created_escrow' ,'You have successfully created the escrow
 }
 
 
-
 function  Aistore_process_placeholder_Text($str,$escrow)
  {
      
