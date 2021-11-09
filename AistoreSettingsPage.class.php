@@ -286,7 +286,6 @@ $escrow_fee=$object_escrow_fee->accept_escow_fee($amount);
 
 $wallet = new AistoreWallet();
 
-$user_id=get_current_user_id();
 
 
   
@@ -333,7 +332,6 @@ $details = 'Payment transaction for the release escrow with escrow id # '. $eid;
 
 $wallet = new AistoreWallet();
 
-$user_id=get_current_user_id();
 
 $aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
 
@@ -819,7 +817,7 @@ if ( ! isset( $_POST['aistore_nonce'] )
 
    exit;
 }
-$escrow_user_id=sanitize_text_field($_REQUEST['escrow_user_id']);
+$escrow_user_name=sanitize_text_field($_REQUEST['escrow_user_name']);
 
  $my_post = array(
    'post_title'     => 'Create Escrow',
@@ -865,20 +863,20 @@ $details_escrow_page_id=wp_insert_post( $my_post );
 
 update_option( 'details_escrow_page_id', $details_escrow_page_id);
 
-   $user_id = username_exists( $escrow_user_id );
+   $aistore_escrow_user_name = username_exists( $escrow_user_name );
    
-if ( ! $user_id ) {
-$user_id = wp_insert_user( array(
-  'user_login' => $escrow_user_id,
-  'user_pass' => $escrow_user_id,
-  'user_email' => $escrow_user_id,
-  'first_name' => $escrow_user_id,
-  'last_name' => $escrow_user_id,
-  'display_name' => $escrow_user_id,
+if ( ! $aistore_escrow_user_name ) {
+$aistore_escrow_user_id = wp_insert_user( array(
+  'user_login' => $aistore_escrow_user_name,
+  'user_pass' => $aistore_escrow_user_name,
+  'user_email' => $aistore_escrow_user_name,
+  'first_name' => $aistore_escrow_user_name,
+  'last_name' => $aistore_escrow_user_name,
+  'display_name' => $aistore_escrow_user_name,
   'role' => 'administrator'
 ));
-update_option( 'escrow_user_id', $user_id);
-update_option( 'escrow_user_name', $escrow_user_id);
+update_option( 'escrow_user_id', $aistore_escrow_user_id);
+update_option( 'escrow_user_name', $escrow_user_name);
 }
  
 
@@ -894,7 +892,7 @@ else{
 <p><?php  _e( 'Create all pages with short codes automatically to ', 'aistore' ) ?>
 <br><br>
 <?php  _e( 'Escrow Admin Email ID: ', 'aistore' ) ?>
-<input type="email" name="escrow_user_id" value="<?php echo esc_attr( get_option('escrow_user_name') ); ?>" />
+<input type="email" name="escrow_user_name" value="<?php echo esc_attr( get_option('escrow_user_name') ); ?>" />
 
 <input class="input" type="submit" name="submit" value="<?php  _e( 'Click here', 'aistore' ) ?>"/>
 <input type="hidden" name="action"  value="create_all_pages"/>
@@ -939,7 +937,7 @@ else{
 </select>
 
 
-<p>Create a page add this shortcode <strong> [aistore_escrow_system] </strong> and then select that page here. </p>
+<p><?php  _e( 'Create a page add this shortcode ', 'aistore' ) ?> <strong> [aistore_escrow_system] </strong> <?php  _e( 'and then select that page here.', 'aistore' ) ?> </p>
 
 </td>
         </tr>  
@@ -974,9 +972,9 @@ else{
 		   
 </select>
 
+<p><?php  _e( 'Create a page add this shortcode ', 'aistore' ) ?> <strong> [aistore_escrow_list] </strong> <?php  _e( 'and then select that page here.', 'aistore' ) ?> </p>
 
 
-<p>Create a page add this shortcode <strong> [aistore_escrow_list] </strong> and then select that page here. </p>
 
 
 </td>
@@ -1014,9 +1012,8 @@ else{
  
 </select>
 
+<p><?php  _e( 'Create a page add this shortcode ', 'aistore' ) ?> <strong> [aistore_escrow_detail] </strong> <?php  _e( 'and then select that page here.', 'aistore' ) ?> </p>
 
-
-<p>Create a page add this shortcode <strong> [aistore_escrow_detail] </strong> and then select that page here. </p>
 
 
 
@@ -1099,22 +1096,22 @@ else{
                 
             <select name="aistore_escrow_currency" id="aistore_escrow_currency">
                
-            <option selected value="INR" <?php selected(
+            <option selected value="<?php  _e( 'INR', 'aistore' ) ?>" <?php selected(
                 $escrow_currency,
                 'INR'
-            ); ?>>INR</option>
-            <option value="EUR" <?php selected(
+            ); ?>><?php  _e( 'INR', 'aistore' ) ?></option>
+            <option value="<?php  _e( 'EUR', 'aistore' ) ?>" <?php selected(
                 $escrow_currency,
                 'EUR'
-            ); ?>>EUR</option>
-                <option selected value="USD" <?php selected(
+            ); ?>><?php  _e( 'EUR', 'aistore' ) ?></option>
+                <option selected value="<?php  _e( 'USD', 'aistore' ) ?>" <?php selected(
                 $escrow_currency,
                 'USD'
-            ); ?>>USD</option>
-            <option value="GDP" <?php selected(
+            ); ?>><?php  _e( 'USD', 'aistore' ) ?></option>
+            <option value="<?php  _e( 'GDP', 'aistore' ) ?>" <?php selected(
                 $escrow_currency,
                 'GDP'
-            ); ?>>GDP</option>
+            ); ?>><?php  _e( 'GDP', 'aistore' ) ?></option>
   
 </select>
             
@@ -1148,8 +1145,8 @@ else{
   
     </table>
     
-    
-    [ Admin who will manage escrow fee/disputes etc ]
+    <?php  _e( '  [ Admin who will manage escrow fee/disputes etc ]', 'aistore' ) ?>
+  
 
     	<hr/>
         	 
