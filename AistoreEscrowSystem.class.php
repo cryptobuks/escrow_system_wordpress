@@ -13,14 +13,22 @@ class AistoreEscrowSystem {
 // get escrow feecccc
     public function get_escrow_fee($amount )
 {
-return (get_option('escrow_create_fee') / 100) * $amount;
+
+$escrow_create_fee= get_option('escrow_create_fee');
+
+$escrow_fee=($escrow_create_fee/ 100) * $amount;
+return $escrow_fee;
   
 }
 
     public function accept_escow_fee($amount )
 {
 
-return (get_option('escrow_accept_fee') / 100) * $amount;
+
+$escrow_accept_fee= get_option('escrow_accept_fee');
+
+$escrow_fee=($escrow_accept_fee/ 100) * $amount;
+return $escrow_fee;
 }
 
 
@@ -36,10 +44,8 @@ return (get_option('escrow_accept_fee') / 100) * $amount;
 $ar=array();
 
  $wallet = new AistoreWallet();
-  $currency=get_option('currency');
-    // $old_balance = $wallet->aistore_balance($user_id, $currency);
-    
- $user_balance=$wallet->aistore_balance($user_id,$currency);
+  $aistore_escrow_currency=get_option('aistore_escrow_currency');
+ $user_balance=$wallet->aistore_balance($user_id,$aistore_escrow_currency);
 
 $sender_email = get_the_author_meta( 'user_email', $user_id );
 
@@ -77,15 +83,15 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_system ( title,
 
 $eid = $wpdb->insert_id;
 
-$Payment_details = __( 'Payment transaction for the escrow id', 'aistore' );
 
- $details=$Payment_details.$eid ; 
  
-  $currency=get_option('currency');
-$res=$wallet->aistore_debit($user_id, $amount, $currency, $details);
+  $details = 'Payment transaction for the escrow id # '. $eid;
+  $aistore_escrow_currency=get_option('aistore_escrow_currency');
+  $escrow_user_id=get_option('escrow_user_id');
+$aistore_debit_res=$wallet->aistore_debit($user_id, $amount, $aistore_escrow_currency, $details);
 
-$res=$wallet->aistore_credit(get_option('escrow_user_id'), $escrow_fee, $currency, $details);
-$res=$wallet->aistore_credit(get_option('escrow_user_id'), $new_amount, $currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $new_amount, $aistore_escrow_currency, $details);
 
 
 
@@ -139,12 +145,12 @@ if ( ! isset( $_POST['aistore_nonce'] )
 
 
 
-  $currency=get_option('currency');
+  $aistore_escrow_currency=get_option('aistore_escrow_currency');
 $title=sanitize_text_field($_REQUEST['title']);
 $amount=sanitize_text_field($_REQUEST['amount']);
 $receiver_email=sanitize_email($_REQUEST['receiver_email']);
 $term_condition=sanitize_text_field(htmlentities($_REQUEST['term_condition']));
-  $user_balance=$wallet->aistore_balance($user_id,$currency);
+  $user_balance=$wallet->aistore_balance($user_id,$aistore_escrow_currency);
 
 $sender_email = get_the_author_meta( 'user_email', get_current_user_id() );
 
@@ -209,16 +215,14 @@ $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}escrow_documents ( eid
 }
 
 
-$Payment_details = __( 'Payment transaction for the escrow id', 'aistore' );
-
- $details=$Payment_details.$eid ; 
  
-   $currency=get_option('currency');
- 
- $res=$wallet->aistore_debit($user_id, $amount, $currency, $details);
+   $details = 'Payment transaction for the escrow id # '. $eid;
+   $aistore_escrow_currency=get_option('aistore_escrow_currency');
+ $escrow_user_id=get_option('escrow_user_id');
+ $aistore_debit_res=$wallet->aistore_debit($user_id, $amount, $aistore_escrow_currency, $details);
 
-$res=$wallet->aistore_credit(get_option('escrow_user_id'), $escrow_fee, $currency, $details);
-$txid=$wallet->aistore_credit(get_option('escrow_user_id'), $new_amount, $currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $new_amount, $aistore_escrow_currency, $details);
 
 
 	 $details_escrow_page_id_url  =  esc_url( add_query_arg( array(
@@ -258,8 +262,8 @@ else{
 <label for="title"><?php   _e('Title', 'aistore' ); ?></label><br>
   <input class="input" type="text" id="title" name="title" required><br>
   <?php 
-      $currency=get_option('currency');
-   $user_balance=$wallet->aistore_balance($user_id,$currency);
+      $aistore_escrow_currency=get_option('aistore_escrow_currency');
+   $user_balance=$wallet->aistore_balance($user_id,$aistore_escrow_currency);
   ?>
 
   <label for="amount"><?php   _e( 'Amount', 'aistore' ); ?></label><br>
@@ -268,29 +272,28 @@ else{
    <input class="input" type="hidden" id="escrow_create_fee" name="escrow_create_fee" value= "<?php echo get_option('escrow_create_fee');?>">
   <?php
   
-   $balance=$wallet->aistore_balance($user_id,$currency);
+   $balance=$wallet->aistore_balance($user_id,$aistore_escrow_currency);
 
    printf(__('Available balance is %s', 'aistore'), $balance) ;
  
- 
- $deposit_link= get_home_url()."/my-account/woo-wallet/";
+
  
  
  // issue 3
  
-   $currency=get_option('currency');
+   $aistore_escrow_currency=get_option('aistore_escrow_currency');
   ?>
  <div class="feeblock hide" >
       <?php   _e( 'Amount', 'aistore' ); ?> :
-      <b id="escrow_amount"></b>/- <?php echo $currency;?><br>
+      <b id="escrow_amount"></b>/- <?php echo $aistore_escrow_currency;?><br>
  
   <?php   _e('Escrow Fee', 'aistore' ); ?>
   
-  :  <b id="escrow_fee" ></b>/- <?php echo $currency;?>  (<?php echo get_option('escrow_create_fee');?> %)<br>
+  :  <b id="escrow_fee" ></b>/- <?php echo $aistore_escrow_currency;?>  (<?php echo get_option('escrow_create_fee');?> %)<br>
   
     
      
-   <?php   _e('Total Escrow Amount', 'aistore' ); ?> :   <b id="total"></b>/- <?php echo $currency;?>
+   <?php   _e('Total Escrow Amount', 'aistore' ); ?> :   <b id="total"></b>/- <?php echo $aistore_escrow_currency;?>
   
   
   </div>
@@ -451,14 +454,14 @@ if($row->sender_email ==$current_user_email_id)
 	 $email=$row->sender_email;
   }
 echo $role;
- $currency=get_option('currency');
+ $aistore_escrow_currency=get_option('aistore_escrow_currency');
 
 
 ?>
 
 		  </td>
 		   
-		  	   <td> 		   <?php echo $row->amount ." ". $currency?> </td>
+		  	   <td> 		   <?php echo $row->amount ." ". $aistore_escrow_currency?> </td>
 		   <td> 		   <?php echo $row->sender_email ; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
 		    <td> 		   <?php echo $row->status ; ?> </td>
@@ -608,18 +611,19 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
 
 $amount = $escrow->amount;
 
-$Payment_details = __( 'Payment transaction for the accept escrow with escrow id', 'aistore' );
 
- $details=$Payment_details.$eid ; 
  
+ 
+  $details = 'Payment transaction for the accept escrow with escrow id # '. $eid;
  
   $object=new AistoreEscrowSystem();
 
 $escrow_fee=$object->accept_escow_fee($amount);
-  $currency=get_option('currency');
+  $aistore_escrow_currency=get_option('aistore_escrow_currency');
+  $escrow_user_id=get_option('escrow_user_id');
 $wallet = new AistoreWallet();
-$res=$wallet->aistore_debit($user_id, $escrow_fee, $currency, $details);
-$res=$wallet->aistore_credit(get_option('escrow_user_id'), $escrow_fee, $currency, $details);
+$aistore_debit_res=$wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
 
 
 
@@ -657,13 +661,15 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
 $user = get_user_by( 'email', $escrow_reciever_email_id);
 $id = $user->ID;
 
-$Payment_details = __( 'Payment transaction for the release escrow with escrow id', 'aistore' );
 
- $details=$Payment_details.$eid ; 
-  $currency=get_option('currency');
+ 
+ $details = 'Payment transaction for the release escrow with escrow id # '. $eid;
+   
+  $aistore_escrow_currency=get_option('aistore_escrow_currency');
+  $escrow_user_id=get_option('escrow_user_id');
 $wallet = new AistoreWallet();
-$res=$wallet->aistore_debit(get_option('escrow_user_id'), $escrow_amount, $currency, $details);
-$res=$wallet->aistore_credit($id, $escrow_amount, $currency, $details);
+$aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($id, $escrow_amount, $aistore_escrow_currency, $details);
 
  
 
@@ -706,23 +712,23 @@ $user = get_user_by( 'email', $sender_email);
 $sender_id = $user->ID;
 
 
-$Payment_details = __( 'Payment transaction for the cancel escrow with escrow id', 'aistore' );
+ 
+  
+ $details = 'Payment transaction for the cancel escrow with escrow id # '. $eid;
 
- $details=$Payment_details.$eid ; 
-
-  $currency=get_option('currency');
-
+  $aistore_escrow_currency=get_option('aistore_escrow_currency');
+$escrow_user_id=get_option('escrow_user_id');
 $wallet = new AistoreWallet();
-$res=$wallet->aistore_debit(get_option('escrow_user_id'), $escrow_amount, $currency, $details);
-$res=$wallet->aistore_credit($sender_id, $escrow_amount, $currency, $details);
+$aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $details);
 
 
   $cancel_escrow_fee  = get_option('cancel_escrow_fee');
     
    if($cancel_escrow_fee=='yes'){
-         $currency=get_option('currency');
-       $res=$wallet->aistore_debit(get_option('escrow_user_id'), $sender_escrow_fee, $currency, $details);
-$res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $currency, $details);
+         $aistore_escrow_currency=get_option('aistore_escrow_currency');
+       $aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
 
    
   }

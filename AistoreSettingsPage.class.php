@@ -269,23 +269,26 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
 
 $amount = $wpdb->get_var( $wpdb->prepare( "SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid ) );
 
-$Payment_details = __( 'Payment transaction for the accept escrow with escrow id', 'aistore' );
+$details = 'Payment transaction for the accept escrow with escrow id # '. $eid;
 
- $details=$Payment_details.$eid ; 
+
  
  
+ 
+  $object_escrow_fee=new AistoreEscrowSystem();
 
-$escrow_fee=(get_option('escrow_accept_fee')/ 100) * $amount;
+$escrow_fee=$object_escrow_fee->accept_escow_fee($amount);
 
 
 $wallet = new AistoreWallet();
 
 $user_id=get_current_user_id();
+$escrow_user_id=get_option('escrow_user_id');
 
-$currency=get_option('currency');
-$res=$wallet->aistore_debit($user_id, $escrow_fee, $currency, $details);
+$escrow_currency=get_option('aistore_escrow_currency');
+$aistore_debit_res=$wallet->aistore_debit($user_id, $escrow_fee, $escrow_currency, $details);
 
-$res=$wallet->aistore_credit(get_option('escrow_user_id'), $escrow_fee, $currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($escrow_user_id, $escrow_fee, $escrow_currency, $details);
 sendNotificationAccepted($eid);
 
 ?>
@@ -320,18 +323,17 @@ $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
 $user = get_user_by( 'email', $escrow_reciever_email_id);
 $id = $user->ID;
 
-$Payment_details = __( 'Payment transaction for the release escrow with escrow id', 'aistore' );
+$details = 'Payment transaction for the release escrow with escrow id # '. $eid;
 
- $details=$Payment_details.$eid ; 
 
 $wallet = new AistoreWallet();
 
 $user_id=get_current_user_id();
+$escrow_user_id=get_option('escrow_user_id');
+$escrow_currency=get_option('aistore_escrow_currency');
+$aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $escrow_currency, $details);
 
-$currency=get_option('currency');
-$res=$wallet->aistore_debit(get_option('escrow_user_id'), $escrow_amount, $currency, $details);
-
-$res=$wallet->aistore_credit($id, $escrow_amount, $currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($id, $escrow_amount, $escrow_currency, $details);
 
 
 ?>
@@ -399,26 +401,26 @@ $user = get_user_by( 'email', $sender_email);
 $sender_id = $user->ID;
 
 
-$Payment_details = __( 'Payment transaction for the cancel escrow with escrow id #', 'aistore' );
 
- $details=$Payment_details.$eid ; 
+ 
+ $details = 'Payment transaction for the cancel escrow with escrow id # '. $eid;
 
 $wallet = new AistoreWallet();
 
+$escrow_user_id=get_option('escrow_user_id');
+$escrow_currency=get_option('aistore_escrow_currency');
+$aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $escrow_amount, $escrow_currency, $details);
 
-$currency=get_option('currency');
-$res=$wallet->aistore_debit(get_option('escrow_user_id'), $escrow_amount, $currency, $details);
-
-$res=$wallet->aistore_credit($sender_id, $escrow_amount, $currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($sender_id, $escrow_amount, $escrow_currency, $details);
 
 
 
   $cancel_escrow_fee  = get_option('cancel_escrow_fee');
     
    if($cancel_escrow_fee=='yes'){
-       $res=$wallet->aistore_debit(get_option('escrow_user_id'), $sender_escrow_fee, $currency, $details);
+       $aistore_debit_res=$wallet->aistore_debit($escrow_user_id, $sender_escrow_fee, $escrow_currency, $details);
 
-$res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $currency, $details);
+$aistore_credit_res=$wallet->aistore_credit($sender_id, $sender_escrow_fee, $escrow_currency, $details);
  
        
   }
@@ -700,7 +702,7 @@ $page_id=get_option('details_escrow_page_id');
 
 		   
 		   <td> 	 
-		  <a href="<?php echo $url ; ?>"></a></td>
+		  <a href="<?php echo esc_html($url) ; ?>"></a></td>
 		  
 		   
 		   <td> 		   <?php echo $row->title ; ?> </td>
@@ -741,7 +743,7 @@ function aistore_page_register_setting() {
 	register_setting( 'aistore_page', 'escrow_accept_fee' );
 	register_setting( 'aistore_page', 'escrow_message_page' );
 	register_setting( 'aistore_page', 'cancel_escrow_fee' );
-    register_setting( 'aistore_page', 'currency' );
+    register_setting( 'aistore_page', 'aistore_escrow_currency' );
 }
 
 
@@ -1051,7 +1053,7 @@ else{
                     foreach($blogusers as $user){ 
                         
 					
-					if($user->ID==get_option('escrow_user_id'))
+					if($user->ID==$escrow_user_id)
 					{
 		 echo '	<option selected value="'.$user->ID.'">'.$user->display_name .'</option>';
 		 
@@ -1095,24 +1097,24 @@ else{
         <th scope="row"><?php  _e( 'Currency', 'aistore' ) ?></th>
         <td>
             
-       <?php $currency=get_option('currency');?>
+       <?php $escrow_currency=get_option('aistore_escrow_currency');?>
                 
-            <select name="currency" id="currency">
+            <select name="aistore_escrow_currency" id="aistore_escrow_currency">
                
             <option selected value="INR" <?php selected(
-                $currency,
+                $escrow_currency,
                 'INR'
             ); ?>>INR</option>
             <option value="EUR" <?php selected(
-                $currency,
+                $escrow_currency,
                 'EUR'
             ); ?>>EUR</option>
                 <option selected value="USD" <?php selected(
-                $currency,
+                $escrow_currency,
                 'USD'
             ); ?>>USD</option>
             <option value="GDP" <?php selected(
-                $currency,
+                $escrow_currency,
                 'GDP'
             ); ?>>GDP</option>
   
