@@ -119,7 +119,7 @@ function aistore_notification_new($n  ){
    
    $q1=$wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_notification (  message,type, user_email,url ) VALUES ( %s, %s, %s, %s ) ", array( $n['message'],$n['type'], $n['user_email'], $n['url']));
    
-    qr_to_log($q1);
+   // qr_to_log($q1);
 	
 	
      $wpdb->query($q1);
