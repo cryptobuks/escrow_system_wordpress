@@ -6,13 +6,17 @@ jQuery(document).ready(function ($) {
 	$('#amount').change(function () {
 
 		var amount = document.getElementById('amount').value;
+		var currency = document.getElementById('aistore_escrow_currency').value;
 		var fee = document.getElementById('escrow_create_fee').value;
 
 		var escrow_fee = (fee / 100) * amount;
 
 		var total = (amount) - parseInt(escrow_fee);
 
-
+// alert(currency);
+ jQuery('#currency').val(currency);
+        //  $("#aistore_escrow_currency").val($('#mySelect').val());
+        document.getElementById("escrow_currency").innerHTML = currency;
 		document.getElementById("escrow_fee").innerHTML = Intl.NumberFormat().format(escrow_fee);
 		document.getElementById("escrow_amount").innerHTML = Intl.NumberFormat().format(amount);
 		document.getElementById("total").innerHTML = Intl.NumberFormat().format(total);

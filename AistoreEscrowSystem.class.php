@@ -9,10 +9,10 @@ class AistoreEscrowSystem
 {
 
     // get escrow feecccc
-    public function get_escrow_user_id()
+    public function get_escrow_admin_user_id()
     {
-        $escrow_user_id = get_option('escrow_user_id');
-        return $escrow_user_id;
+        $escrow_admin_user_id = get_option('escrow_user_id');
+        return $escrow_admin_user_id;
 
     }
 
@@ -45,54 +45,47 @@ class AistoreEscrowSystem
     //it take parameters and create escrow
     
 
-    public function add_escrow($amount, $user_id, $receiver_email, $title, $term_condition)
+    public function add_escrow($amount, $user_id, $receiver_email, $title, $term_condition ,$escrow_currency)
     {
 
         // step 1
         $ar = array();
 
-        $wallet = new AistoreWallet();
+       
+        
         $object_escrow = new AistoreEscrowSystem();
+        
         $aistore_escrow_currency = $object_escrow->get_escrow_currency();
-        $escrow_user_id = $object_escrow->get_escrow_user_id();
-        $escrow_fee = $object_escrow->create_escrow_fee($amount);
+        
+    
+    
+        
+        $escrow_fee = $object_escrow->create_escrow_fee($amount);  // issue here
+        
 
-        $user_balance = $wallet->aistore_balance($user_id, $aistore_escrow_currency);
 
-        $sender_email = get_the_author_meta('user_email', $user_id);
-
-        if ($user_balance < $amount)
-        {
-
-            $ar['Error'] = true;
-
-            $ar['Messsage'] = 'Insufficent Balance';
-
-            return $ar;
-
-        }
-
-        $new_amount = double($amount - $escrow_fee);
+         // insert currency also 
+         
+         
 
         global $wpdb;
 
-        $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee  ) VALUES ( %s, %s, %s, %s ,%s,%s )", array(
-            $title,
-            $new_amount,
-            $receiver_email,
-            $sender_email,
-            $term_condition,
-            $escrow_fee
-        )));
+      $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee ,currency ) VALUES ( %s, %d, %s, %s ,%s ,%s,%s)", array(
+                    $title,
+                    $amount,
+                    $receiver_email,
+                    $sender_email,
+                    $term_condition,
+                    $escrow_fee,
+                    $escrow_currency
+                )));
+
 
         $eid = $wpdb->insert_id;
 
-        $details = 'Payment transaction for the escrow id # ' . $eid;
+      
+      
 
-        $aistore_debit_res = $wallet->aistore_debit($user_id, $amount, $aistore_escrow_currency, $details);
-
-        $aistore_credit_res = $wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
-        $aistore_credit_res = $wallet->aistore_credit($escrow_user_id, $new_amount, $aistore_escrow_currency, $details);
 
         sendNotificationCreated($eid);
 
@@ -107,21 +100,30 @@ class AistoreEscrowSystem
     // create escrow System
     public static function aistore_escrow_system()
     {
-
-        $object_escrow = new AistoreEscrowSystem();
-        $aistore_escrow_currency = $object_escrow->get_escrow_currency();
-        $escrow_user_id = $object_escrow->get_escrow_user_id();
-
-
-        if (!is_user_logged_in())
+        
+         if (!is_user_logged_in())
         {
             return "<div class='no-login'>Kindly login and then visit this page </div>";
         }
+        
+        
+        
+
+        $object_escrow = new AistoreEscrowSystem();
+        $aistore_escrow_currency = $object_escrow->get_escrow_currency();
+        
+        
+        $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();   // change variable name  
+
+
+       
 
         echo " <div>";
 
         $wallet = new AistoreWallet();
+        
         $user_id = get_current_user_id();
+        
 
         if (isset($_POST['submit']) and $_POST['action'] == 'escrow_system')
         {
@@ -134,40 +136,58 @@ class AistoreEscrowSystem
 
             $title = sanitize_text_field($_REQUEST['title']);
             $amount = sanitize_text_field($_REQUEST['amount']);
+            
             $receiver_email = sanitize_email($_REQUEST['receiver_email']);
+            
             $term_condition = sanitize_text_field(htmlentities($_REQUEST['term_condition']));
-            $user_balance = $wallet->aistore_balance($user_id, $aistore_escrow_currency);
+            
+           
+        $escrow_currency = sanitize_text_field($_REQUEST['aistore_escrow_currency']);
+       
             $escrow_fee = $object_escrow->create_escrow_fee($amount);
+            
+            
+            
+            
             $sender_email = get_the_author_meta('user_email', get_current_user_id());
 
-            if ($user_balance < $amount)
-            {
-                _e('Insufficent Balance', 'aistore');
-
-            }
-            else
-            {
-
-                $new_amount = $amount - $escrow_fee;
+            
 
                 global $wpdb;
+                
+                
+                // add currency also
+                
+ 
 
-                $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee  ) VALUES ( %s, %d, %s, %s ,%s ,%s)", array(
+           
+// check if user have uploaded file or not  then do this
+
+
+                $fileType = $_FILES['file']['type'];
+                
+                
+                if ($fileType == "application/pdf")
+                {
+                    
+                                   
+$wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee ,currency ) VALUES ( %s, %d, %s, %s ,%s ,%s,%s)", array(
                     $title,
-                    $new_amount,
+                    $amount,
                     $receiver_email,
                     $sender_email,
                     $term_condition,
-                    $escrow_fee
+                    $escrow_fee,
+                    $escrow_currency
                 )));
 
+
+             
                 $eid = $wpdb->insert_id;
-
-                $upload_dir = wp_upload_dir();
-
-                $fileType = $_FILES['file']['type'];
-                if ($fileType == "application/pdf")
-                {
+                    
+                    $upload_dir = wp_upload_dir();
+                    
+                    
                     if (!empty($upload_dir['basedir']))
                     {
 
@@ -191,45 +211,45 @@ class AistoreEscrowSystem
                             $user_id,
                             $filename
                         )));
-                    }
+                        
+                        
+                $details_escrow_page_id_url = esc_url(add_query_arg(array(
+                    'page_id' => get_option('details_escrow_page_id') ,
+                    'eid' => $eid,
+                ) , home_url()));
 
+
+                sendNotificationCreated($eid);
+?>
+<br>
+
+<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($details_escrow_page_id_url); ?>" />
+<?php
+                    }
+}
                     else
                     {
 ?>
             <p> <?php _e('Note : We accept only pdf file', 'aistore') ?></p><?php
                     }
 
-                }
+                
 
-                $details = 'Payment transaction for the escrow id # ' . $eid;
-
-                $wallet->aistore_debit($user_id, $amount, $aistore_escrow_currency, $details);
-
-                $wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
-                $wallet->aistore_credit($escrow_user_id, $new_amount, $aistore_escrow_currency, $details);
-
-                $details_escrow_page_id_url = esc_url(add_query_arg(array(
-                    'page_id' => get_option('details_escrow_page_id') ,
-                    'eid' => $eid,
-                ) , home_url()));
-
-                sendNotificationCreated($eid);
+              
+          
+          
 
 ?>
 
 
 
 
-<br>
-
-<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($details_escrow_page_id_url); ?>" />
 
 
 
 
 
-<?php
-            }
+<?php 
 
         }
         else
@@ -244,34 +264,59 @@ class AistoreEscrowSystem
                  
 <label for="title"><?php _e('Title', 'aistore'); ?></label><br>
   <input class="input" type="text" id="title" name="title" required><br>
+
+  <label for="title"><?php _e('Currency', 'aistore'); ?></label><br>
+  <?php 
+   global $wpdb;
+ $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_currency  order by id desc"
+);
+?>
+       <select name="aistore_escrow_currency" id="aistore_escrow_currency" >
+                <?php
+
+        foreach ($results as $c)
+        {
+
+           
+                echo '	<option  value="' . $c->symbol . '">' . $c->currency . '</option>';
+
+
+            
+
+        }
+?>
+           
+  
+</select><br>
   <?php
 
-            $user_balance = $wallet->aistore_balance($user_id, $aistore_escrow_currency);
+
 ?>
 
   <label for="amount"><?php _e('Amount', 'aistore'); ?></label><br>
-  <input class="input" type="number" id="amount" name="amount" min="1" max="<?php echo $user_balance ?>" required><br>
+  <input class="input" type="number" id="amount" name="amount" min="1"  required><br>
  
    <input class="input" type="hidden" id="escrow_create_fee" name="escrow_create_fee" value= "<?php echo get_option('escrow_create_fee'); ?>">
+    <div class="feeblock hide" >
   <?php
-            $balance = $wallet->aistore_balance($user_id, $aistore_escrow_currency);
+  
+  
 
-            printf(__('Available balance is %s', 'aistore') , $balance . ' ' . $aistore_escrow_currency);
-
-            // issue 3
-            
 ?>
- <div class="feeblock hide" >
+<br>
       <?php _e('Amount', 'aistore'); ?> :
-      <b id="escrow_amount"></b>/- <?php echo $aistore_escrow_currency; ?><br>
+      <b id="escrow_amount"></b>/- <span id="escrow_currency"></span><br>
  
   <?php _e('Escrow Fee', 'aistore'); ?>
   
-  :  <b id="escrow_fee" ></b>/- <?php echo $aistore_escrow_currency; ?>  (<?php echo get_option('escrow_create_fee'); ?> %)<br>
+  :  <b id="escrow_fee" ></b>/- <span id="escrow_currency"></span> (<?php echo get_option('escrow_create_fee'); ?> %)<br>
   
     
      
-   <?php _e('Total Escrow Amount', 'aistore'); ?> :   <b id="total"></b>/- <?php echo $aistore_escrow_currency; ?>
+   <?php _e('Total Escrow Amount', 'aistore'); ?> :   <b id="total"></b>/- <span id="escrow_currency"></span>
+   
+   
+   
   
   
   </div>
@@ -313,7 +358,7 @@ class AistoreEscrowSystem
 <br><br>
 
 	<label for="documents"><?php _e('Documents', 'aistore') ?>: </label>
-     <input type="file" name="file" accept="application/pdf" required /><br>
+     <input type="file" name="file" accept="application/pdf"   /><br>
      <div><p> <?php _e('Note : We accept only pdf file and
 	You can upload many pdf file then go to next escrow details page.', 'aistore') ?></p></div>
 <input 
@@ -344,18 +389,18 @@ class AistoreEscrowSystem
 
         global $wpdb;
 
-        $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email=%s or sender_email=%s order by id desc limit 100", $current_user_email_id, $current_user_email_id)
+        $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email=%s or sender_email=%s order by id desc ", $current_user_email_id, $current_user_email_id)
 );
 
 ?>
-<h3><u><?php _e('Top 100  Escrow', 'aistore'); ?></u> </h3>
+<h3><u><?php _e('Top  Escrow', 'aistore'); ?></u> </h3>
 <?php
 
         if ($results == null)
         {
             echo "<div class='no-result'>";
 
-            _e('Escrow List Not Found', 'aistore');
+            _e('No Escrow Found', 'aistore');
             echo "</div>";
         }
         else
@@ -375,8 +420,8 @@ class AistoreEscrowSystem
           <th><?php _e('Amount', 'aistore'); ?></th> 
 		  <th><?php _e('Sender', 'aistore'); ?></th>
 		  <th><?php _e('Receiver', 'aistore'); ?></th>
-		    <th><?php _e('Status', 'aistore'); ?></th>
-		 
+		    <th><?php _e('Payment Status', 'aistore'); ?></th>
+		 	    <th><?php _e('Status', 'aistore'); ?></th>
 </tr>
 
     <?php
@@ -422,11 +467,11 @@ class AistoreEscrowSystem
 
 		  </td>
 		   
-		  	   <td> 		   <?php echo $row->amount . " " . $aistore_escrow_currency ?> </td>
+		  	   <td> 		   <?php echo $row->amount . " " . $row->currency ?> </td>
 		   <td> 		   <?php echo $row->sender_email; ?> </td>
 		   <td> 		   <?php echo $row->receiver_email; ?> </td>
-		    <td> 		   <?php echo $row->status; ?> </td>
-
+		    <td> 		   <?php echo $row->payment_status; ?> </td>
+   <td> 		   <?php echo $row->status; ?> </td>
             </tr>
     <?php
             endforeach;
@@ -452,6 +497,9 @@ class AistoreEscrowSystem
         {
             return;
         }
+        
+        
+        
         if (!sanitize_text_field($_REQUEST['eid']))
         {
 
@@ -469,73 +517,46 @@ class AistoreEscrowSystem
 
         $eid = sanitize_text_field($_REQUEST['eid']);
 
-        $object_escrow = new AistoreEscrowSystem();
-        $aistore_escrow_currency = $object_escrow->get_escrow_currency();
-        $escrow_user_id = $object_escrow->get_escrow_user_id();
 
-        $user_id = get_current_user_id();
 
-        if (isset($_POST['upload_file']))
-        {
-            $upload_dir = wp_upload_dir();
 
-            if (!empty($upload_dir['basedir']))
-            {
-                $user_dirname = $upload_dir['basedir'] . '/documents/' . $eid;
-                if (!file_exists($user_dirname))
-                {
-                    wp_mkdir_p($user_dirname);
-                }
-
-                $filename = wp_unique_filename($user_dirname, $_FILES['file']['name']);
-
-                move_uploaded_file(sanitize_text_field($_FILES['file']['tmp_name']) , $user_dirname . '/' . $filename);
-
-                $image = $upload_dir['baseurl'] . '/documents/' . $eid . '/' . $filename;
-                // save into database $image;
-                global $wpdb;
-
-                $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array(
-                    $eid,
-                    $image,
-                    $user_id,
-                    $filename
-                )));
-            }
-        }
-
-        $email_id = get_the_author_meta('user_email', $user_id);
-
-        ob_start();
-
-        if (!isset($eid))
-        {
-
-            $list_escrow_page_url = esc_url(add_query_arg(array(
-                'page_id' => get_option('list_escrow_page_id') ,
-            ) , home_url()));
-
-?>
-	<div><a href="<?php echo $list_escrow_page_url; ?>" >
-	    <?php _e('Go To Escrow List Page', 'aistore'); ?> 
-	     </a></div>
-<?php
-
-            return ob_get_clean();
-        }
-
-        global $wpdb;
-
-        if (isset($_POST['submit']) and $_POST['action'] == 'disputed')
+  if (isset($_POST['submit']) and $_POST['action'] == 'disputed')
         {
             if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
             {
                 return _e('Sorry, your nonce did not verify', 'aistore');
 
             }
+            
+            
+            
+            
+         if($escrow->payment_status <> "paid")  return "";  
+         
+          if ($escrow->status == "closed") return "";
+
+        else
+
+        if ($escrow->status == "released") return "";
+
+        else
+
+        if ($escrow->status == "cancelled") return "";
+
+        else
+
+        if ($escrow->status == "disputed") return "";
+
+        else
+
+        if ($escrow->status == "pending") return "";
+        
+        
+         
+                
 
             $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
-    SET status = '%s'  WHERE id = '%d'", 'disputed', $eid));
+    SET status = '%s'  WHERE id = '%d' and payment_status='paid'", 'disputed', $eid));
 
 ?>
 <div>
@@ -544,6 +565,35 @@ class AistoreEscrowSystem
             sendNotificationDisputed($eid);
 
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+    $object_escrow = new AistoreEscrowSystem();
+        
+      
+        
+        $escrow_admin_user_id  = $object_escrow->get_escrow_admin_user_id();
+
+        $user_id = get_current_user_id();
+        
+        
+        $email_id = get_the_author_meta('user_email', $user_id);
+        
+        
+        
+               global $wpdb;
+
+     
+
+        ob_start();
 
         if (isset($_POST['submit']) and $_POST['action'] == 'accepted')
         {
@@ -553,29 +603,89 @@ class AistoreEscrowSystem
                 return _e('Sorry, your nonce did not verify', 'aistore');
 
             }
+            
+            
+            
 
-            $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
-    SET status = '%s'  WHERE id = '%d'", 'accepted', $eid));
 
-            $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ", $eid));
+
+
+ $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE receiver_email = %s  and id=%s ", $email_id, $eid));
+
+        $aistore_escrow_currency = $escrow->currency;
+        $user_email = get_the_author_meta('user_email', get_current_user_id());
+        
+     
+        
+    if($escrow->payment_status <> "paid")  return "";  
+
+   if ($escrow->sender_email == $user_email) return "";
+   
+   
+ 
+        if ($escrow->status == "closed") return "";
+
+        else
+
+        if ($escrow->status == "released") return "";
+
+        else
+
+        if ($escrow->status == "cancelled") return "";
+
+        else
+
+        if ($escrow->status == "disputed") return "";
+
+        else
+
+        if ($escrow->status == "accepted") return "";
+      
+ 
+
+
+
 
             $amount = $escrow->amount;
+            
+            
 
             $escrow_fee = $object_escrow->accept_escrow_fee($amount);
 
-            $details = 'Payment transaction for the accept escrow with escrow id # ' . $eid;
 
-            $wallet = new AistoreWallet();
-            $wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $details);
-            $wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
+
+
+// fee will be debited from both party once user accept the escrow
+
+
+            $escrow_details = 'Payment transaction for the accept escrow with escrow id # ' . $eid;
+            
+
+            $escrow_wallet = new AistoreWallet();
+            
+            $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details);
+            
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details);  // change variable name 
+            
+
+
+            $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
+    SET status = '%s'  WHERE  payment_status='paid' and  receiver_email = %s  and id = '%d'", 'accepted', $email_id, $eid));
+
+
+
 
 ?>
 <div>
     
 <strong> <?php _e('Accepted Successfully', 'aistore') ?></strong></div>
 <?php
-            printf(__("Escrow Fee %d.", 'aistore') , $escrow_fee);
+            
+            
+            
             sendNotificationAccepted($eid);
+            
+            
         }
 
         if (isset($_POST['submit']) and $_POST['action'] == 'released')
@@ -587,22 +697,44 @@ class AistoreEscrowSystem
 
             }
 
-            $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
-    SET status = '%s'  WHERE id = '%d'", 'released', $eid));
+ 
+    
+    
+         
 
-            $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ", $eid));
+ $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE payment_status='paid' and sender_email = %s  and id=%s ", $email_id, $eid));
 
+      
+         
+         $aistore_escrow_currency = $escrow->currency;
             $escrow_amount = $escrow->amount;
 
             $escrow_reciever_email_id = $escrow->receiver_email;
-            $user = get_user_by('email', $escrow_reciever_email_id);
-            $id = $user->ID;
+            
+            $escrow_user = get_user_by('email', $escrow_reciever_email_id);
+            
+            $escrow_user_id= $escrow_user->ID;  // change varibale name 
+            
 
-            $details = 'Payment transaction for the release escrow with escrow id # ' . $eid;
+            $escrow_details = 'Payment transaction for the release escrow with escrow id # ' . $eid;
 
-            $wallet = new AistoreWallet();
-            $wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
-            $wallet->aistore_credit($id, $escrow_amount, $aistore_escrow_currency, $details);
+
+            $escrow_wallet = new AistoreWallet();
+            
+            
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+            
+            
+            $escrow_wallet->aistore_credit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+            
+            
+            $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
+    SET status = 'released'  WHERE  payment_status='paid' and  sender_email =%s and id = %d ", $email_id, $eid));
+    
+    
+
+
+
 
 ?>
 <div>
@@ -610,6 +742,11 @@ class AistoreEscrowSystem
 <?php
             sendNotificationReleased($eid);
         }
+        
+        
+        
+        
+        
 
         // Sender Create escrow  to excute cancel button
         // Receiver  accept or cancel escrow
@@ -623,30 +760,61 @@ class AistoreEscrowSystem
             }
 
             $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
-    SET status = '%s'  WHERE id = '%d'", 'cancelled', $eid));
-            $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ", $eid));
+    SET status = 'cancelled'  WHERE (  receiver_email = %s   or  sender_email = %s    )  and  id =  %d " , $email_id, $email_id, $eid));
+    
+    
+     
 
+
+ $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system  WHERE (  receiver_email = %s   or  sender_email = %s    )  and  id =  %d " , $email_id, $email_id, $eid));
+
+      
+      
+      
+        
+    
+    if($escrow->payment_status=="paid")
+    {
+        
             $escrow_amount = $escrow->amount;
 
             $sender_escrow_fee = $escrow->escrow_fee;
+            
             $sender_email = $escrow->sender_email;
+            
             $user = get_user_by('email', $sender_email);
+            
             $sender_id = $user->ID;
+            
+               $aistore_escrow_currency = $escrow->currency;
+        $escrow_details = 'Payment transaction for the cancelled escrow with escrow id # ' . $eid;
 
-            $details = 'Payment transaction for the cancel escrow with escrow id # ' . $eid;
+            $escrow_wallet = new AistoreWallet();
+            
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+            
+            $escrow_wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
 
-            $wallet = new AistoreWallet();
-            $wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
-            $wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $details);
 
             $cancel_escrow_fee = get_option('cancel_escrow_fee');
 
             if ($cancel_escrow_fee == 'yes')
             {
-                $wallet->aistore_debit($escrow_user_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
-                $wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
+                $escrow_wallet->aistore_debit($escrow_admin_user_id, $sender_escrow_fee, $aistore_escrow_currency, $escrow_details);
+                
+                
+                $escrow_wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $escrow_details);
 
             }
+            
+    }       
+    
+         
+         
+         
+
+
+   
 ?>
 <div>
 <strong><?php _e('Cancelled Successfully', 'aistore') ?></strong></div>
@@ -655,29 +823,94 @@ class AistoreEscrowSystem
             sendNotificationCancelled($eid);
         }
 
-        if (aistore_isadmin())
-        {
+       
+       
+       
+ $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system  WHERE (  receiver_email = %s   or  sender_email = %s    )  and  id =  %d " , $email_id, $email_id, $eid));
 
-            $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s", $eid));
 
-        }
 
-        else
-        {
 
-            $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE ( sender_email = '" . $email_id . "' or receiver_email = '" . $email_id . "' ) and id=%s ", $eid));
-
-        }
 
 ?>
 	  <div>
 	      <div class="alert alert-success" role="alert">
- <strong>Escrow Status   <?php echo $escrow->status; ?></strong>
+ <strong>  Status   <?php echo $escrow->status; ?></strong>
   </div>
 	  
+	  
+	    <div class="alert alert-success" role="alert">
+ <strong>Payment Status   <?php echo $escrow->payment_status; ?></strong>
+  </div>
+  
 	      <?php
-        echo "<h1>#" . $escrow->id . " " . $escrow->title . "</h1><br>";
+       
+  if($escrow->payment_status=="Pending")
+  {
+      ?>
+<div>
+  <p>Don't ship the product.</p>
+  </div><br>
+  
+  
+  <?php 
+  	$user_email = get_the_author_meta( 'user_email', get_current_user_id() );
+  	 if($escrow->sender_email == $user_email)
+  {
+      ?>
+  <table>
+    <tr><td>Bank Account Name :</td><td><?php echo esc_attr( get_option('bank_account_name') ); ?></td></tr>
+    <tr><td>Bank Account Number :</td><td><?php echo esc_attr( get_option('bank_account') ); ?></td></tr>
+    <tr><td>Name Of Bank :</td><td><?php echo esc_attr( get_option('name_of_bank') ); ?></td></tr>
+    <tr><td>IFSC Code :</td><td><?php echo esc_attr( get_option('ifsc_code') ); ?></td></tr>
 
+
+  <tr><td colspan="2">
+      <?php
+       global $wpdb;   
+  
+ 
+$user_id=get_current_user_id();
+
+if(isset($_POST['submit']) and $_POST['action']=='escrow_payment' )
+{
+
+if ( ! isset( $_POST['aistore_nonce'] ) 
+    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
+) {
+   return  _e( 'Sorry, your nonce did not verify', 'aistore' );
+   exit;
+} 
+
+$eid=  $escrow->id;
+$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
+    SET payment_status = 'process'  WHERE id = '%d' ",  $eid   ) );
+    
+    echo $escrow->payment_status;
+
+}
+else{
+        ?>
+    <form method="POST" action="" name="escrow_payment" enctype="multipart/form-data"> 
+
+<?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
+	
+<input 
+ type="submit" name="submit" value="<?php  _e( 'Make Payment', 'aistore' ) ?>"/>
+<input type="hidden" name="action" value="escrow_payment" />
+                </form><?php }?>
+  </td></tr>
+</table><br>
+
+
+  <?php 
+  }
+  
+  
+  }
+  
+        
+  echo "<h1>#" . $escrow->id . " " . $escrow->title . "</h1><br>";
         printf(__("Term Condition : %s", 'aistore') , html_entity_decode($escrow->term_condition) . "<br>");
         printf(__("Sender :  %s", 'aistore') , $escrow->sender_email . "<br>");
         printf(__("Receiver : %s", 'aistore') , $escrow->receiver_email . "<br>");
@@ -754,7 +987,7 @@ class AistoreEscrowSystem
   </div>
 
 </form>
-
+<p> We accept only PDF files.</p>
 
        
      
@@ -830,9 +1063,17 @@ class AistoreEscrowSystem
     // Accept Button
     function accept_escrow_btn($escrow)
     {
-        global $wpdb;
+       
         $user_email = get_the_author_meta('user_email', get_current_user_id());
+        
+     
+        
+    if($escrow->payment_status <> "paid")  return "";  
 
+   if ($escrow->sender_email == $user_email) return "";
+   
+   
+ 
         if ($escrow->status == "closed") return "";
 
         else
@@ -851,7 +1092,7 @@ class AistoreEscrowSystem
 
         if ($escrow->status == "accepted") return "";
 
-        else if ($escrow->sender_email == $user_email) return "";
+        
 
 ?>
 
@@ -866,8 +1107,9 @@ class AistoreEscrowSystem
     // cancel button
     function cancel_escrow_btn($escrow)
     {
-        global $wpdb;
-        $user_email = get_the_author_meta('user_email', get_current_user_id());
+         
+ 
+ 
 
         if ($escrow->status == "closed") return "";
 
@@ -879,17 +1121,34 @@ class AistoreEscrowSystem
 
         if ($escrow->status == "cancelled") return "";
 
-        else
+      
+      
+       $user_email = get_the_author_meta('user_email', get_current_user_id());
 
-        if ($escrow->status == "accepted") return "";
 
-        if (!aistore_isadmin())
-        {
 
-            if ($escrow->status == "disputed") return "";
 
-        }
+         
+       if ($escrow->sender_email == $user_email)
+       
+       {
+             if($escrow->payment_status == "paid")  return "";  
 
+       
+
+       }
+
+           
+ 
+ 
+       
+       
+       
+      
+
+       
+      global $wpdb;  
+$user_email = get_the_author_meta('user_email', get_current_user_id());
 ?>
 
  <form method="POST" action="" name="cancelled" enctype="multipart/form-data"> 
@@ -904,12 +1163,27 @@ class AistoreEscrowSystem
     // release button
     function release_escrow_btn($escrow)
     {
-        global $wpdb;
-        $user_email = get_the_author_meta('user_email', get_current_user_id());
+        
+        
+        
+  $user_email = get_the_author_meta('user_email', get_current_user_id());
 
+
+        
+        
+         if($escrow->payment_status <> "paid")  return "";  
+         
+         
+         
+       if ($escrow->sender_email <> $user_email) return "";
+           
+           
+           
+       
+  
         if ($escrow->status == "closed") return "";
 
-        else
+         else
 
         if ($escrow->status == "released") return "";
 
@@ -920,13 +1194,10 @@ class AistoreEscrowSystem
 
         if ($escrow->status == "pending") return "";
 
-        if (!aistore_isadmin())
-        {
-
-            if ($escrow->sender_email <> $user_email) return "";
-
-        }
-
+             
+             
+    
+        
 ?>
 
   
@@ -942,8 +1213,12 @@ class AistoreEscrowSystem
     // dispute button
     function dispute_escrow_btn($escrow)
     {
-        global $wpdb;
-        $user_email = get_the_author_meta('user_email', get_current_user_id());
+  
+
+         if($escrow->payment_status <> "paid")  return "";  
+         
+         
+
 
         if ($escrow->status == "closed") return "";
 
@@ -984,6 +1259,25 @@ function aistore_upload_file()
     $eid = sanitize_text_field($_REQUEST['eid']);
 
     $user_id = get_current_user_id();
+    
+     
+    $ipaddress = '';
+    if (getenv('HTTP_CLIENT_IP'))
+        $ipaddress = getenv('HTTP_CLIENT_IP');
+    else if(getenv('HTTP_X_FORWARDED_FOR'))
+        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    else if(getenv('HTTP_X_FORWARDED'))
+        $ipaddress = getenv('HTTP_X_FORWARDED');
+    else if(getenv('HTTP_FORWARDED_FOR'))
+        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+    else if(getenv('HTTP_FORWARDED'))
+       $ipaddress = getenv('HTTP_FORWARDED');
+    else if(getenv('REMOTE_ADDR'))
+        $ipaddress = getenv('REMOTE_ADDR');
+    else
+        $ipaddress = 'UNKNOWN';
+        
+      
 
     $email_id = get_the_author_meta('user_email', get_current_user_id());
     $escrow = $wpdb->get_row($wpdb->prepare("SELECT count(id) as count FROM {$wpdb->prefix}escrow_system WHERE ( sender_email = '" . $email_id . "' or receiver_email = '" . $email_id . "' ) and id=%s ", $eid));
@@ -1016,11 +1310,12 @@ function aistore_upload_file()
                     //             // save into database $image;
                     
 
-                    $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array(
+                    $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name,ipaddress) VALUES ( %d,%s,%d,%s,%s)", array(
                         $eid,
                         $image,
                         $user_id,
-                        $filename
+                        $filename,
+                        $ipaddress
                     )));
                 }
 
