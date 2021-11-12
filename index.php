@@ -66,6 +66,7 @@ function aistore_plugin_table_install()
    message  text  NOT NULL,
    user_login  varchar(100)   NOT NULL,
   status  varchar(100)   NOT NULL,
+  ipaddress varchar(100)   NOT NULL,
    created_at  timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id)
 ) ";
@@ -74,6 +75,7 @@ function aistore_plugin_table_install()
   id int(100) NOT NULL  AUTO_INCREMENT,
   eid  int(100) NOT NULL,
   documents  varchar(100)  NOT NULL,
+   ipaddress varchar(100)   NOT NULL,
    created_at  timestamp NOT NULL DEFAULT current_timestamp(),
    user_id  int(100) NOT NULL,
   documents_name  varchar(100)  DEFAULT NULL,
@@ -85,6 +87,7 @@ function aistore_plugin_table_install()
   title varchar(100)   NOT NULL,
   term_condition text ,
   amount int(100) NOT NULL,
+  currency  varchar(100)   NOT NULL,
   receiver_email varchar(100)  NOT NULL,
   sender_email varchar(100)   NOT NULL,
   escrow_fee int(100) NOT NULL,
@@ -105,13 +108,7 @@ function aistore_plugin_table_install()
   PRIMARY KEY (id)
 ) ";
 
-    $table_escrow_currency = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_currency  (
-  id int(100) NOT NULL  AUTO_INCREMENT,
-  currency varchar(100) NOT NULL,
-   symbol  varchar(100)   NOT NULL,
-  created_at timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (id)
-) ";
+   
     require_once (ABSPATH . 'wp-admin/includes/upgrade.php');
 
     dbDelta($table_escrow_discussion);
@@ -122,7 +119,6 @@ function aistore_plugin_table_install()
 
     dbDelta($table_escrow_notification);
 
-    dbDelta($table_escrow_currency);
     email_notification_message();
 
 }
@@ -135,7 +131,7 @@ include_once dirname(__FILE__) . '/user_email_verification.php';
 include_once dirname(__FILE__) . '/email/notification_api.php';
 include_once dirname(__FILE__) . '/AistoreEscrowSystem.class.php';
 
-include_once dirname(__FILE__) . '/AistoreSettingsPage.class.php';
+include_once dirname(__FILE__) . '/AistoreEscrowSettings.class.php';
 
 add_shortcode('aistore_escrow_system', array(
     'AistoreEscrowSystem',

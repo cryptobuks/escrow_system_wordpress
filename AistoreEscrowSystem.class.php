@@ -76,11 +76,12 @@ class AistoreEscrowSystem
         $eid = $wpdb->insert_id;
 
         sendNotificationCreated($eid);
+         $created_escrow_success_message = get_option('created_escrow_success_message');
 
         $ar['Error'] = true;
         $ar['eid'] = $eid;
 
-        $ar['Messsage'] = 'Escrow created successfully';
+        $ar['Messsage'] = $created_escrow_success_message;
 
         return $ar;
     }
@@ -167,17 +168,19 @@ class AistoreEscrowSystem
                     $image = $upload_dir['baseurl'] . '/documents/' . $eid . '/' . $filename;
 
                     // save into database  $image
-                    
-//issue_171 capture user IP address as well 
-			
-			
-                    $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array(
+                      $object_escrow = new AistoreEscrowSystem();
+        $ipaddress = $object_escrow->aistore_ipaddress();
+
+
+
+                    $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name,ipaddress) VALUES ( %d,%s,%d,%s,%s)", array(
                         $eid,
                         $image,
                         $user_id,
-                        $filename
+                        $filename,
+                        $ipaddress
                     )));
-
+                  
 ?>
 <br>
 
@@ -226,12 +229,11 @@ class AistoreEscrowSystem
 
   <label for="title"><?php _e('Currency', 'aistore'); ?></label><br>
   <?php
-	 
-	 ////issue_230 can we make a function which fetch all currency and return in wallet class
-	 
-	 
             global $wpdb;
-            $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_currency  order by id desc");
+            $escrow_wallet = new AistoreWallet();
+        $results = $escrow_wallet->aistore_wallet_currency();
+        
+        
 ?>
        <select name="aistore_escrow_currency" id="aistore_escrow_currency" >
                 <?php
@@ -255,7 +257,7 @@ class AistoreEscrowSystem
    <input class="input" type="hidden" id="escrow_create_fee" name="escrow_create_fee" value= "<?php echo get_option('escrow_create_fee'); ?>">
     <div class="feeblock hide" >
   <?php
-// issue_258 feeblock logic is not correct
+
 ?>
 <br>
       <?php _e('Amount', 'aistore'); ?> :
@@ -337,10 +339,8 @@ class AistoreEscrowSystem
 
         $object_escrow_currency = new AistoreEscrowSystem();
         $aistore_escrow_currency = $object_escrow_currency->get_escrow_currency();
-
-	    //issue_340  take user id in variable then use
-	    
-        $current_user_email_id = get_the_author_meta('user_email', get_current_user_id());
+        $user_id= get_current_user_id();
+        $current_user_email_id = get_the_author_meta('user_email', $user_id);
 
         global $wpdb;
 
@@ -496,10 +496,11 @@ class AistoreEscrowSystem
 
             $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE id = '%d' and payment_status='paid'", 'disputed', $eid));
+      $dispute_escrow_success_message = get_option('dispute_escrow_success_message');
 
 ?>
 <div>
-<strong> <?php _e('Disputed Successfully', 'aistore') ?></strong></div>
+<strong> <?php echo $dispute_escrow_success_message; ?></strong></div>
 <?php
             sendNotificationDisputed($eid);
 
@@ -559,10 +560,10 @@ class AistoreEscrowSystem
 
             // fee will be debited from both party once user accept the escrow
             
-//issue_562 admin will set this text line we will fetch it here
-		
-            $escrow_details = 'Payment transaction for the accept escrow with escrow id # ' . $eid;
-
+            $accept_escrow_message = get_option('accept_escrow_message');
+            $escrow_details = $accept_escrow_message . $eid;
+            
+        
             $escrow_wallet = new AistoreWallet();
 
             $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details);
@@ -572,11 +573,11 @@ class AistoreEscrowSystem
 
             $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE  payment_status='paid' and  receiver_email = %s  and id = '%d'", 'accepted', $email_id, $eid));
-
+ $accept_escrow_success_message = get_option('accept_escrow_success_message');
 ?>
 <div>
     
-<strong> <?php _e('Accepted Successfully', 'aistore') ?></strong></div>
+<strong> <?php echo $accept_escrow_success_message; ?></strong></div>
 <?php
 
             sendNotificationAccepted($eid);
@@ -603,8 +604,10 @@ class AistoreEscrowSystem
 
             $escrow_user_id = $escrow_user->ID; // change varibale name
             
-
-            $escrow_details = 'Payment transaction for the release escrow with escrow id # ' . $eid;
+             $release_escrow_message = get_option('release_escrow_message');
+            $escrow_details = $release_escrow_message . $eid;
+            
+            
 
             $escrow_wallet = new AistoreWallet();
 
@@ -614,10 +617,11 @@ class AistoreEscrowSystem
 
             $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET status = 'released'  WHERE  payment_status='paid' and  sender_email =%s and id = %d ", $email_id, $eid));
-
+   $release_escrow_success_message = get_option('release_escrow_success_message');
+            
 ?>
 <div>
-<strong> <?php _e('Released Successfully', 'aistore') ?></strong></div>
+<strong> <?php echo $release_escrow_success_message; ?></strong></div>
 <?php
             sendNotificationReleased($eid);
         }
@@ -652,7 +656,9 @@ class AistoreEscrowSystem
                 $sender_id = $user->ID;
 
                 $aistore_escrow_currency = $escrow->currency;
-                $escrow_details = 'Payment transaction for the cancelled escrow with escrow id # ' . $eid;
+                
+                $cancel_escrow_message = get_option('cancel_escrow_message');
+                $escrow_details = $cancel_escrow_message . $eid;
 
                 $escrow_wallet = new AistoreWallet();
 
@@ -669,12 +675,16 @@ class AistoreEscrowSystem
                     $escrow_wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $escrow_details);
 
                 }
+                
+                
 
             }
+            
+             $cancel_escrow_success_message = get_option('cancel_escrow_success_message');
 
 ?>
 <div>
-<strong><?php _e('Cancelled Successfully', 'aistore') ?></strong></div>
+<strong><?php echo $cancel_escrow_success_message; ?></strong></div>
 
 <?php
             sendNotificationCancelled($eid);
@@ -708,10 +718,13 @@ class AistoreEscrowSystem
             {
 ?>
   <table>
-    <tr><td>Bank Account Name :</td><td><?php echo esc_attr(get_option('bank_account_name')); ?></td></tr>
-    <tr><td>Bank Account Number :</td><td><?php echo esc_attr(get_option('bank_account')); ?></td></tr>
-    <tr><td>Name Of Bank :</td><td><?php echo esc_attr(get_option('name_of_bank')); ?></td></tr>
-    <tr><td>IFSC Code :</td><td><?php echo esc_attr(get_option('ifsc_code')); ?></td></tr>
+    <tr><td>Bank Details :</td></tr>
+    <tr><td><?php echo esc_attr(get_option('bank_details')); ?></td></tr>
+    
+    <tr><td>Deposit Instructions :</td></tr>
+    <tr><td><?php echo esc_attr(get_option('deposit_instructions')); ?></td></tr>
+    
+   
 
 
   <tr><td colspan="2">
@@ -1047,7 +1060,26 @@ class AistoreEscrowSystem
 </form> <?php
     }
 
+
+
+
+function aistore_ipaddress(){
+      $ipaddress = '';
+    if (getenv('HTTP_CLIENT_IP')) $ipaddress = getenv('HTTP_CLIENT_IP');
+    else if (getenv('HTTP_X_FORWARDED_FOR')) $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    else if (getenv('HTTP_X_FORWARDED')) $ipaddress = getenv('HTTP_X_FORWARDED');
+    else if (getenv('HTTP_FORWARDED_FOR')) $ipaddress = getenv('HTTP_FORWARDED_FOR');
+    else if (getenv('HTTP_FORWARDED')) $ipaddress = getenv('HTTP_FORWARDED');
+    else if (getenv('REMOTE_ADDR')) $ipaddress = getenv('REMOTE_ADDR');
+    else $ipaddress = 'UNKNOWN';
+    
+    return $ipaddress;
 }
+
+}
+
+
+
 
 add_action('wp_ajax_custom_action', 'aistore_upload_file');
 
@@ -1059,14 +1091,8 @@ function aistore_upload_file()
 
     $user_id = get_current_user_id();
 
-    $ipaddress = '';
-    if (getenv('HTTP_CLIENT_IP')) $ipaddress = getenv('HTTP_CLIENT_IP');
-    else if (getenv('HTTP_X_FORWARDED_FOR')) $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
-    else if (getenv('HTTP_X_FORWARDED')) $ipaddress = getenv('HTTP_X_FORWARDED');
-    else if (getenv('HTTP_FORWARDED_FOR')) $ipaddress = getenv('HTTP_FORWARDED_FOR');
-    else if (getenv('HTTP_FORWARDED')) $ipaddress = getenv('HTTP_FORWARDED');
-    else if (getenv('REMOTE_ADDR')) $ipaddress = getenv('REMOTE_ADDR');
-    else $ipaddress = 'UNKNOWN';
+  $object_escrow = new AistoreEscrowSystem();
+        $ipaddress = $object_escrow->aistore_ipaddress();
 
     $email_id = get_the_author_meta('user_email', get_current_user_id());
     $escrow = $wpdb->get_row($wpdb->prepare("SELECT count(id) as count FROM {$wpdb->prefix}escrow_system WHERE ( sender_email = '" . $email_id . "' or receiver_email = '" . $email_id . "' ) and id=%s ", $eid));
