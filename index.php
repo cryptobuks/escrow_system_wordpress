@@ -105,6 +105,13 @@ function aistore_plugin_table_install()
   PRIMARY KEY (id)
 ) ";
 
+    $table_escrow_currency = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_currency  (
+  id int(100) NOT NULL  AUTO_INCREMENT,
+  currency varchar(100) NOT NULL,
+   symbol  varchar(100)   NOT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id)
+) ";
     require_once (ABSPATH . 'wp-admin/includes/upgrade.php');
 
     dbDelta($table_escrow_discussion);
@@ -115,6 +122,7 @@ function aistore_plugin_table_install()
 
     dbDelta($table_escrow_notification);
 
+    dbDelta($table_escrow_currency);
     email_notification_message();
 
 }
@@ -143,8 +151,6 @@ add_shortcode('aistore_escrow_detail', array(
     'AistoreEscrowSystem',
     'aistore_escrow_detail'
 ));
-
-
 
 function email_notification_message()
 {

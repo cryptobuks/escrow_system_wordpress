@@ -1,5 +1,4 @@
 <?php
-
 class AistoreSettingsPage
 {
     /**
@@ -20,8 +19,10 @@ class AistoreSettingsPage
             $this,
             'aistore_page_register_setting'
         ));
-          add_action( 'admin_init', array( $this, 'aistore_bank_register_setting' ) );
-
+        add_action('admin_init', array(
+            $this,
+            'aistore_bank_register_setting'
+        ));
 
     }
 
@@ -71,16 +72,16 @@ class AistoreSettingsPage
             $this,
             'aistore_email_setting'
         ));
-        
-          add_submenu_page('disputed_escrow_list', __('Bank Detail Setting','aistore'), __('Bank Detail','aistore'), 'administrator', 'bank_details_setting', array(
-        $this,
-        'aistore_bank_details_setting'
-    ));
-    
-      add_submenu_page('disputed_escrow_list', __('Payment Process','aistore'), __('Payment Process','aistore'), 'administrator', 'payment_process', array(
-        $this,
-        'aistore_payment_process'
-    ));
+
+        add_submenu_page('disputed_escrow_list', __('Bank Detail Setting', 'aistore') , __('Bank Detail', 'aistore') , 'administrator', 'bank_details_setting', array(
+            $this,
+            'aistore_bank_details_setting'
+        ));
+
+        add_submenu_page('disputed_escrow_list', __('Payment Process', 'aistore') , __('Payment Process', 'aistore') , 'administrator', 'payment_process', array(
+            $this,
+            'aistore_payment_process'
+        ));
 
     }
 
@@ -116,7 +117,6 @@ class AistoreSettingsPage
       
 
     <?php
-
         if ($results == null)
         {
             _e("No Escrow Found", 'aistore');
@@ -133,19 +133,19 @@ class AistoreSettingsPage
 ?> 
       <tr>
 
-		   <td> 	<a href="<?php echo $escrow_details_page_url; ?>" >	
+		   <td> 	<a href="<?php echo esc_attr($escrow_details_page_url); ?>" >	
 		   
-		   <?php echo $row->id; ?> </a> </td>
+		   <?php echo esc_attr($row->id); ?> </a> </td>
 		  
 		   
-		   <td> 		   <?php echo $row->title; ?> </td>
+		   <td> 		   <?php echo esc_attr($row->title); ?> </td>
 		  
-		   <td> 		   <?php echo $row->status; ?> </td>
+		   <td> 		   <?php echo esc_attr($row->status); ?> </td>
 		   
-		   <td> 		   <?php echo $row->amount; ?> </td>
-		   <td> 		   <?php echo $row->sender_email; ?> </td>
-		   <td> 		   <?php echo $row->receiver_email; ?> </td>
-		     <td> 		   <?php echo $row->created_at; ?> </td>
+		   <td> 		   <?php echo esc_attr($row->amount); ?> </td>
+		   <td> 		   <?php echo esc_attr($row->sender_email); ?> </td>
+		   <td> 		   <?php echo esc_attr($row->receiver_email); ?> </td>
+		     <td> 		   <?php echo esc_attr($row->created_at); ?> </td>
        
                 
             </tr>
@@ -159,7 +159,6 @@ class AistoreSettingsPage
 
     </table>
 	<?php
-
     }
 
     //aistore_disputed_escrow_details
@@ -172,7 +171,7 @@ class AistoreSettingsPage
 
         $object_escrow = new AistoreEscrowSystem();
         $aistore_escrow_currency = $object_escrow->get_escrow_currency();
-        $escrow_user_id = $object_escrow->get_escrow_user_id();
+        $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
 
         $user_id = get_current_user_id();
 
@@ -219,7 +218,6 @@ class AistoreSettingsPage
 	    <?php _e('Go To Escrow List Page', 'aistore'); ?> 
 	     </a></div>
 <?php
-
             return ob_get_clean();
         }
 
@@ -238,7 +236,6 @@ class AistoreSettingsPage
 <div>
 <strong> <?php _e('Disputed Successfully', 'aistore') ?></strong></div>
 <?php
-
         }
 
         if (isset($_POST['submit']) and $_POST['action'] == 'accepted')
@@ -261,11 +258,11 @@ class AistoreSettingsPage
 
             $escrow_fee = $object_escrow_fee->accept_escrow_fee($amount);
 
-            $wallet = new AistoreWallet();
+            $escrow_wallet = new AistoreWallet();
 
-            $aistore_debit_res = $wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $details);
+            $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $details);
 
-            $aistore_credit_res = $wallet->aistore_credit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $details);
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $details);
             sendNotificationAccepted($eid);
 
 ?>
@@ -299,11 +296,11 @@ class AistoreSettingsPage
 
             $details = 'Payment transaction for the release escrow with escrow id # ' . $eid;
 
-            $wallet = new AistoreWallet();
+            $escrow_wallet = new AistoreWallet();
 
-            $aistore_debit_res = $wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $details);
 
-            $aistore_credit_res = $wallet->aistore_credit($id, $escrow_amount, $aistore_escrow_currency, $details);
+            $escrow_wallet->aistore_credit($id, $escrow_amount, $aistore_escrow_currency, $details);
 
 ?>
 <div>
@@ -359,17 +356,17 @@ class AistoreSettingsPage
 
             $details = 'Payment transaction for the cancel escrow with escrow id # ' . $eid;
 
-            $wallet = new AistoreWallet();
+            $escrow_wallet = new AistoreWallet();
 
-            $aistore_debit_res = $wallet->aistore_debit($escrow_user_id, $escrow_amount, $aistore_escrow_currency, $details);
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $details);
 
-            $aistore_credit_res = $wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $details);
+            $escrow_wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $details);
 
             $cancel_escrow_fee = get_option('cancel_escrow_fee');
 
             if ($cancel_escrow_fee == 'yes')
             {
-                $aistore_debit_res = $wallet->aistore_debit($escrow_user_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
+                $aistore_debit_res = $wallet->aistore_debit($escrow_admin_user_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
 
                 $aistore_credit_res = $wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
 
@@ -429,9 +426,9 @@ class AistoreSettingsPage
    
 
 
-  <p><a href="<?php echo $row->documents; ?>" target="_blank">
-	       <b><?php echo $row->documents_name; ?></b></a></p>
-  <h6 > <?php echo $row->created_at; ?></h6>
+  <p><a href="<?php echo esc_attr($row->documents); ?>" target="_blank">
+	       <b><?php echo esc_attr($row->documents_name); ?></b></a></p>
+  <h6 > <?php echo esc_attr($row->created_at); ?></h6>
 </div>
 
 <hr>
@@ -468,7 +465,6 @@ class AistoreSettingsPage
      <br>
      
      <?php
-
         $message_page_url = get_option('escrow_message_page');
 
         if ($message_page_url == 'no')
@@ -519,7 +515,7 @@ class AistoreSettingsPage
  <?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
  
  <input type="hidden" name="action" value="chat_custom_action" />
- <input type="hidden" name="escrow_id"  id="escrow_id" value="<?php echo $escrow->id; ?>" />
+ <input type="hidden" name="escrow_id"  id="escrow_id" value="<?php echo esc_attr($escrow->id); ?>" />
  
   <input type="submit"  name="submit" value="<?php _e('Submit Message', 'aistore') ?>">
 
@@ -532,7 +528,6 @@ class AistoreSettingsPage
  <div class="card">
 	
 	<?php
-
         $discussions = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion  WHERE eid=%d order by id desc", $eid));
 
         foreach ($discussions as $row):
@@ -577,7 +572,6 @@ class AistoreSettingsPage
       
 
     <?php
-
         if ($results == null)
         {
 
@@ -619,7 +613,6 @@ class AistoreSettingsPage
 
     </table>
 	<?php
-
     }
 
     // page Setting
@@ -638,6 +631,7 @@ class AistoreSettingsPage
         register_setting('aistore_page', 'escrow_message_page');
         register_setting('aistore_page', 'cancel_escrow_fee');
         // register_setting('aistore_page', 'aistore_escrow_currency');
+        
     }
 
     function aistore_notification_register_setting()
@@ -685,16 +679,15 @@ class AistoreSettingsPage
         register_setting('aistore_email_page', 'email_Buyer_Mark_Paid');
     }
 
+    //bank
+    function aistore_bank_register_setting()
+    {
+        register_setting('aistore_bank_page', 'bank_account_name');
+        register_setting('aistore_bank_page', 'bank_account');
+        register_setting('aistore_bank_page', 'name_of_bank');
+        register_setting('aistore_bank_page', 'ifsc_code');
 
-//bank
-function aistore_bank_register_setting() {
-register_setting( 'aistore_bank_page', 'bank_account_name' );
-	register_setting( 'aistore_bank_page', 'bank_account' );
-	register_setting( 'aistore_bank_page', 'name_of_bank' );
-	register_setting( 'aistore_bank_page', 'ifsc_code' );
-	
-
-}
+    }
     function aistore_page_setting()
     {
 
@@ -724,10 +717,10 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
                 exit;
             }
             $escrow_email_address = sanitize_text_field($_REQUEST['escrow_email_address']);
-            
+
             $escrow_username = sanitize_text_field($_REQUEST['escrow_username']);
-             $escrow_password = sanitize_text_field($_REQUEST['escrow_password']);
-            
+            $escrow_password = sanitize_text_field($_REQUEST['escrow_password']);
+
             $escrow_email_address = sanitize_text_field($_REQUEST['escrow_email_address']);
 
             $my_post = array(
@@ -773,8 +766,7 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
 
             if (!$aistore_escrow_email_address)
             {
-                
-                
+
                 $aistore_escrow_user_id = wp_insert_user(array(
                     'user_login' => $escrow_username,
                     'user_pass' => $escrow_password,
@@ -782,7 +774,7 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
                     'role' => 'administrator'
                 ));
                 update_option('escrow_user_id', $aistore_escrow_user_id);
-              
+
             }
 
         }
@@ -833,7 +825,6 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
 		 
 		 
      <?php
-
         foreach ($pages as $page)
         {
 
@@ -957,13 +948,13 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
 		 
 		 
 		  <?php
- $escrow_user_id = get_option('escrow_user_id'); 
+        $escrow_admin_user_id = get_option('escrow_user_id');
         $blogusers = get_users(['role__in' => ['administrator']]);
 
         foreach ($blogusers as $user)
         {
 
-            if ($user->ID == $escrow_user_id)
+            if ($user->ID == $escrow_admin_user_id)
             {
                 echo '	<option selected value="' . $user->ID . '">' . $user->display_name . '</option>';
 
@@ -1221,14 +1212,11 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
 </form>
       <?php
     }
-    
-    
-    
+
     //aistore_page_currency_setting
-    
-    function aistore_page_currency_setting(){
-        
-   
+    function aistore_page_currency_setting()
+    {
+
         if (isset($_POST['submit']) and $_POST['action'] == 'create_currency')
         {
 
@@ -1238,21 +1226,19 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
 
                 exit;
             }
-           
-            $aistore_escrow_currency = sanitize_text_field($_REQUEST['aistore_escrow_currency']);
-             echo $aistore_escrow_currency;
-             
-             global $wpdb;
-                
-                
-                // add currency also
-    $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_currency ( currency, symbol  ) VALUES ( %s ,%s)", array(
-                    $aistore_escrow_currency,
-                    $aistore_escrow_currency
-                )));
 
-             
-                $eid = $wpdb->insert_id;
+            $aistore_escrow_currency = sanitize_text_field($_REQUEST['aistore_escrow_currency']);
+            echo $aistore_escrow_currency;
+
+            global $wpdb;
+
+            // add currency also
+            $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_currency ( currency, symbol  ) VALUES ( %s ,%s)", array(
+                $aistore_escrow_currency,
+                $aistore_escrow_currency
+            )));
+
+            $eid = $wpdb->insert_id;
         }
         else
         {
@@ -1269,11 +1255,11 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
 
         <td>
             	
-<?php 
+<?php
 
-        $plugin_data = get_plugin_data(__FILE__);
-        $plugin_name = $plugin_data['TextDomain'];
-        $dir = '/wp-content/plugins/' . $plugin_name . '/Common-Currency.json';
+            $plugin_data = get_plugin_data(__FILE__);
+            $plugin_name = $plugin_data['TextDomain'];
+            $dir = '/wp-content/plugins/' . $plugin_name . '/Common-Currency.json';
 ?>
 
 
@@ -1283,40 +1269,32 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
                 
             <select name="aistore_escrow_currency">
                 <?php
-        $url = get_site_url(null, $dir, 'https');
-        $currency = json_decode(file_get_contents($url));
-        $a = array();
-        foreach ($currency as $c)
-        {
+            $url = get_site_url(null, $dir, 'https');
+            $currency = json_decode(file_get_contents($url));
+            $a = array();
+            foreach ($currency as $c)
+            {
 
-   
-           
-            
                 echo '	<option  value="' . $c->code . '">' . $c->name . '</option>';
 
             }
 
-        
-        ?>
+?>
         
       
         <input class="input" type="submit" name="submit" value="<?php _e(' Submit', 'aistore') ?>"/>
 <input type="hidden" name="action"  value="create_currency"/></td></tr>
     </form></table>
 <?php
+        }
 
-}
+        global $wpdb;
 
-
- global $wpdb;
-
-        $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_currency  order by id desc"
-);
+        $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_currency  order by id desc");
 
 ?>
 <h3><u><?php _e('Currency ', 'aistore'); ?></u> </h3>
 <?php
-
         if ($results == null)
         {
             echo "<div class='no-result'>";
@@ -1342,7 +1320,6 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
 </tr>
 
     <?php
-
             foreach ($results as $row):
 ?>
  
@@ -1352,36 +1329,38 @@ register_setting( 'aistore_bank_page', 'bank_account_name' );
       <tr>
    <td> 
 
-		   <?php echo $row->id; ?> </td>
-  <td> 		   <?php echo $row->currency; ?> </td>
+		   <?php echo esc_attr($row->id); ?> </td>
+  <td> 		   <?php echo esc_attr($row->currency); ?> </td>
    <td><?php
-if(isset($_POST['submit']) and $_POST['action']=='escrow_currency' )
-{
+                if (isset($_POST['submit']) and $_POST['action'] == 'escrow_currency')
+                {
 
-if ( ! isset( $_POST['aistore_nonce'] ) 
-    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
-) {
-   return  _e( 'Sorry, your nonce did not verify', 'aistore' );
-   exit;
-} 
+                    if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
+                    {
+                        return _e('Sorry, your nonce did not verify', 'aistore');
+                        exit;
+                    }
 
-   $currency_id = sanitize_text_field($_REQUEST['escrow_currency_id']);
-    $table = $wpdb->prefix.'escrow_currency';
-    $wpdb->delete( $table, array( 'id' => $currency_id ) );
+                    $currency_id = sanitize_text_field($_REQUEST['escrow_currency_id']);
+                    $table = $wpdb->prefix . 'escrow_currency';
+                    $wpdb->delete($table, array(
+                        'id' => $currency_id
+                    ));
 
-
-}
-else{
-        ?>
+                }
+                else
+                {
+?>
     <form method="POST" action="" name="escrow_currency" enctype="multipart/form-data"> 
 
-<?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
+<?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
 	<input 
- type="hidden" name="escrow_currency_id" value="<?php echo $row->id; ?>"/>
+ type="hidden" name="escrow_currency_id" value="<?php echo esc_attr($row->id); ?>"/>
 <input 
- type="submit" name="submit" value="<?php  _e( 'Delete', 'aistore' ) ?>"/>
+ type="submit" name="submit" value="<?php _e('Delete', 'aistore') ?>"/>
 <input type="hidden" name="action" value="escrow_currency" />
-                </form><?php }?></td>
+                </form><?php
+                } ?></td>
             </tr>
     <?php
             endforeach;
@@ -1391,7 +1370,6 @@ else{
     </table>
 	
 <?php
-
     }
 
     function aistore_email_setting()
@@ -1656,51 +1634,49 @@ else{
 </form>
       <?php
     }
-    
-    
-    
-    
-    function aistore_bank_details_setting(){
-    ?>
-   <h3><?php  _e( 'Add Bank Details', 'aistore' ) ?></h3>
+
+    function aistore_bank_details_setting()
+    {
+?>
+   <h3><?php _e('Add Bank Details', 'aistore') ?></h3>
       
 <form method="post" action="options.php">
-    <?php settings_fields( 'aistore_bank_page' ); ?>
-    <?php do_settings_sections( 'aistore_bank_page' ); ?>
+    <?php settings_fields('aistore_bank_page'); ?>
+    <?php do_settings_sections('aistore_bank_page'); ?>
     
        <table class="form-table">
         
      
         
 	 <tr valign="top">
-        <th scope="row"><?php  _e( 'Bank Account Name', 'aistore' ) ?></th>
+        <th scope="row"><?php _e('Bank Account Name', 'aistore') ?></th>
         <td>
-         <input type="text" name="bank_account_name" value="<?php echo esc_attr( get_option('bank_account_name') ); ?>" /></td>
+         <input type="text" name="bank_account_name" value="<?php echo esc_attr(get_option('bank_account_name')); ?>" /></td>
           
         </tr>
         
         
          <tr valign="top">
-        <th scope="row"><?php  _e( 'Bank Account Number', 'aistore' ) ?></th>
+        <th scope="row"><?php _e('Bank Account Number', 'aistore') ?></th>
         <td>
-         <input type="text" name="bank_account" value="<?php echo esc_attr( get_option('bank_account') ); ?>" /></td>
+         <input type="text" name="bank_account" value="<?php echo esc_attr(get_option('bank_account')); ?>" /></td>
           
         </tr>
         
         
          <tr valign="top">
-        <th scope="row"><?php  _e( 'Name Of Bank', 'aistore' ) ?></th>
+        <th scope="row"><?php _e('Name Of Bank', 'aistore') ?></th>
         <td>
-         <input type="text" name="name_of_bank" value="<?php echo esc_attr( get_option('name_of_bank') ); ?>" /></td>
+         <input type="text" name="name_of_bank" value="<?php echo esc_attr(get_option('name_of_bank')); ?>" /></td>
           
         </tr>
         
         
         
          <tr valign="top">
-        <th scope="row"><?php  _e( 'IFSC Code', 'aistore' ) ?></th>
+        <th scope="row"><?php _e('IFSC Code', 'aistore') ?></th>
         <td>
-         <input type="text" name="ifsc_code" value="<?php echo esc_attr( get_option('ifsc_code') ); ?>" /></td>
+         <input type="text" name="ifsc_code" value="<?php echo esc_attr(get_option('ifsc_code')); ?>" /></td>
           
         </tr>
         
@@ -1710,19 +1686,16 @@ else{
 
 </form>
       <?php
-}
-  
-  
-  
-   function aistore_payment_process(){
-      global  $wpdb;
+    }
 
+    function aistore_payment_process()
+    {
+        global $wpdb;
 
- $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_system WHERE payment_status='process' order by id desc"
-                 );
-     
-  ?>
-  <h1> <?php  _e( 'Escrow Payment', 'aistore' ) ?> </h1>
+        $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_system WHERE payment_status='process' order by id desc");
+
+?>
+  <h1> <?php _e('Escrow Payment', 'aistore') ?> </h1>
   <table class="widefat fixed striped">
         
      <tr>
@@ -1738,76 +1711,76 @@ else{
      </tr>
       
 
-    <?php 
-    
-    if($results==null)
-	{
-	     _e( "No Escrow Found", 'aistore' );
+    <?php
 
-	}
-	else{
-    foreach($results as $row):
-      
+        if ($results == null)
+        {
+            _e("No Escrow Found", 'aistore');
 
-    ?> 
+        }
+        else
+        {
+            foreach ($results as $row):
+
+?> 
       <tr>
 
 		   <td> 	
 		   
-		   <?php echo $row->id ; ?></td>
+		   <?php echo esc_attr($row->id); ?></td>
 		  
 		   
-		   <td> 		   <?php echo $row->title ; ?> </td>
+		   <td> 		   <?php echo esc_attr($row->title); ?> </td>
 		  
-		   <!--<td> 		   <?php echo $row->status ; ?> </td>-->
+		   <!--<td> 		   <?php echo esc_attr($row->status); ?> </td>-->
 		   
-		   <td> 		   <?php echo $row->amount ; ?> </td>
-		   <td> 		   <?php echo $row->sender_email ; ?> </td>
-		   <td> 		   <?php echo $row->receiver_email ; ?> </td>
-		      <td> 		   <?php echo $row->payment_status ; ?> </td>
-		     <td> 		   <?php echo $row->created_at ; ?> </td>
+		   <td> 		   <?php echo esc_attr($row->amount); ?> </td>
+		   <td> 		   <?php echo esc_attr($row->sender_email); ?> </td>
+		   <td> 		   <?php echo esc_attr($row->receiver_email); ?> </td>
+		      <td> 		   <?php echo esc_attr($row->payment_status); ?> </td>
+		     <td> 		   <?php echo esc_attr($row->created_at); ?> </td>
        
                 <td><?php
-if(isset($_POST['submit']) and $_POST['action']=='escrow_payment' )
-{
+                if (isset($_POST['submit']) and $_POST['action'] == 'escrow_payment')
+                {
 
-if ( ! isset( $_POST['aistore_nonce'] ) 
-    || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
-) {
-   return  _e( 'Sorry, your nonce did not verify', 'aistore' );
-   exit;
-} 
+                    if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
+                    {
+                        return _e('Sorry, your nonce did not verify', 'aistore');
+                        exit;
+                    }
 
-$eid= $row->id;
-$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}escrow_system
-    SET payment_status = 'paid'  WHERE id = '%d' ",  $eid   ) );
-    
-    echo $row->payment_status;
+                    $eid = $row->id;
+                    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
+    SET payment_status = 'paid'  WHERE id = '%d' ", $eid));
 
-}
-else{
-        ?>
+                    echo esc_attr($row->payment_status);
+
+                }
+                else
+                {
+?>
     <form method="POST" action="" name="escrow_payment" enctype="multipart/form-data"> 
 
-<?php wp_nonce_field( 'aistore_nonce_action', 'aistore_nonce' ); ?>
+<?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
 	
 <input 
- type="submit" name="submit" value="<?php  _e( 'Approve Payment', 'aistore' ) ?>"/>
+ type="submit" name="submit" value="<?php _e('Approve Payment', 'aistore') ?>"/>
 <input type="hidden" name="action" value="escrow_payment" />
-                </form><?php }?></td>
+                </form><?php
+                } ?></td>
             </tr>
-    <?php endforeach;
-	}
-	
-	?>
+    <?php
+            endforeach;
+        }
+
+?>
 
 
 
     </table>
-	<?php 
-  }
-
-
+	<?php
+    }
 
 }
 
