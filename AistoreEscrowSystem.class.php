@@ -168,7 +168,9 @@ class AistoreEscrowSystem
 
                     // save into database  $image
                     
-
+//issue_171 capture user IP address as well 
+			
+			
                     $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array(
                         $eid,
                         $image,
@@ -224,6 +226,10 @@ class AistoreEscrowSystem
 
   <label for="title"><?php _e('Currency', 'aistore'); ?></label><br>
   <?php
+	 
+	 ////issue_230 can we make a function which fetch all currency and return in wallet class
+	 
+	 
             global $wpdb;
             $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_currency  order by id desc");
 ?>
@@ -249,7 +255,7 @@ class AistoreEscrowSystem
    <input class="input" type="hidden" id="escrow_create_fee" name="escrow_create_fee" value= "<?php echo get_option('escrow_create_fee'); ?>">
     <div class="feeblock hide" >
   <?php
-
+// issue_258 feeblock logic is not correct
 ?>
 <br>
       <?php _e('Amount', 'aistore'); ?> :
@@ -332,6 +338,8 @@ class AistoreEscrowSystem
         $object_escrow_currency = new AistoreEscrowSystem();
         $aistore_escrow_currency = $object_escrow_currency->get_escrow_currency();
 
+	    //issue_340  take user id in variable then use
+	    
         $current_user_email_id = get_the_author_meta('user_email', get_current_user_id());
 
         global $wpdb;
@@ -551,7 +559,8 @@ class AistoreEscrowSystem
 
             // fee will be debited from both party once user accept the escrow
             
-
+//issue_562 admin will set this text line we will fetch it here
+		
             $escrow_details = 'Payment transaction for the accept escrow with escrow id # ' . $eid;
 
             $escrow_wallet = new AistoreWallet();
