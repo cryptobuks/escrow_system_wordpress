@@ -2,7 +2,7 @@
 if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 }
-
+// issue 5  change class name
 class Escrow_List extends WP_List_Table {
 
 	/** Class constructor */
@@ -534,6 +534,8 @@ function form(){
 	}
 
 }
+
+// issue 538   change class name
 
 
 class Escrow_Plugin {
