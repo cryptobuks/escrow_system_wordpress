@@ -1,4 +1,7 @@
 <?php
+
+// issue 3 change class name
+
 class AistoreSettingsPage
 {
     /**
@@ -142,7 +145,10 @@ class AistoreSettingsPage
 		  
 		   <td> 		   <?php echo esc_attr($row->status); ?> </td>
 		   
-		   <td> 		   <?php echo esc_attr($row->amount); ?> </td>
+		   <td> 		   <?php 
+		// issue 149 add currency 
+		
+		echo esc_attr($row->amount); ?> </td>
 		   <td> 		   <?php echo esc_attr($row->sender_email); ?> </td>
 		   <td> 		   <?php echo esc_attr($row->receiver_email); ?> </td>
 		     <td> 		   <?php echo esc_attr($row->created_at); ?> </td>
@@ -196,7 +202,8 @@ class AistoreSettingsPage
                 $image = $upload_dir['baseurl'] . '/documents/' . $eid . '/' . $filename;
                 // save into database $image;
                 
-
+// issue 205 add ip address
+		    
                 $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_documents ( eid, documents,user_id,documents_name) VALUES ( %d,%s,%d,%s)", array(
                     $eid,
                     $image,
@@ -252,6 +259,9 @@ class AistoreSettingsPage
 
             $amount = $wpdb->get_var($wpdb->prepare("SELECT amount from {$wpdb->prefix}escrow_system where id  = %d", $eid));
 
+		
+		// issue 263 make this line dynamic 
+		
             $details = 'Payment transaction for the accept escrow with escrow id # ' . $eid;
 
             $object_escrow_fee = new AistoreEscrowSystem();
@@ -264,7 +274,7 @@ class AistoreSettingsPage
 
             $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $details);
             sendNotificationAccepted($eid);
-
+// issue 277 remove this div 
 ?>
 <div>
     
@@ -364,6 +374,8 @@ class AistoreSettingsPage
 
             $cancel_escrow_fee = get_option('cancel_escrow_fee');
 
+		
+		// issue 378 are we using these varibales  $aistore_debit_res  and $aistore_credit_res
             if ($cancel_escrow_fee == 'yes')
             {
                 $aistore_debit_res = $wallet->aistore_debit($escrow_admin_user_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
@@ -371,12 +383,16 @@ class AistoreSettingsPage
                 $aistore_credit_res = $wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $details);
 
             }
+		
+		//  issue 387 make this text dynamic   Cancelled Successfully
 ?>
 <div>
 <strong><?php _e('Cancelled Successfully', 'aistore') ?></strong></div>
 <?php
         }
 
+	    
+	    // issue 395 here all users are admin so no need to test admin 
         if (aistore_isadmin())
         {
 
@@ -561,6 +577,10 @@ class AistoreSettingsPage
         global $wpdb;
         $page_id = get_option('details_escrow_page_id');
 
+	    
+	    // issue 581 we don't need to prepare query as it is not required prepare statement require only when varible is used
+	    
+	    
         $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE status = %s", 'disputed'));
 
 ?>
@@ -585,6 +605,8 @@ class AistoreSettingsPage
 
                 $url = admin_url('admin.php?page=disputed_escrow_details&eid=' . $row->id . '', 'https');
 
+		
+		// issue 609 add currency name here 
 ?>
       <tr>
 
@@ -973,7 +995,12 @@ class AistoreSettingsPage
  <tr valign="top">
  <th scope="row"><?php _e('Chat system public people show or not', 'aistore') ?></th>
         <td>
-            <?php $msg_value = get_option('escrow_message_page'); ?>
+            <?php
+		
+		// issue 1000 change variblae name 
+		
+		
+		$msg_value = get_option('escrow_message_page'); ?>
             
             <select name="escrow_message_page" id="escrow_message_page">
                
@@ -993,7 +1020,11 @@ class AistoreSettingsPage
  <tr valign="top">
  <th scope="row"><?php _e('Cancel Escrow fee refund or not ', 'aistore') ?></th>
         <td>
-            <?php $msg_value = get_option('cancel_escrow_fee'); ?>
+            <?php 
+			// issue 1024 change variblae name 
+		
+		
+		$msg_value = get_option('cancel_escrow_fee'); ?>
             
             <select name="cancel_escrow_fee" id="cancel_escrow_fee">
                
@@ -1637,6 +1668,8 @@ class AistoreSettingsPage
 
     function aistore_bank_details_setting()
     {
+	    // issue 1671 we will talk on this section and widthdraw forms as well
+	    
 ?>
    <h3><?php _e('Add Bank Details', 'aistore') ?></h3>
       
@@ -1721,7 +1754,7 @@ class AistoreSettingsPage
         else
         {
             foreach ($results as $row):
-
+// issue 1757 add currency a well
 ?> 
       <tr>
 
@@ -1783,6 +1816,9 @@ class AistoreSettingsPage
     }
 
 }
+
+
+// issue 1821 change class name as well
 
 if (is_admin()) $AistoreSettingsPage = new AistoreSettingsPage();
 
