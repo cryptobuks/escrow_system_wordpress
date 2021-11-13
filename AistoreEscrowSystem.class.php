@@ -86,6 +86,73 @@ class AistoreEscrowSystem
         return $ar;
     }
 
+
+     public static function aistore_bank_details()
+    {
+
+        if (!is_user_logged_in())
+        {
+            return "<div class='no-login'>Kindly login and then visit this page </div>";
+        }
+        
+        ?>
+        
+       <table>
+    <tr><td>Bank Details :</td></tr>
+    <tr><td><?php echo esc_attr(get_option('bank_details')); ?></td></tr>
+    
+    <tr><td>Deposit Instructions :</td></tr>
+    <tr><td><?php echo esc_attr(get_option('deposit_instructions')); ?></td></tr>
+    
+   
+
+
+  <tr><td colspan="2">
+      <?php
+                global $wpdb;
+          $eid = sanitize_text_field($_REQUEST['eid']);
+                $user_id = get_current_user_id();
+
+                if (isset($_POST['submit']) and $_POST['action'] == 'escrow_payment')
+                {
+
+                    if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
+                    {
+                        return _e('Sorry, your nonce did not verify', 'aistore');
+                        exit;
+                    }
+
+                   
+                    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
+    SET payment_status = 'process'  WHERE id = '%d' ", $eid));
+    
+  $details_escrow_page_id_url = esc_url(add_query_arg(array(
+                    'page_id' => get_option('details_escrow_page_id') ,
+                    'eid' => $eid,
+                ) , home_url()));
+                   ?>
+<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($details_escrow_page_id_url); ?>" />
+<?php
+                }
+                else
+                {
+?>
+    <form method="POST" action="" name="escrow_payment" enctype="multipart/form-data"> 
+
+<?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
+
+
+<input type="submit" name="submit" value="<?php _e('Make Payment', 'aistore') ?>"/>
+ 
+ 
+<input type="hidden" name="action" value="escrow_payment" />
+                </form><?php
+                } ?>
+  </td></tr>
+</table><br>
+<?php
+        
+    }
     // create escrow System
     public static function aistore_escrow_system()
     {
@@ -716,57 +783,26 @@ class AistoreEscrowSystem
             $user_email = get_the_author_meta('user_email', get_current_user_id());
             if ($escrow->sender_email == $user_email)
             {
-?>
-  <table>
-    <tr><td>Bank Details :</td></tr>
-    <tr><td><?php echo esc_attr(get_option('bank_details')); ?></td></tr>
-    
-    <tr><td>Deposit Instructions :</td></tr>
-    <tr><td><?php echo esc_attr(get_option('deposit_instructions')); ?></td></tr>
-    
-   
 
 
-  <tr><td colspan="2">
-      <?php
-                global $wpdb;
 
-                $user_id = get_current_user_id();
+            $bank_details_page_id_url = esc_url(add_query_arg(array(
+                'page_id' => get_option('bank_details_page_id') ,
+                'eid' => $eid,
+            ) , home_url()));
+            
+            ?>
 
-                if (isset($_POST['submit']) and $_POST['action'] == 'escrow_payment')
-                {
-
-                    if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
-                    {
-                        return _e('Sorry, your nonce did not verify', 'aistore');
-                        exit;
-                    }
-
-                    $eid = $escrow->id;
-                    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
-    SET payment_status = 'process'  WHERE id = '%d' ", $eid));
-
-                    echo $escrow->payment_status;
-
-                }
-                else
-                {
-?>
-    <form method="POST" action="" name="escrow_payment" enctype="multipart/form-data"> 
-
-<?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
-	
-<input 
- type="submit" name="submit" value="<?php _e('Make Payment', 'aistore') ?>"/>
-<input type="hidden" name="action" value="escrow_payment" />
-                </form><?php
+<a href="<?php echo $bank_details_page_id_url; ?>"><input type="submit" name="submit" value="<?php _e('Make Payment', 'aistore') ?>"/></a>
+ 
+ 
+<?php
                 } ?>
-  </td></tr>
-</table><br>
+ <br>
 
 
   <?php
-            }
+            
 
         }
 

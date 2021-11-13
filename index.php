@@ -148,6 +148,11 @@ add_shortcode('aistore_escrow_detail', array(
     'aistore_escrow_detail'
 ));
 
+add_shortcode('aistore_bank_details', array(
+    'AistoreEscrowSystem',
+    'aistore_bank_details'
+));
+
 function email_notification_message()
 {
     //notification

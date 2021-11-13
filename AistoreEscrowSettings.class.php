@@ -19,10 +19,7 @@ class AistoreEscrowSettings
             $this,
             'aistore_page_register_setting'
         ));
-        add_action('admin_init', array(
-            $this,
-            'aistore_bank_register_setting'
-        ));
+      
         
         
         
@@ -82,12 +79,6 @@ class AistoreEscrowSettings
         add_submenu_page('disputed_escrow_list', __('Escrow Message Setting', 'aistore') , __('Escrow Message Setting', 'aistore') , 'administrator', 'message_setting', array(
             $this,
             'aistore_message_setting'
-        ));
-
-
-        add_submenu_page('disputed_escrow_list', __('Bank Detail Setting', 'aistore') , __('Bank Detail', 'aistore') , 'administrator', 'bank_details_setting', array(
-            $this,
-            'aistore_bank_details_setting'
         ));
 
         add_submenu_page('disputed_escrow_list', __('Payment Process', 'aistore') , __('Payment Process', 'aistore') , 'administrator', 'payment_process', array(
@@ -746,9 +737,10 @@ class AistoreEscrowSettings
     {
         //register our settings
         register_setting('aistore_page', 'add_escrow_page_id');
-        register_setting('aistore_page', 'create_escrow_page_2');
         register_setting('aistore_page', 'list_escrow_page_id');
         register_setting('aistore_page', 'details_escrow_page_id');
+        register_setting('aistore_page', 'bank_details_page_id');
+        
 
         register_setting('aistore_page', 'escrow_user_id');
 
@@ -756,6 +748,10 @@ class AistoreEscrowSettings
         register_setting('aistore_page', 'escrow_accept_fee');
         register_setting('aistore_page', 'escrow_message_page');
         register_setting('aistore_page', 'cancel_escrow_fee');
+        
+        
+        register_setting('aistore_page', 'bank_details');
+        register_setting('aistore_page', 'deposit_instructions');
         // register_setting('aistore_page', 'aistore_escrow_currency');
         
     }
@@ -829,13 +825,7 @@ class AistoreEscrowSettings
     }
     
 
-    //bank
-    function aistore_bank_register_setting()
-    {
-        register_setting('aistore_bank_page', 'bank_details');
-        register_setting('aistore_bank_page', 'deposit_instructions');
-
-    }
+ 
     function aistore_page_setting()
     {
 
@@ -848,115 +838,8 @@ class AistoreEscrowSettings
 	  
 <h3><?php _e('Escrow Setting', 'aistore') ?></h3>
  
-	                     
-
-
-  
+	                    
 <p><?php _e('Step 1', 'aistore') ?></p>
-
-<?php
-        if (isset($_POST['submit']) and $_POST['action'] == 'create_all_pages')
-        {
-
-            if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
-            {
-                return _e('Sorry, your nonce did not verify.', 'aistore');
-
-                exit;
-            }
-            $escrow_email_address = sanitize_text_field($_REQUEST['escrow_email_address']);
-
-            $escrow_username = sanitize_text_field($_REQUEST['escrow_username']);
-            $escrow_password = sanitize_text_field($_REQUEST['escrow_password']);
-
-            $escrow_email_address = sanitize_text_field($_REQUEST['escrow_email_address']);
-
-            $my_post = array(
-                'post_title' => 'Create Escrow',
-                'post_type' => 'page',
-                'post_content' => '[aistore_escrow_system]',
-                'post_status' => 'publish',
-                'post_author' => 1
-            );
-
-            // Insert the post into the database
-            $add_escrow_page_id = wp_insert_post($my_post);
-
-            update_option('add_escrow_page_id', $add_escrow_page_id);
-
-            $my_post = array(
-                'post_title' => 'Escrow List',
-                'post_type' => 'page',
-                'post_content' => '[aistore_escrow_list] ',
-                'post_status' => 'publish',
-                'post_author' => 1
-            );
-
-            // Insert the post into the database
-            $list_escrow_page_id = wp_insert_post($my_post);
-
-            update_option('list_escrow_page_id', $list_escrow_page_id);
-
-            $my_post = array(
-                'post_type' => 'page',
-                'post_title' => 'Escrow Detail',
-                'post_content' => '[aistore_escrow_detail]',
-                'post_status' => 'publish',
-                'post_author' => 1
-            );
-
-            // Insert the post into the database
-            $details_escrow_page_id = wp_insert_post($my_post);
-
-            update_option('details_escrow_page_id', $details_escrow_page_id);
-
-            $aistore_escrow_email_address = username_exists($escrow_email_address);
-
-            if (!$aistore_escrow_email_address)
-            {
-
-                $aistore_escrow_user_id = wp_insert_user(array(
-                    'user_login' => $escrow_username,
-                    'user_pass' => $escrow_password,
-                    'user_email' => $escrow_email_address,
-                    'role' => 'administrator'
-                ));
-                update_option('escrow_user_id', $aistore_escrow_user_id);
-
-            }
-
-        }
-        else
-        {
-
-?>
-<table class="form-table">
- <form method="POST" action="" name="create_all_pages" enctype="multipart/form-data"> 
-    <?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
-    
-<p><?php _e('Set Admin Details and Create all pages with short codes automatically to ', 'aistore') ?>
-<br><br>
-<tr>   <th scope="row">
-<?php _e(' Username: ', 'aistore') ?></th>
-<td><input type="text" name="escrow_username" /></td></tr>
-<tr>   <th scope="row">
-<?php _e(' Email ID: ', 'aistore') ?></th>
-<td><input type="email" name="escrow_email_address" /></td></tr>
-<tr>   <th scope="row">
-<?php _e('Password : ', 'aistore') ?></th>
-<td><input type="password" name="escrow_password" /></td></tr>
-
-
-<tr><td>
-<input class="input" type="submit" name="submit" value="<?php _e('Submit', 'aistore') ?>"/>
-<input type="hidden" name="action"  value="create_all_pages"/></td></tr>
-    </form>
-    </table>
-    <hr>
-<?php
-        }
-?>
-<p><?php _e('Step 2', 'aistore') ?></p>
 <p><?php _e('Create 4 pages with short codes and select here  ', 'aistore') ?></p>
 
 
@@ -1075,11 +958,53 @@ class AistoreEscrowSettings
 
 
 </td>
-        </tr>  </table>
+        </tr> 
+        
+        
+        	 <tr valign="top">
+        <th scope="row"><?php _e('Bank Details Page', 'aistore') ?></th>
+        <td>
+		<select name="bank_details_page_id" >
+		 
+		 
+		  <?php
+        foreach ($pages as $page)
+        {
+
+            if ($page->ID == get_option('bank_details_page_id'))
+            {
+                echo '	<option selected value="' . $page->ID . '">' . $page->post_title . '</option>';
+
+            }
+            else
+            {
+
+                echo '	<option  value="' . $page->ID . '">' . $page->post_title . '</option>';
+
+            }
+        } ?> 
+	 
+	 
+		 
+					  
+					
+ 
+</select>
+
+<p><?php _e('Create a page add this shortcode ', 'aistore') ?> <strong> [aistore_bank_details] </strong> <?php _e('and then select that page here.', 'aistore') ?> </p>
+
+
+
+
+
+</td>
+        </tr>
+        
+        </table>
         
         	<hr/>
         	
-<p><?php _e('Step 3', 'aistore') ?></p>
+<p><?php _e('Step 2', 'aistore') ?></p>
 
 
 <p><?php _e('Create an admin account and set its ID this will be used to hold payments ', 'aistore') ?></p>
@@ -1116,6 +1041,9 @@ class AistoreEscrowSettings
         } ?> 
   </tr>  
 </select>
+<?php 
+ $_new_user_url = admin_url('user-new.php', 'https'); ?>
+<p><?php _e('Add a new admin user with admin roll and then  ', 'aistore') ?><a href="<?php echo $_new_user_url; ?>">Click Here</a></p>
 
 <p><?php _e('Add an user with admin roll and then select its ID here', 'aistore') ?></p>
  <tr valign="top">
@@ -1162,7 +1090,7 @@ class AistoreEscrowSettings
     	<hr/>
         	 
         	
-<p><?php _e('Step 4', 'aistore') ?></p>
+<p><?php _e('Step 3', 'aistore') ?></p>
 
 
 <p><?php _e('Set fee here for the profits percentage ', 'aistore') ?></p>
@@ -1182,6 +1110,41 @@ class AistoreEscrowSettings
         <td><input type="number" name="escrow_accept_fee" value="<?php echo esc_attr(get_option('escrow_accept_fee')); ?>" />%</td>
         </tr>
         
+       
+  
+  
+    </table>
+    
+    <hr>
+    
+    <p><?php _e('Step 4', 'aistore') ?></p>
+
+
+
+
+
+        <table class="form-table">
+        
+        <h3><?php _e('Bank Account Details', 'aistore') ?></h3>
+        
+
+           <tr valign="top">
+        <th scope="row"><?php _e('Bank Details', 'aistore') ?></th>
+        <td>
+             <textarea id="bank_details" name="bank_details" rows="2" cols="50">
+<?php echo esc_attr(get_option('bank_details')); ?>
+</textarea>
+        </td>
+        </tr>
+        
+           <tr valign="top">
+        <th scope="row"><?php _e('Deposit Instructions', 'aistore') ?></th>
+        <td>
+             <textarea id="deposit_instructions" name="deposit_instructions" rows="2" cols="50">
+<?php echo esc_attr(get_option('deposit_instructions')); ?>
+</textarea>
+        </td>
+        </tr>
        
   
   
@@ -1626,43 +1589,7 @@ class AistoreEscrowSettings
       <?php
     }
 
-    function aistore_bank_details_setting()
-    {
-?>
-   <h3><?php _e('Add Bank Details', 'aistore') ?></h3>
-      
-<form method="post" action="options.php">
-    <?php settings_fields('aistore_bank_page'); ?>
-    <?php do_settings_sections('aistore_bank_page'); ?>
-    
-       <table class="form-table">
-        
-           <tr valign="top">
-        <th scope="row"><?php _e('Bank Details', 'aistore') ?></th>
-        <td>
-             <textarea id="bank_details" name="bank_details" rows="2" cols="50">
-<?php echo esc_attr(get_option('bank_details')); ?>
-</textarea>
-        </td>
-        </tr>
-        
-           <tr valign="top">
-        <th scope="row"><?php _e('Deposit Instructions', 'aistore') ?></th>
-        <td>
-             <textarea id="deposit_instructions" name="deposit_instructions" rows="2" cols="50">
-<?php echo esc_attr(get_option('deposit_instructions')); ?>
-</textarea>
-        </td>
-        </tr>
-        
-        </table>
-        
-            <?php submit_button(); ?>
-
-</form>
-      <?php
-    }
-
+  
     function aistore_payment_process()
     {
         global $wpdb;
