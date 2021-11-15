@@ -127,7 +127,7 @@ include_once dirname(__FILE__) . '/Escrow_list.php';
 include_once dirname(__FILE__) . '/user_escrow.php';
 include_once dirname(__FILE__) . '/email/sendnotification.php';
 include_once dirname(__FILE__) . '/user_email_verification.php';
-//include_once dirname(__FILE__) . '/invoice.php';
+include_once dirname(__FILE__) . '/aistore_wallet/index.php';
 include_once dirname(__FILE__) . '/email/notification_api.php';
 include_once dirname(__FILE__) . '/AistoreEscrowSystem.class.php';
 
@@ -155,6 +155,21 @@ add_shortcode('aistore_bank_details', array(
 
 function email_notification_message()
 {
+    
+    //messages
+     update_option('created_escrow_message', 'Payment transaction for the created escrow with escrow id #');
+    update_option('created_escrow_success_message', 'Created Successfully');
+    update_option('accept_escrow_message', 'Payment transaction for the accepted escrow with escrow id #');
+    update_option('accept_escrow_success_message', 'Accepted Successfully');
+
+    update_option('dispute_escrow_message', 'Payment transaction for the disputed escrow with escrow id #');
+    update_option('dispute_escrow_success_message', 'Disputed Successfully');
+    
+    update_option('release_escrow_message', 'Payment transaction for the released escrow with escrow id #');
+    update_option('release_escrow_success_message', 'Released Successfully');
+ update_option('cancel_escrow_message', 'Payment transaction for the cancelled escrow with escrow id #');
+    update_option('cancel_escrow_success_message', 'Cancelled Successfully');
+    
     //notification
     
 
