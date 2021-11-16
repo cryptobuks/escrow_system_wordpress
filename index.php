@@ -92,6 +92,7 @@ function aistore_plugin_table_install()
   sender_email varchar(100)   NOT NULL,
   escrow_fee int(100) NOT NULL,
   status varchar(100)   NOT NULL DEFAULT 'pending',
+  payment_status varchar(100)   NOT NULL DEFAULT 'Pending',
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   
   
@@ -107,7 +108,50 @@ function aistore_plugin_table_install()
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id)
 ) ";
+  $table_aistore_wallet_transactions = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "aistore_wallet_transactions  (
+   	transaction_id  bigint(20)  NOT NULL  AUTO_INCREMENT,
+  user_id bigint(20)  NOT NULL,
+   type   varchar(100)  NOT NULL,
+   amount  decimal(10,2)    NOT NULL,
+  balance  decimal(10,2)    NOT NULL,
+    description  text  NOT NULL,
+   currency  varchar(100)   NOT NULL,
+   created_by  	bigint(20) NOT NULL,
+   date  timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (transaction_id)
+) ";
 
+    $table_aistore_wallet_balance = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "aistore_wallet_balance  (
+     	id  bigint(20)  NOT NULL  AUTO_INCREMENT,
+   	transaction_id  bigint(20)  NOT NULL,
+  user_id bigint(20)  NOT NULL,
+  balance  decimal(10,2)    NOT NULL,
+   currency  varchar(100)   NOT NULL,
+   created_by  	bigint(20) NOT NULL,
+   date  timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id)
+) ";
+
+  
+    $table_withdrawal_requests = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "widthdrawal_requests  (
+  id int(100) NOT NULL  AUTO_INCREMENT,
+  amount int(100) NOT NULL,
+   currr  int(100)  NOT NULL,
+   method  varchar(100)   NOT NULL,
+   username  varchar(100)   NOT NULL,
+   currency  varchar(100)   NOT NULL,
+  status  varchar(100)   NOT NULL DEFAULT 'pending',
+   created_at  timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id)
+) ";
+
+  $table_escrow_currency = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_currency  (
+  id int(100) NOT NULL  AUTO_INCREMENT,
+  currency varchar(100) NOT NULL,
+   symbol  varchar(100)   NOT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id)
+) ";
    
     require_once (ABSPATH . 'wp-admin/includes/upgrade.php');
 
@@ -118,6 +162,15 @@ function aistore_plugin_table_install()
     dbDelta($table_escrow_documents);
 
     dbDelta($table_escrow_notification);
+    
+      dbDelta($table_aistore_wallet_transactions);
+
+    dbDelta($table_aistore_wallet_balance);
+    
+    dbDelta($table_withdrawal_requests);
+    
+    dbDelta($table_escrow_currency);
+
 
     email_notification_message();
 
@@ -152,6 +205,34 @@ add_shortcode('aistore_bank_details', array(
     'AistoreEscrowSystem',
     'aistore_bank_details'
 ));
+
+function wpdocs_log_me_shortcode_fn() {
+  if (!is_user_logged_in())
+        {
+             return wp_login_form();
+        }
+
+ 
+ 
+ 
+}
+add_shortcode( 'wpdocs_log_me', 'wpdocs_log_me_shortcode_fn' );
+
+add_action( 'register_form', 'wporg_myplugin_add_registration_fields' );
+ 
+function wporg_myplugin_add_registration_fields() {
+ 
+    // Get and set any values already sent
+    $user_extra = ( isset( $_POST['user_extra'] ) ) ? $_POST['user_extra'] : '';
+    ?>
+ 
+    <p>
+        <label for="user_extra"><?php _e( 'Extra Field', 'myplugin_textdomain' ) ?><br />
+        <input type="text" name="user_extra" id="user_extra" class="input" value="<?php echo esc_attr( stripslashes( $user_extra ) ); ?>" size="25" /></label>
+    </p>
+ 
+    <?php
+}
 
 function email_notification_message()
 {

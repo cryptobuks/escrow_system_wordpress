@@ -755,6 +755,9 @@ $id=sanitize_text_field($_REQUEST['id']);
         register_setting('aistore_page', 'details_escrow_page_id');
         register_setting('aistore_page', 'bank_details_page_id');
         register_setting('aistore_page', 'notification_page_id');
+         register_setting('aistore_page', 'aistore_transaction_history_page_id');
+        register_setting('aistore_page', 'aistore_saksh_withdrawal_system');
+        register_setting('aistore_page', 'aistore_bank_account');
         
         
 
@@ -946,7 +949,7 @@ $id=sanitize_text_field($_REQUEST['id']);
             // Insert the post into the database
             $aistore_transaction_history_page_id = wp_insert_post($my_post);
 
-            update_option('transaction_history_page_id', $aistore_transaction_history_page_id);
+            update_option('aistore_transaction_history_page_id', $aistore_transaction_history_page_id);
             
             
               $my_post = array(
