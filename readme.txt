@@ -7,7 +7,7 @@ Requires at least:  5.3
 Tested up to: 5.6
 Stable tag: 4.8.0
 Requires PHP: 7.0
-Version : 1.0
+Version : 2.0
 
 Saksh Escrow System is a plateform allow parties to complete safe payments. Make sure you install Woocommerce and TeraWallet  also. 
 

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Saksh Escrow System
-Version:  1.0
+Version:  2.0
 Plugin URI: #
 Author: susheelhbti
 Author URI: http://www.aistore2030.com/
@@ -60,7 +60,7 @@ function aistore_plugin_table_install()
 {
     global $wpdb;
 
-    $table_escrow_discussion = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "escrow_discussion  (
+    $table_escrow_discussion = "CREATE TABLE IF NOT EXISTS  " . $wpdb->prefix . "escrow_discussion  (
   id int(100) NOT NULL  AUTO_INCREMENT,
   eid int(100) NOT NULL,
    message  text  NOT NULL,
@@ -71,7 +71,7 @@ function aistore_plugin_table_install()
   PRIMARY KEY (id)
 ) ";
 
-    $table_escrow_documents = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "escrow_documents (
+    $table_escrow_documents = "CREATE TABLE IF NOT EXISTS  " . $wpdb->prefix . "escrow_documents (
   id int(100) NOT NULL  AUTO_INCREMENT,
   eid  int(100) NOT NULL,
   documents  varchar(100)  NOT NULL,
@@ -82,7 +82,7 @@ function aistore_plugin_table_install()
   PRIMARY KEY (id)
 )  ";
 
-    $table_escrow_system = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "escrow_system (
+    $table_escrow_system = "CREATE TABLE IF NOT EXISTS  " . $wpdb->prefix . "escrow_system (
   id int(100) NOT NULL AUTO_INCREMENT, 
   title varchar(100)   NOT NULL,
   term_condition text ,
@@ -108,6 +108,8 @@ function aistore_plugin_table_install()
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id)
 ) ";
+
+
   $table_aistore_wallet_transactions = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "aistore_wallet_transactions  (
    	transaction_id  bigint(20)  NOT NULL  AUTO_INCREMENT,
   user_id bigint(20)  NOT NULL,
@@ -163,7 +165,7 @@ function aistore_plugin_table_install()
 
     dbDelta($table_escrow_notification);
     
-      dbDelta($table_aistore_wallet_transactions);
+    dbDelta($table_aistore_wallet_transactions);
 
     dbDelta($table_aistore_wallet_balance);
     
@@ -183,7 +185,6 @@ include_once dirname(__FILE__) . '/user_email_verification.php';
 include_once dirname(__FILE__) . '/aistore_wallet/index.php';
 include_once dirname(__FILE__) . '/email/notification_api.php';
 include_once dirname(__FILE__) . '/AistoreEscrowSystem.class.php';
-
 include_once dirname(__FILE__) . '/AistoreEscrowSettings.class.php';
 
 add_shortcode('aistore_escrow_system', array(
@@ -206,33 +207,9 @@ add_shortcode('aistore_bank_details', array(
     'aistore_bank_details'
 ));
 
-function wpdocs_log_me_shortcode_fn() {
-  if (!is_user_logged_in())
-        {
-             return wp_login_form();
-        }
 
  
- 
- 
-}
-add_shortcode( 'wpdocs_log_me', 'wpdocs_log_me_shortcode_fn' );
 
-add_action( 'register_form', 'wporg_myplugin_add_registration_fields' );
- 
-function wporg_myplugin_add_registration_fields() {
- 
-    // Get and set any values already sent
-    $user_extra = ( isset( $_POST['user_extra'] ) ) ? $_POST['user_extra'] : '';
-    ?>
- 
-    <p>
-        <label for="user_extra"><?php _e( 'Extra Field', 'myplugin_textdomain' ) ?><br />
-        <input type="text" name="user_extra" id="user_extra" class="input" value="<?php echo esc_attr( stripslashes( $user_extra ) ); ?>" size="25" /></label>
-    </p>
- 
-    <?php
-}
 
 function email_notification_message()
 {
