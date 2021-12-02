@@ -1962,8 +1962,40 @@ $id=sanitize_text_field($_REQUEST['id']);
                     }
 
                     $eid =   sanitize_text_field($_REQUEST['ecsrow_id']);
+                     $object_escrow = new AistoreEscrowSystem();
+                       $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
+                    
+                      $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s ", $eid));
+                      
+                      
+                       $aistore_escrow_currency = $escrow->currency;
+                      $escrow_amount = $escrow->amount;
+                      
+                      $escrow_details = 'Admin Send Payment To User Account';
+                      
+                       $escrow_wallet = new AistoreWallet();
+                       
+
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+            
+
+            $escrow_wallet->aistore_credit($user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details); 
+                    
+                    
+                    
+                     $escrow_details = 'User Send Payment to Admin';
+                    
+                        $escrow_wallet->aistore_debit($user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details); 
+                    
+                    
                     $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET payment_status = 'paid'  WHERE id = '%d' ", $eid));
+    
+    
+    
+    
 
                     echo esc_attr($row->payment_status);
 

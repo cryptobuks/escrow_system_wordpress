@@ -47,10 +47,8 @@
             
            // print_r($plugin_data);
             $plugin_name = $plugin_data['TextDomain'];
-        
-           
-             $url = get_site_url(null, '/wp-content/plugins/saksh-escrow-system/Common-Currency.json', 'https');
-                //echo $url;
+            $dir = '/wp-content/plugins/saksh-escrow-system/Common-Currency.json';
+           // echo $dir;
 ?>
 
 
@@ -60,17 +58,9 @@
                 
             <select name="aistore_escrow_currency">
                 <?php
-                
-              
-                
-                
-            // $url = get_site_url(null, $dir, 'https');
-            
-       
+            $url = get_site_url(null, $dir, 'https');
             $currency = json_decode(file_get_contents($url));
             $a = array();
-            
-             // print_r($currency);
             foreach ($currency as $c)
             {
 

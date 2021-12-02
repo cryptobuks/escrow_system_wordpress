@@ -211,6 +211,26 @@ class AistoreEscrowSystem
 
             $eid = $wpdb->insert_id;
 
+  $escrow_wallet = new AistoreWallet();
+ $user_balance=$escrow_wallet->aistore_balance($user_id,$escrow_currency);
+
+$sender_email = get_the_author_meta( 'user_email', $user_id );
+
+if($user_balance>$amount){
+     $object_escrow = new AistoreEscrowSystem();
+      $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
+        $escrow_details = 'User Send Payment to Admin';
+                    
+      $escrow_wallet->aistore_debit($user_id, $amount, $escrow_currency, $escrow_details);
+
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $amount, $escrow_currency, $escrow_details); 
+            
+            
+              $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
+    SET payment_status = 'paid'  WHERE id = '%d' ", $eid));
+    
+
+}
             // check if user have uploaded file or not  then do this
             
 
@@ -255,6 +275,9 @@ class AistoreEscrowSystem
 <?php
                 }
             }
+            
+            
+            
             else
             {
 ?>
