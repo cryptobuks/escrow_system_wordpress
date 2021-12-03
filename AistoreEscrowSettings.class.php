@@ -1970,24 +1970,26 @@ $id=sanitize_text_field($_REQUEST['id']);
                       
                        $aistore_escrow_currency = $escrow->currency;
                       $escrow_amount = $escrow->amount;
+                      $escrow_fee = $escrow->escrow_fee;
                       
                       $escrow_details = 'Admin Send Payment To User Account';
                       
                        $escrow_wallet = new AistoreWallet();
                        
-
-            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+                    $new_amount = $escrow_fee+$escrow_amount;
+                    
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $new_amount, $aistore_escrow_currency, $escrow_details);
             
 
-            $escrow_wallet->aistore_credit($user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details); 
+            $escrow_wallet->aistore_credit($user_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
                     
                     
                     
                      $escrow_details = 'User Send Payment to Admin';
                     
-                        $escrow_wallet->aistore_debit($user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+                        $escrow_wallet->aistore_debit($user_id, $new_amount, $aistore_escrow_currency, $escrow_details);
 
-            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details); 
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
                     
                     
                     $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system

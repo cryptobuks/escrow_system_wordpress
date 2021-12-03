@@ -94,7 +94,17 @@ class AistoreEscrowSystem
         {
             return "<div class='no-login'>Kindly login and then visit this page </div>";
         }
-        
+              global $wpdb;
+          $eid = sanitize_text_field($_REQUEST['eid']);
+                $user_id = get_current_user_id();
+                
+        $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s ", $eid));
+                      
+         $aistore_escrow_currency = $escrow->currency;
+                      $escrow_amount = $escrow->amount;
+                      $escrow_fee = $escrow->escrow_fee;
+                      
+                      $total_amount = $escrow_fee + $escrow_amount;
         ?>
         
        <table>
@@ -104,14 +114,13 @@ class AistoreEscrowSystem
     <tr><td>Deposit Instructions :</td></tr>
     <tr><td><?php echo esc_attr(get_option('deposit_instructions')); ?></td></tr>
     
-   
+     <tr><td>Total Amount :</td></tr>
+    <tr><td><?php echo esc_attr($total_amount).' '.$aistore_escrow_currency; ?></td></tr>
 
 
   <tr><td colspan="2">
       <?php
-                global $wpdb;
-          $eid = sanitize_text_field($_REQUEST['eid']);
-                $user_id = get_current_user_id();
+          
 
                 if (isset($_POST['submit']) and $_POST['action'] == 'escrow_payment')
                 {
@@ -216,6 +225,8 @@ class AistoreEscrowSystem
 
 $sender_email = get_the_author_meta( 'user_email', $user_id );
 
+
+
 if($user_balance>$amount){
      $object_escrow = new AistoreEscrowSystem();
       $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
@@ -223,7 +234,7 @@ if($user_balance>$amount){
                     
       $escrow_wallet->aistore_debit($user_id, $amount, $escrow_currency, $escrow_details);
 
-            $escrow_wallet->aistore_credit($escrow_admin_user_id, $amount, $escrow_currency, $escrow_details); 
+        $escrow_wallet->aistore_credit($escrow_admin_user_id, $amount, $escrow_currency, $escrow_details); 
             
             
               $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
