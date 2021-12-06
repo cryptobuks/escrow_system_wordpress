@@ -9,6 +9,7 @@ Description: Saksh Escrow System is a plateform allow parties to complete safe p
 
 
 */
+
 if (!defined('ABSPATH'))
 {
     exit; // Exit if accessed directly.
@@ -25,9 +26,20 @@ function aistore_wpdocs_load_textdomain()
 function aistore_scripts_method()
 {
 
-    wp_enqueue_style('wpdocs-bootstrap-style', 'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css');
-
-    wp_enqueue_script('wpdocs-bootstrap-bundle-script', 'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js', array() , null, true);
+  wp_enqueue_style('jquery-datatables-css', 'https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css');
+  wp_enqueue_style('jquery-datatables-css', 'https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css'); 
+  
+   wp_enqueue_script('jquery-datatables-js', 'https://code.jquery.com/jquery-3.5.1.js', array() , null, true);
+  wp_enqueue_script('jquery-datatables-js', 'https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js', array() , null, true);
+   wp_enqueue_script('jquery-datatables-js', 'https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js', array() , null, true);
+  wp_enqueue_script('jquery-datatables-js', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js', array() , null, true);
+    
+  wp_enqueue_script('jquery-datatables-js', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js', array() , null, true);
+  wp_enqueue_script('jquery-datatables-js', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js', array() , null, true);
+  wp_enqueue_script('jquery-datatables-js', 'https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js', array() , null, true);
+    
+   wp_enqueue_style('wpdocs-bootstrap-style', 'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css');
+   wp_enqueue_script('wpdocs-bootstrap-bundle-script', 'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js', array() , null, true);
 
     wp_enqueue_style('aistore', plugins_url('/css/custom.css', __FILE__) , array());
     wp_enqueue_script('aistore', plugins_url('/js/custom.js', __FILE__) , array(
@@ -173,10 +185,19 @@ function aistore_plugin_table_install()
 
 
     email_notification_message();
+    
+    
+    
+    
+     update_option('escrow_accept_fee', 5);
+     update_option('escrow_create_fee', 5);
+
 
 }
 register_activation_hook(__FILE__, 'aistore_plugin_table_install');
+
 include_once dirname(__FILE__) . '/Escrow_list.php';
+
 include_once dirname(__FILE__) . '/user_escrow.php';
 include_once dirname(__FILE__) . '/email/sendnotification.php';
 include_once dirname(__FILE__) . '/user_email_verification.php';

@@ -1,7 +1,14 @@
 
 
 jQuery(document).ready(function ($) {
- 
+    
+    alert("sdsa");
+  $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
 
 	$('#amount').change(function () {
 

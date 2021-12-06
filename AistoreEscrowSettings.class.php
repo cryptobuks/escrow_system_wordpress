@@ -87,7 +87,236 @@ class AistoreEscrowSettings
             'aistore_payment_process'
         ));
 
+
+        add_submenu_page('aistore_user_escrow_list', __('Dashboard', 'aistore') , __('Dashboard', 'aistore') , 'administrator', 'escrow_dashboard', array(
+            $this,
+            'aistore_escrow_dashboard'
+        ));
+
+        add_submenu_page('aistore_user_escrow_list', __('Escrow Admin Report', 'aistore') , __('Escrow Admin Report', 'aistore') , 'administrator', 'admin_report', array(
+            $this,
+            'aistore_escrow_admin_report'
+        ));
     }
+    
+       function aistore_escrow_admin_report(){
+           	global $wpdb;
+           	
+           	        $escrow_admin_user_id = get_option('escrow_user_id');
+           	        
+     	$sql = "SELECT * FROM {$wpdb->prefix}aistore_wallet_transactions  INNER JOIN {$wpdb->prefix}users ON  {$wpdb->prefix}aistore_wallet_transactions.user_id={$wpdb->prefix}users.ID WHERE {$wpdb->prefix}users.ID= ".$escrow_admin_user_id;
+     	
+     //	echo $sql;
+     	
+     	 $results = $wpdb->get_results($sql);
+           ?>
+       <h1> <?php _e('Escrow Admin Report', 'aistore') ?> </h1>
+   
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    
+
+<table id="example" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                   <th><?php _e('ID', 'aistore'); ?></th>
+      
+		    <th><?php _e('Email', 'aistore'); ?></th>
+          <th><?php _e('Balance', 'aistore'); ?></th> 
+		  
+	    <th><?php _e('Amount', 'aistore'); ?></th> 
+	    <th><?php _e('Type', 'aistore'); ?></th> 
+	    <th><?php _e('Description', 'aistore'); ?></th> 
+	      <th><?php _e('Date', 'aistore'); ?></th> 
+            </tr>
+            
+        </thead>
+        
+        <tbody>
+            <?php
+            
+  
+        if ($results == null)
+        {
+            // _e("No transactions Found", 'aistore');
+
+        }
+        else
+        {
+             foreach ($results as $row):
+             
+?>
+            <tr>
+            	   <td>  <?php echo esc_attr($row->transaction_id); ?></td>
+	
+		  
+		   
+		   <td> 		   <?php echo esc_attr($row->user_email); ?> </td>
+		  
+		   <td> 		   <?php echo esc_attr($row->balance); ?> </td>
+		   
+		   <td> 		   <?php echo esc_attr($row->amount." ".$row->currency); ?> </td>
+		   
+		  <td> 		   <?php echo esc_attr($row->type); ?> </td>
+		  
+		   <td> 		   <?php echo esc_attr($row->description); ?> </td>
+		   
+		   	   <td> 		   <?php echo esc_attr($row->date); ?> </td>
+		   </tr>
+		   <?php
+            endforeach;
+        ?>
+    
+        </tbody>
+        
+        <?php } ?>
+        
+        <tfoot>
+            <tr>
+         <th><?php _e('ID', 'aistore'); ?></th>
+        <th><?php _e('Username', 'aistore'); ?></th>
+		    <th><?php _e('Email', 'aistore'); ?></th>
+          <th><?php _e('Balance', 'aistore'); ?></th> 
+          	  
+	    <th><?php _e('Amount', 'aistore'); ?></th> 
+	    <th><?php _e('Type', 'aistore'); ?></th> 
+	    <th><?php _e('Description', 'aistore'); ?></th> 
+            </tr>
+        </tfoot>
+    </table>
+    
+      <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    
+    <script>
+    
+    $(document).ready(function() {
+    $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+
+</script>
+    <?php
+            
+    }
+    
+    function aistore_escrow_dashboard(){
+       
+               $wallet = new AistoreWallet();
+        $results = $wallet->aistore_wallet_currency();
+    
+            // foreach ($results as $c)
+            // {
+     $currency='USD';//$c->currency;
+ 
+    
+            // }
+            
+$users = get_users( );
+            
+
+
+            ?>
+             <h1> <?php _e('User List', 'aistore') ?> </h1>
+   
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    
+
+<table id="example" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                   <th><?php _e('ID', 'aistore'); ?></th>
+        <th><?php _e('Username', 'aistore'); ?></th>
+		    <th><?php _e('Email', 'aistore'); ?></th>
+          <th><?php _e('Balance', 'aistore'); ?></th> 
+		  
+	  
+            </tr>
+            
+        </thead>
+        
+        <tbody>
+            <?php
+            
+  
+        if ($users == null)
+        {
+            _e("No User Found", 'aistore');
+
+        }
+        else
+        {
+             foreach ($users as $row):
+               //  print_r($users);
+  $balance = $wallet->aistore_balance($row->ID, $currency);
+?>
+            <tr>
+            	   <td>  <?php echo esc_attr($row->ID); ?></td>
+		  		   <td> 		   <?php echo esc_attr($row->user_login); ?> </td>
+		  
+		   
+		   <td> 		   <?php echo esc_attr($row->user_email); ?> </td>
+		  
+		   <td> 		   <?php echo esc_attr($balance); ?> </td>
+		   
+		 
+		   </tr>
+		   <?php
+            endforeach;
+        ?>
+    
+        </tbody>
+        
+        <?php } ?>
+        
+        <tfoot>
+            <tr>
+         <th><?php _e('ID', 'aistore'); ?></th>
+        <th><?php _e('Username', 'aistore'); ?></th>
+		    <th><?php _e('Email', 'aistore'); ?></th>
+          <th><?php _e('Balance', 'aistore'); ?></th> 
+            </tr>
+        </tfoot>
+    </table>
+    
+      <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    
+    <script>
+    
+    $(document).ready(function() {
+    $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+
+</script>
+    <?php
+            
+    }
+    
+    
+    
     
     function aistore_message_setting(){
         
@@ -216,23 +445,30 @@ $id=sanitize_text_field($_REQUEST['id']);
 
 ?>
   <h1> <?php _e('Escrow List', 'aistore') ?> </h1>
-  <table class="widefat fixed striped">
-        
-     <tr>
-  
-       
-         <th><?php _e('Id', 'aistore'); ?></th>
+   
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    
+
+<table id="example" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                   <th><?php _e('Id', 'aistore'); ?></th>
         <th><?php _e('Title', 'aistore'); ?></th>
 		    <th><?php _e('Status', 'aistore'); ?></th>
           <th><?php _e('Amount', 'aistore'); ?></th> 
 		  <th><?php _e('Sender', 'aistore'); ?></th>
 		  <th><?php _e('Receiver', 'aistore'); ?></th>
-	  <th><?php _e('Date', 'aistore'); ?></th>
-		 
-     </tr>
-      
-
-    <?php
+		  	  <th><?php _e('Date', 'aistore'); ?></th>
+	  
+            </tr>
+            
+        </thead>
+        
+        <tbody>
+            <?php
+            
+  
         if ($results == null)
         {
             _e("No Escrow Found", 'aistore');
@@ -240,14 +476,12 @@ $id=sanitize_text_field($_REQUEST['id']);
         }
         else
         {
-            foreach ($results as $row):
+             foreach ($results as $row):
    $url = admin_url('admin.php?page=disputed_escrow_details&eid=' . $row->id . '', 'https');
 
 ?>
-      <tr>
-
-		   
-		   <td> 	 
+            <tr>
+            	   <td> 	 
 		  <a href="<?php echo esc_html($url); ?>">
 		   
 		   <?php echo esc_attr($row->id); ?> </a> </td>
@@ -261,20 +495,60 @@ $id=sanitize_text_field($_REQUEST['id']);
 		   <td> 		   <?php echo esc_attr($row->sender_email); ?> </td>
 		   <td> 		   <?php echo esc_attr($row->receiver_email); ?> </td>
 		     <td> 		   <?php echo esc_attr($row->created_at); ?> </td>
-       
-                
-            </tr>
-    <?php
+		   </tr>
+		   <?php
             endforeach;
-        }
-
-?>
-
-
-
+        ?>
+    
+        </tbody>
+        
+        <?php } ?>
+        
+        <tfoot>
+            <tr>
+                   <th><?php _e('Id', 'aistore'); ?></th>
+        <th><?php _e('Title', 'aistore'); ?></th>
+		    <th><?php _e('Status', 'aistore'); ?></th>
+          <th><?php _e('Amount', 'aistore'); ?></th> 
+		  <th><?php _e('Sender', 'aistore'); ?></th>
+		  <th><?php _e('Receiver', 'aistore'); ?></th>
+		  	  <th><?php _e('Date', 'aistore'); ?></th>
+            </tr>
+        </tfoot>
     </table>
-	<?php
+    
+      <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    
+    <script>
+    
+    $(document).ready(function() {
+    $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+
+</script>
+    
+    <?php
+    
     }
+    
+    
+  
+
+  
+
+    
 
     //aistore_disputed_escrow_details
     function aistore_disputed_escrow_details()
@@ -697,9 +971,24 @@ $id=sanitize_text_field($_REQUEST['id']);
 ?>
     <h1> <?php _e('All disputed escrows', 'aistore') ?> </h1>
 	
-	
-  <table class="widefat fixed striped">
-     
+	     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    
+  <table  id="example" class="display nowrap" style="width:100%">
+      
+        <thead>
+     <tr>
+         <th>Id</th>
+      <th>Title</th>
+     <th> Status</th>
+        <th>Amount</th>
+      <th>Sender </th>
+       <th>Receiver</th>  
+  
+    
+     </tr>
+      </thead>
+<tbody>
       
 
     <?php
@@ -721,7 +1010,7 @@ $id=sanitize_text_field($_REQUEST['id']);
 
 		   
 		   <td> 	 
-		  <a href="<?php echo esc_html($url); ?>"></a></td>
+		  <a href="<?php echo ($url); ?>">  <?php echo $row->id; ?></a></td>
 		  
 		   
 		   <td> 		   <?php echo $row->title; ?> </td>
@@ -735,6 +1024,8 @@ $id=sanitize_text_field($_REQUEST['id']);
 		  
               
             </tr>
+            
+            </tbody>
     <?php
             endforeach;
         }
@@ -743,6 +1034,27 @@ $id=sanitize_text_field($_REQUEST['id']);
 	
 
     </table>
+    <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    
+    <script>
+    
+    $(document).ready(function() {
+    $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+
+</script>
 	<?php
     }
 
@@ -1906,13 +2218,16 @@ $id=sanitize_text_field($_REQUEST['id']);
   
   <br>
   <p> <?php _e('<strong>Note : </strong>  To approve  or reject an escrow payment , in the escrow payment to click Approve button or Reject button', 'aistore') ?></p><br>
-  
-  <table class="widefat fixed striped">
-        
+     
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    
+  <table  id="example" class="display nowrap" style="width:100%">
+         <thead>
      <tr>
          <th>Id</th>
       <th>Title</th>
-       <!--<th>Status</th>-->
+    
         <th>Amount</th>
       <th>Sender </th>
        <th>Receiver</th>  
@@ -1920,8 +2235,8 @@ $id=sanitize_text_field($_REQUEST['id']);
        <th>Date</th>
        <th>Action</th>
      </tr>
-      
-
+      </thead>
+<tbody>
     <?php
 
         if ($results == null)
@@ -1971,7 +2286,9 @@ $id=sanitize_text_field($_REQUEST['id']);
                        $aistore_escrow_currency = $escrow->currency;
                       $escrow_amount = $escrow->amount;
                       $escrow_fee = $escrow->escrow_fee;
-                      
+                       $sender_email = $escrow->sender_email;
+            $user = get_user_by('email', $sender_email);
+            $sender_id = $user->ID;
                       $escrow_details = 'Admin Send Payment To User Account';
                       
                        $escrow_wallet = new AistoreWallet();
@@ -1981,13 +2298,13 @@ $id=sanitize_text_field($_REQUEST['id']);
             $escrow_wallet->aistore_debit($escrow_admin_user_id, $new_amount, $aistore_escrow_currency, $escrow_details);
             
 
-            $escrow_wallet->aistore_credit($user_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
+            $escrow_wallet->aistore_credit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
                     
                     
                     
                      $escrow_details = 'User Send Payment to Admin';
                     
-                        $escrow_wallet->aistore_debit($user_id, $new_amount, $aistore_escrow_currency, $escrow_details);
+                        $escrow_wallet->aistore_debit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details);
 
             $escrow_wallet->aistore_credit($escrow_admin_user_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
                     
@@ -2086,12 +2403,46 @@ if($row->payment_status=='process'){
 ?>
 
 
-
+</tbody>
+    <tfoot>
+             <tr>
+         <th>Id</th>
+      <th>Title</th>
+    
+        <th>Amount</th>
+      <th>Sender </th>
+       <th>Receiver</th>  
+        <th>Payment Status</th>
+       <th>Date</th>
+       <th>Action</th>
+     </tr>
+        </tfoot>
     </table>
     
     </div>
   
     </div>
+      <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    
+    <script>
+    
+    $(document).ready(function() {
+    $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+
+</script>
 	<?php
     }
 
