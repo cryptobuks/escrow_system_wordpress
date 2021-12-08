@@ -2,7 +2,7 @@
 
 jQuery(document).ready(function ($) {
     
-    alert("sdsa");
+   // alert("sdsa");
   $('#example').DataTable( {
         dom: 'Bfrtip',
         buttons: [
