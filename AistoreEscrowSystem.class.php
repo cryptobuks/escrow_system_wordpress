@@ -225,16 +225,18 @@ class AistoreEscrowSystem
 
 $sender_email = get_the_author_meta( 'user_email', $user_id );
 
-
+$new_amount = $escrow_fee + $amount;
 
 if($user_balance>$amount){
      $object_escrow = new AistoreEscrowSystem();
       $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
-        $escrow_details = 'User Send Payment to Admin';
+      
+             $created_escrow_message = get_option('created_escrow_message');
+        $escrow_details =$created_escrow_message .$eid;
                     
-      $escrow_wallet->aistore_debit($user_id, $amount, $escrow_currency, $escrow_details);
+      $escrow_wallet->aistore_debit($user_id, $new_amount, $escrow_currency, $escrow_details);
 
-        $escrow_wallet->aistore_credit($escrow_admin_user_id, $amount, $escrow_currency, $escrow_details); 
+        $escrow_wallet->aistore_credit($escrow_admin_user_id, $new_amount, $escrow_currency, $escrow_details); 
             
             
               $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system

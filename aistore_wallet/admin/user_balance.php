@@ -50,7 +50,7 @@ if($balance>0.0){
 
 }
 else{
-return 0 ." ".$link;
+return $link;
 }
             }
             

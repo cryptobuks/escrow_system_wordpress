@@ -2,6 +2,7 @@
 <div id="col-md-6"   >
     
     <?php
+    global $wpdb;
                 if (isset($_POST['submit']) and $_POST['action'] == 'escrow_payment')
                 {
 
@@ -31,20 +32,21 @@
                        $sender_email = $escrow->sender_email;
             $user = get_user_by('email', $sender_email);
             $sender_id = $user->ID;
-                      $escrow_details = 'Admin Send Payment To User Account';
+                      $escrow_details = 'Send Payment To User Account  with escrow id # '.$eid;
                       
                        $escrow_wallet = new AistoreWallet();
                        
                     $new_amount = $escrow_fee+$escrow_amount;
                     
-            $escrow_wallet->aistore_debit($escrow_admin_user_id, $new_amount, $aistore_escrow_currency, $escrow_details);
+            // $escrow_wallet->aistore_debit($escrow_admin_user_id, $new_amount, $aistore_escrow_currency, $escrow_details);
             
 
             $escrow_wallet->aistore_credit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
                     
                     
-                    
-                     $escrow_details = 'User Send Payment to Admin';
+                     $created_escrow_message = get_option('created_escrow_message');
+        $escrow_details =$created_escrow_message .$eid;
+                    //  $escrow_details = 'User Send Payment to Admin  with escrow id # '.$eid;
                     
                         $escrow_wallet->aistore_debit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details);
 

@@ -20,7 +20,7 @@ add_action('wp_enqueue_scripts', 'aistore_withdraw_enqueue_styles');
 
 
 
-
+include_once dirname(__FILE__) . '/admin/user_transaction_list.php';
 include_once dirname(__FILE__) . '/admin/transaction_list.php';
 include_once dirname(__FILE__) . '/admin/user_balance.php';
 include_once dirname(__FILE__) . '/AistoreWallet.class.php';

@@ -223,8 +223,22 @@ public function search_box( $text, $input_id ) {
 	public static function get_transactions( $per_page = 5, $page_number = 1 ) {
 
 		global $wpdb;
+		
+		 
 
-		$sql = "SELECT * FROM {$wpdb->prefix}aistore_wallet_transactions  INNER JOIN {$wpdb->prefix}users ON  {$wpdb->prefix}aistore_wallet_transactions.user_id={$wpdb->prefix}users.ID WHERE 1=1 ";
+          
+            if (isset($_REQUEST['id']))
+        {
+$id=sanitize_text_field($_REQUEST['id']);
+
+	$sql = "SELECT * FROM {$wpdb->prefix}aistore_wallet_transactions  INNER JOIN {$wpdb->prefix}users ON  {$wpdb->prefix}aistore_wallet_transactions.user_id={$wpdb->prefix}users.ID WHERE {$wpdb->prefix}users.ID= ".$id;
+        }  
+        else{
+   
+       	$sql = "SELECT * FROM {$wpdb->prefix}aistore_wallet_transactions  INNER JOIN {$wpdb->prefix}users ON  {$wpdb->prefix}aistore_wallet_transactions.user_id={$wpdb->prefix}users.ID WHERE 1=1 ";
+}
+
+	
 
 // echo $sql;
 $sql .=  Aistore_Transaction_List::prepareWhereClouse();

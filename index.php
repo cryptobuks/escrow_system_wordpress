@@ -197,7 +197,7 @@ function aistore_plugin_table_install()
 register_activation_hook(__FILE__, 'aistore_plugin_table_install');
 
 include_once dirname(__FILE__) . '/Escrow_list.php';
-
+include_once dirname(__FILE__) . '/user_notification.php';
 include_once dirname(__FILE__) . '/user_escrow.php';
 include_once dirname(__FILE__) . '/email/sendnotification.php';
 include_once dirname(__FILE__) . '/user_email_verification.php';

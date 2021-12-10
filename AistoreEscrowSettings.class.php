@@ -97,8 +97,18 @@ class AistoreEscrowSettings
             $this,
             'aistore_escrow_admin_report'
         ));
+        
+        
+        add_submenu_page('aistore_user_escrow_list', __('All Notification', 'aistore') , __('All Notification', 'aistore') , 'administrator', 'all_notification', array(
+            $this,
+            'aistore_escrow_all_notification'
+        ));
     }
     
+    
+    function aistore_escrow_all_notification(){
+         include_once dirname(__FILE__) . '/admin_setting/aistore_escrow_all_notification.php';
+    }
       function aistore_escrow_admin_report(){
           
        include_once dirname(__FILE__) . '/admin_setting/aistore_escrow_admin_report.php';

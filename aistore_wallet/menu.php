@@ -25,7 +25,7 @@ function register_my_custom_menu_page() {
   add_submenu_page( 'wallet_account'  , 'Wallet Account', 'All Wallet Balance', 'manage_options', 'balance_list', 'balance_list',  90 );
 
     
-  add_submenu_page( 'wallet_account'  ,     'Wallet Account', 'All Transaction List', 'manage_options', 'all_wallet_transaction', 'all_wallet_transaction',  90 );
+  add_submenu_page( 'wallet_account'  ,     'Wallet Account', 'User Transaction List', 'manage_options', 'user_wallet_transaction', 'user_wallet_transaction',  90 );
   
    add_submenu_page( 'wallet_account'  , 'Wallet Account', 'Withdrawal', 'manage_options', 'withdrawal', 'withdrawal',  90 );
 
@@ -52,8 +52,8 @@ function balance_list(){
  <?php
 }
 
-function all_wallet_transaction(){
-include_once dirname(__FILE__) . '/admin/transaction_list.php';
+function user_wallet_transaction(){
+include_once dirname(__FILE__) . '/admin/user_transaction.php';
 }
 
 

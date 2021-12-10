@@ -148,6 +148,7 @@ $currency=  $row->currency;
           <th><?php _e('Amount', 'aistore'); ?></th> 
  
 		  <th><?php _e('Currency', 'aistore'); ?></th>
+		   <th><?php _e('Description', 'aistore'); ?></th> 
 		    <th><?php _e('Date', 'aistore'); ?></th> 
 		    
 
@@ -169,6 +170,7 @@ $currency=  $row->currency;
 		  	   <td> 		   <?php echo $row->amount ?>  </td>
 		  
 		    <td> 		   <?php echo $row->currency; ?> </td>
+		     <td> 		   <?php echo $row->description; ?> </td>
  <td> 		   <?php echo $row->date; ?> </td>
             </tr>
     <?php
