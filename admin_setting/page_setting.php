@@ -130,7 +130,23 @@
 
             update_option('aistore_bank_account', $aistore_bank_account);
             
-            
+            $escrow_user_id=sanitize_text_field($_REQUEST['escrow_user_id']);
+             $user_id = username_exists( $escrow_user_id );
+   
+        if ( ! $user_id ) {
+        $user_id = wp_insert_user( array(
+          'user_login' => $escrow_user_id,
+          'user_pass' => $escrow_user_id,
+          'user_email' => $escrow_user_id,
+          'first_name' => $escrow_user_id,
+          'last_name' => $escrow_user_id,
+          'display_name' => $escrow_user_id,
+          'role' => 'administrator'
+        ));
+        
+        update_option( 'escrow_user_id', $user_id);
+        update_option( 'escrow_user_name', $escrow_user_id);
+        }  
             //add currency
              global $wpdb;
 
@@ -150,7 +166,10 @@
  <form method="POST" action="" name="create_all_pages" enctype="multipart/form-data"> 
     <?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
     
-<p><?php _e(' Create all pages with short codes automatically to ', 'aistore') ?>
+<p><?php _e(' Create all pages with short codes automatically to ', 'aistore')?>
+<br><br>
+<?php  _e( 'Escrow Admin Email ID: ', 'aistore' ) ?>
+<input type="email" name="escrow_user_id" value="<?php echo esc_attr( get_option('escrow_user_name') ); ?>" required />
 
 <input class="input" type="submit" name="submit" value="<?php _e('Click Here', 'aistore') ?>"/>
 <input type="hidden" name="action"  value="create_all_pages"/></td></tr>
