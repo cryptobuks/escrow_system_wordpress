@@ -191,11 +191,13 @@
             }
 
             $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
-    SET status = '%s'  WHERE id = '%d'", 'cancelled', $eid));
+                SET status = '%s'  WHERE id = '%d'", 'cancelled', $eid));
+                
             $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ", $eid));
 
             $escrow_amount = $escrow->amount;
-
+            $aistore_escrow_currency = $escrow->currency;
+            
             $sender_escrow_fee = $escrow->escrow_fee;
             $sender_email = $escrow->sender_email;
             $user = get_user_by('email', $sender_email);
@@ -262,6 +264,7 @@
         $object->dispute_escrow_btn($escrow);
 
         $eid = $escrow->id;
+        
         $escrow_documents = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $eid));
 
 ?> 

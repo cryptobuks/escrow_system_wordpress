@@ -566,9 +566,10 @@ if($user_balance>$amount){
   
  <?php
         }
-
+global $wpdb;
         $eid = sanitize_text_field($_REQUEST['eid']);
-
+     $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system where id=%s ", $eid));
+     
         if (isset($_POST['submit']) and $_POST['action'] == 'disputed')
         {
             if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
@@ -577,7 +578,7 @@ if($user_balance>$amount){
 
             }
 
-            if ($escrow->payment_status <> "paid") return "";
+            if ($escrow->payment_status <>  "paid") return "";
 
             if ($escrow->status == "closed") return "";
 
@@ -1065,7 +1066,7 @@ if($user_balance>$amount){
     }
 
     // release button
-    function release_escrow_btn($escrow)
+   public function release_escrow_btn($escrow)
     {
 
         $user_email = get_the_author_meta('user_email', get_current_user_id());
