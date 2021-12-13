@@ -652,6 +652,8 @@ class AistoreSettingsPage
         register_setting('aistore_page', 'escrow_accept_fee');
         register_setting('aistore_page', 'escrow_message_page');
         register_setting('aistore_page', 'cancel_escrow_fee');
+        register_setting('aistore_page', 'escrow_file_type');
+        
         // register_setting('aistore_page', 'aistore_escrow_currency');
         
     }
@@ -783,7 +785,9 @@ class AistoreSettingsPage
             $details_escrow_page_id = wp_insert_post($my_post);
 
             update_option('details_escrow_page_id', $details_escrow_page_id);
-
+            
+            
+               update_option('escrow_file_type', 'pdf');
             $aistore_escrow_email_address = username_exists($escrow_email_address);
 
             if (!$aistore_escrow_email_address)

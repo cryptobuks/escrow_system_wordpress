@@ -28,7 +28,17 @@ $users = get_users( );
     
              <h1> <?php _e('User List', 'aistore') ?> </h1>
    
+<?php
 
+
+        if ($users == null)
+        {
+            _e("No User Found", 'aistore');
+
+        }
+        else
+        {
+?>
 <table id="example" class="display nowrap" style="width:100%">
         <thead>
             <tr>
@@ -46,13 +56,6 @@ $users = get_users( );
             <?php
             
   
-        if ($users == null)
-        {
-            _e("No User Found", 'aistore');
-
-        }
-        else
-        {
              foreach ($users as $row):
                //  print_r($users);
   $balance = $wallet->aistore_balance($row->ID, $currency);
@@ -97,7 +100,13 @@ $users = get_users( );
       
  global $wpdb;
         $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_system order by id desc limit 10");
-     
+      if ($results == null)
+        {
+            _e("No Escrow Found", 'aistore');
+
+        }
+        else
+        {
     ?>
     <table id="example1" class="display nowrap" style="width:100%">
         <thead>
@@ -118,13 +127,7 @@ $users = get_users( );
             <?php
             
   
-        if ($results == null)
-        {
-            _e("No Escrow Found", 'aistore');
-
-        }
-        else
-        {
+       
              foreach ($results as $row):
    $url = admin_url('admin.php?page=disputed_escrow_details&eid=' . $row->id . '', 'https');
 
@@ -182,7 +185,13 @@ $users = get_users( );
      //	echo $sql;
      	
      	 $results = $wpdb->get_results($sql);
-     
+      if ($results == null)
+        {
+            // _e("No transactions Found", 'aistore');
+
+        }
+        else
+        {
     ?>
    
 <table id="example2" class="display nowrap" style="width:100%">
@@ -205,13 +214,7 @@ $users = get_users( );
             <?php
             
   
-        if ($results == null)
-        {
-            // _e("No transactions Found", 'aistore');
-
-        }
-        else
-        {
+       
              foreach ($results as $row):
              
 ?>

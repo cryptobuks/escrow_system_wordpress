@@ -3,7 +3,90 @@
   
   
   
+ function sendNotificationPaymentAccepted($eid)
+{
+
+$headers = array('Content-Type: text/html; charset=UTF-8');
+
+    $user_id = get_current_user_id();
+    $user_email = get_the_author_meta('user_email', $user_id);
+
+    global $wpdb;
+
+     
+
+    $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE   id=%s ", $eid));
+    
+    $details_escrow_page_id_url =  esc_url( add_query_arg( array(
+    'page_id' => get_option('details_escrow_page_id'),
+    'eid' => $eid,
+), home_url() ) ); 
+
+
+    
+    include_once dirname(__FILE__) . '/notification.php';
+
+    $sender_email= $escrow->sender_email;
+
  
+    $subject = $Seller_Deposit;
+
+    $n = array();
+    $n['message'] = $Seller_Deposit;
+
+    $n['type'] = "success";
+    
+    $n['url'] = $details_escrow_page_id_url ;
+
+    $n['user_email'] = $user_email;
+    
+    
+    aistore_notification_new($n);
+    
+    
+      $subject = $Seller_Deposit;
+
+    $n = array();
+    $n['message'] = $Buyer_Deposit;
+
+    $n['type'] = "success";
+    
+    $n['url'] = $details_escrow_page_id_url ;
+
+    $n['user_email'] = $sender_email;
+    
+    
+    aistore_notification_new($n);
+
+    // ob_start();
+
+    // include dirname(__FILE__) . "/notification/partner_created_escrow.php";
+
+    // $message = ob_get_clean();
+    // wp_mail($party_email, $subject, $message ,$headers  );
+
+    // //send email to self
+    // $message = "You have successfully created the escrow #" . $eid;
+    // $subject = $created_escrow;
+
+
+
+    // wp_mail($user_email, $subject, $message,$headers );
+
+    
+      
+    
+    // $n = array();
+    // $n['message'] = $created_escrow;
+
+    // $n['type'] = "success";
+    // $n['url'] = $details_escrow_page_id_url ;
+
+    // $n['user_email'] = $user_email;
+    // aistore_notification_new($n);
+ 
+}
+
 
 function sendNotificationCreated($eid)
 {

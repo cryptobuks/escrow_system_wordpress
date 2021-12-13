@@ -227,16 +227,22 @@ $sender_email = get_the_author_meta( 'user_email', $user_id );
 
 $new_amount = $escrow_fee + $amount;
 
-if($user_balance>$amount){
+if($user_balance>$new_amount){
      $object_escrow = new AistoreEscrowSystem();
       $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
       
              $created_escrow_message = get_option('created_escrow_message');
         $escrow_details =$created_escrow_message .$eid;
                     
-      $escrow_wallet->aistore_debit($user_id, $new_amount, $escrow_currency, $escrow_details);
+      $escrow_wallet->aistore_debit($user_id, $amount, $escrow_currency, $escrow_details);
 
-        $escrow_wallet->aistore_credit($escrow_admin_user_id, $new_amount, $escrow_currency, $escrow_details); 
+        $escrow_wallet->aistore_credit($escrow_admin_user_id, $amount, $escrow_currency, $escrow_details); 
+            
+            
+              $escrow_details = 'Escrow Fee for the created escrow with escrow id '.$eid;
+         $escrow_wallet->aistore_debit($user_id, $escrow_fee, $escrow_currency, $escrow_details);
+
+     $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $escrow_currency, $escrow_details); 
             
             
               $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
@@ -246,10 +252,11 @@ if($user_balance>$amount){
 }
             // check if user have uploaded file or not  then do this
             
-
+              $set_file =  get_option('escrow_file_type');
+                
             $fileType = $_FILES['file']['type'];
 
-            if ($fileType == "application/pdf")
+            if ($fileType == "application/".$set_file)
             {
                 $upload_dir = wp_upload_dir();
 
@@ -293,8 +300,9 @@ if($user_balance>$amount){
             
             else
             {
+                                 $set_file =  get_option('escrow_file_type');
 ?>
-            <p> <?php _e('Note : We accept only pdf file', 'aistore') ?></p><?php
+            <p> <?php _e('Note : We accept only '.$set_file.' file', 'aistore') ?></p><?php
             }
 
             $details_escrow_page_id_url = esc_url(add_query_arg(array(
@@ -414,11 +422,13 @@ if($user_balance>$amount){
 
 
 
-<br><br>
+<br><br><?php 
+    $set_file =  get_option('escrow_file_type');
+    ?>
 
 	<label for="documents"><?php _e('Documents', 'aistore') ?>: </label>
-     <input type="file" name="file" accept="application/pdf"   /><br>
-     <div><p> <?php _e('Note : We accept only pdf file and
+     <input type="file" name="file"    /><br>
+     <div><p> <?php _e('Note : We accept only '.$set_file.' file and
 	You can upload many pdf file then go to next escrow details page.', 'aistore') ?></p></div>
 <input 
  type="submit" class="btn" name="submit" value="<?php _e('Create Escrow', 'aistore') ?>"/>
@@ -915,12 +925,16 @@ global $wpdb;
         wp_nonce_field('aistore_nonce_action', 'aistore_nonce');
 ?>
   <div class="fallback">
-    <input id="file" name="file" type="file"  accept="application/pdf" multiple   />
+    <input id="file" name="file" type="file"  multiple   />
     <input type="hidden" name="action" value="custom_action" type="submit"  />
   </div>
 
 </form>
-<p> We accept only PDF files.</p>
+<?php
+
+$set_file =  get_option('escrow_file_type');
+?>
+<p> We accept only <?php echo $set_file; ?> files.</p>
 
        
      
@@ -1186,7 +1200,8 @@ function aistore_upload_file()
                     wp_mkdir_p($user_dirname);
                 }
                 $fileType = $_FILES['file']['type'];
-                if ($fileType == "application/pdf")
+                 $set_file =  get_option('escrow_file_type');
+                if ($fileType == "application/".$set_file)
                 {
                     $filename = wp_unique_filename($user_dirname, $_FILES['file']['name']);
 
@@ -1209,7 +1224,8 @@ function aistore_upload_file()
 
                 else
                 {
-                    echo "We accept only pdf file";
+                    $set_file =  get_option('escrow_file_type');
+                    echo "We accept only ".$set_file." file";
                 }
             }
         }

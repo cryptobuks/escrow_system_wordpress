@@ -38,7 +38,7 @@
                        
                     $new_amount = $escrow_fee+$escrow_amount;
                     
-            // $escrow_wallet->aistore_debit($escrow_admin_user_id, $new_amount, $aistore_escrow_currency, $escrow_details);
+  
             
 
             $escrow_wallet->aistore_credit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
@@ -48,17 +48,23 @@
         $escrow_details =$created_escrow_message .$eid;
                     //  $escrow_details = 'User Send Payment to Admin  with escrow id # '.$eid;
                     
-                        $escrow_wallet->aistore_debit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details);
+                        $escrow_wallet->aistore_debit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
 
-            $escrow_wallet->aistore_credit($escrow_admin_user_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details); 
                     
                     
+                     $escrow_details = 'Escrow Fee for the created escrow with escrow id '.$eid;
+                    
+          $escrow_wallet->aistore_debit($sender_id, $escrow_fee, $aistore_escrow_currency, $escrow_details);
+
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details); 
+            
                     $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET payment_status = 'paid'  WHERE id = '%d' ", $eid));
     
     
     
-    
+     sendNotificationPaymentAccepted($eid);
 
                 }
                 
