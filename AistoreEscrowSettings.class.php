@@ -43,63 +43,66 @@ class AistoreEscrowSettings
             'aistore_page_setting'
         ));
 
-        add_menu_page(__('Escrow System', 'aistore') , __('Escrow System', 'aistore') , 'administrator', 'aistore_user_escrow_list');
+        add_menu_page(__('Escrow System', 'aistore') , __('Escrow System', 'aistore') , 'administrator', 'aistore_escrow_dashboard');
 
 
-        add_submenu_page('aistore_user_escrow_list', __('Escrow List', 'aistore') , __('Escrow List', 'aistore') , 'administrator', 'aistore_user_escrow_list', array(
+
+     add_submenu_page('aistore_escrow_dashboard', __('Dashboard', 'aistore') , __('Dashboard', 'aistore') , 'administrator', 'aistore_escrow_dashboard', array(
+            $this,
+            'aistore_escrow_dashboard'
+        ));
+        
+        add_submenu_page('aistore_escrow_dashboard', __('Escrow List', 'aistore') , __('Escrow List', 'aistore') , 'administrator', 'aistore_user_escrow_list', array(
             $this,
             'aistore_user_escrow_list'
         ));
 
-        add_submenu_page('aistore_user_escrow_list', __('Disputed Escrow List', 'aistore') , __('Disputed Escrow', 'aistore') , 'administrator', 'disputed_escrow_list', array(
+        add_submenu_page('aistore_escrow_dashboard', __('Disputed Escrow List', 'aistore') , __('Disputed Escrow', 'aistore') , 'administrator', 'disputed_escrow_list', array(
             $this,
             'aistore_disputed_escrow_list'
         ));
 
-        add_submenu_page('aistore_user_escrow_list', __('Disputed Escrow Details', 'aistore') , __('', 'aistore') , 'administrator', 'disputed_escrow_details', array(
+        add_submenu_page('aistore_escrow_dashboard', __('Disputed Escrow Details', 'aistore') , __('', 'aistore') , 'administrator', 'disputed_escrow_details', array(
             $this,
             'aistore_disputed_escrow_details'
         ));
 
-        add_submenu_page('aistore_user_escrow_list', __('Escrow Setting', 'aistore') , __('Escrow Setting', 'aistore') , 'administrator', 'aistore_page_setting', array(
+        add_submenu_page('aistore_escrow_dashboard', __('Escrow Setting', 'aistore') , __('Escrow Setting', 'aistore') , 'administrator', 'aistore_page_setting', array(
             $this,
             'aistore_page_setting'
         ));
 
       
-        add_submenu_page('aistore_user_escrow_list', __('Notification Setting', 'aistore') , __('Notification Setting', 'aistore') , 'administrator', 'notification_setting', array(
+        add_submenu_page('aistore_escrow_dashboard', __('Notification Setting', 'aistore') , __('Notification Setting', 'aistore') , 'administrator', 'notification_setting', array(
             $this,
             'aistore_notification_setting'
         ));
 
-        add_submenu_page('aistore_user_escrow_list', __('Email Setting', 'aistore') , __('Email Setting', 'aistore') , 'administrator', 'email_setting', array(
+        add_submenu_page('aistore_escrow_dashboard', __('Email Setting', 'aistore') , __('Email Setting', 'aistore') , 'administrator', 'email_setting', array(
             $this,
             'aistore_email_setting'
         ));
         
-        add_submenu_page('aistore_user_escrow_list', __('Escrow Message Setting', 'aistore') , __('Escrow Message Setting', 'aistore') , 'administrator', 'message_setting', array(
+        add_submenu_page('aistore_escrow_dashboard', __('Escrow Message Setting', 'aistore') , __('Escrow Message Setting', 'aistore') , 'administrator', 'message_setting', array(
             $this,
             'aistore_message_setting'
         ));
 
-        add_submenu_page('aistore_user_escrow_list', __('Payment Process', 'aistore') , __('Payment Process', 'aistore') , 'administrator', 'payment_process', array(
+        add_submenu_page('aistore_escrow_dashboard', __('Payment Process', 'aistore') , __('Payment Process', 'aistore') , 'administrator', 'payment_process', array(
             $this,
             'aistore_payment_process'
         ));
 
 
-        add_submenu_page('aistore_user_escrow_list', __('Dashboard', 'aistore') , __('Dashboard', 'aistore') , 'administrator', 'escrow_dashboard', array(
-            $this,
-            'aistore_escrow_dashboard'
-        ));
+      
 
-        add_submenu_page('aistore_user_escrow_list', __('Escrow Admin Report', 'aistore') , __('Escrow Admin Report', 'aistore') , 'administrator', 'admin_report', array(
+        add_submenu_page('aistore_escrow_dashboard', __('Escrow Admin Report', 'aistore') , __('Escrow Admin Report', 'aistore') , 'administrator', 'admin_report', array(
             $this,
             'aistore_escrow_admin_report'
         ));
         
         
-        add_submenu_page('aistore_user_escrow_list', __('All Notification', 'aistore') , __('All Notification', 'aistore') , 'administrator', 'all_notification', array(
+        add_submenu_page('aistore_escrow_dashboard', __('All Notification', 'aistore') , __('All Notification', 'aistore') , 'administrator', 'all_notification', array(
             $this,
             'aistore_escrow_all_notification'
         ));
@@ -174,8 +177,8 @@ class AistoreEscrowSettings
          register_setting('aistore_page', 'aistore_transaction_history_page_id');
         register_setting('aistore_page', 'aistore_saksh_withdrawal_system');
         register_setting('aistore_page', 'aistore_bank_account');
-        
-        
+        register_setting('aistore_page', 'escrow_file_type');
+         register_setting('aistore_page', 'withdraw_fee');
 
         register_setting('aistore_page', 'escrow_user_id');
         register_setting('aistore_page', 'escrow_create_fee');

@@ -123,6 +123,7 @@ function aistore_plugin_table_install()
   $table_aistore_wallet_transactions = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "aistore_wallet_transactions  (
    	transaction_id  bigint(20)  NOT NULL  AUTO_INCREMENT,
   user_id bigint(20)  NOT NULL,
+   reference bigint(20)   NULL,
    type   varchar(100)  NOT NULL,
    amount  decimal(10,2)    NOT NULL,
   balance  decimal(10,2)    NOT NULL,
@@ -191,7 +192,8 @@ function aistore_plugin_table_install()
     
      update_option('escrow_accept_fee', 5);
      update_option('escrow_create_fee', 5);
-
+     update_option('withdraw_fee', 5);
+    
 
 }
 register_activation_hook(__FILE__, 'aistore_plugin_table_install');

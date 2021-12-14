@@ -1,11 +1,15 @@
 <?php 
   $wallet = new AistoreWallet();
  $user_id = get_current_user_id();
-                
+                     
+ $escrow_user_id = get_option( 'escrow_user_id');
 $balance = $wallet->aistore_balance($user_id, 'USD');
+$escrow_user_id_balance = $wallet->aistore_balance($escrow_user_id, 'USD');
+
  ?>
  
- <h3>Balance : <?php echo $balance; ?> </h3><br>
+ <h3>Balance : <?php echo $balance; ?> USD </h3>
+  <h3>Escrow Admin Balance : <?php echo $escrow_user_id_balance; ?> USD</h3><br>
  <?php
 
         $results = $wallet->aistore_wallet_currency();
@@ -17,7 +21,7 @@ $balance = $wallet->aistore_balance($user_id, 'USD');
     
             // }
             
-$users = get_users( );
+
             
 
 
@@ -26,20 +30,24 @@ $users = get_users( );
       <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
     
-             <h1> <?php _e('User List', 'aistore') ?> </h1>
+         
    
 <?php
+$users = get_users( );
 
-
-        if ($users == null)
+//print_r($users);
+        if ($users === null)
         {
-            _e("No User Found", 'aistore');
+           // _e("No User Found", 'aistore');
 
         }
         else
         {
+            
+            
 ?>
-<table id="example" class="display nowrap" style="width:100%">
+    <h1> <?php _e('User List', 'aistore') ?> </h1>
+<table id="example5" class="display nowrap" style="width:100%">
         <thead>
             <tr>
                    <th><?php _e('ID', 'aistore'); ?></th>
@@ -81,7 +89,7 @@ $users = get_users( );
     
         </tbody>
         
-        <?php } ?>
+      
         
         <tfoot>
             <tr>
@@ -92,22 +100,24 @@ $users = get_users( );
             </tr>
         </tfoot>
     </table>
+      <?php } ?>
     <br><br>
     
     
-     <h1> <?php _e('Top 10 Escrow', 'aistore') ?> </h1>
+   
      <?php
       
  global $wpdb;
-        $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_system order by id desc limit 10");
+        $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}escrow_system order by id desc limit 5");
       if ($results == null)
         {
-            _e("No Escrow Found", 'aistore');
+            // _e("No Escrow Found", 'aistore');
 
         }
         else
         {
     ?>
+      <h1> <?php _e('Recent 5 Escrow', 'aistore') ?> </h1>
     <table id="example1" class="display nowrap" style="width:100%">
         <thead>
             <tr>
@@ -154,7 +164,7 @@ $users = get_users( );
     
         </tbody>
         
-        <?php } ?>
+        <?php ?>
         
         <tfoot>
             <tr>
@@ -169,11 +179,11 @@ $users = get_users( );
         </tfoot>
     </table>
     
-    
+    <?php } ?>
     
     <br><br>
     
-    <h1> <?php _e('Admin Top 15 Transaction', 'aistore') ?> </h1>
+   
      <?php
       
 	global $wpdb;
@@ -193,7 +203,7 @@ $users = get_users( );
         else
         {
     ?>
-   
+    <h1> <?php _e('Admin Top 15 Transaction', 'aistore') ?> </h1>
 <table id="example2" class="display nowrap" style="width:100%">
         <thead>
             <tr>
@@ -240,8 +250,7 @@ $users = get_users( );
         ?>
     
         </tbody>
-        
-        <?php } ?>
+     
         
         <tfoot>
             <tr>
@@ -257,12 +266,12 @@ $users = get_users( );
         </tfoot>
     </table>
     
-    
+    <?php } ?>
     
       
     <br><br>
     
-    <h1> <?php _e('Top 15 Notification', 'aistore') ?> </h1>
+  
      <?php
       
 	global $wpdb;
@@ -281,11 +290,11 @@ $users = get_users( );
  	foreach ($results as $row):
             
 ?> 
-  
+    <h1> <?php _e('Top 15 Notification', 'aistore') ?> </h1>
   <div class="discussionmsg">
    
  <!--<a href="<?php echo $row->url; ?>">  </a> </p>-->
-  
+    <p> <?php echo html_entity_decode($row->user_email); ?></p>
   <p> <?php echo html_entity_decode($row->message); ?></p>
   <h6 > <?php echo $row->created_at; ?></h6>
 </div>
@@ -310,7 +319,7 @@ $users = get_users( );
     <script>
     
     $(document).ready(function() {
-    $('#example').DataTable( {
+    $('#example5').DataTable( {
         dom: 'Bfrtip',
         buttons: [
             'copy', 'csv', 'excel', 'pdf', 'print'

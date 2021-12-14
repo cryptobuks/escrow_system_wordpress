@@ -36,7 +36,7 @@ class AistoreWallet
 
     }
 
-    public function aistore_debit($user_id, $amount, $currency, $description)
+    public function aistore_debit($user_id, $amount, $currency, $description,$reference)
     {
         global $wpdb;
         $type = "debit";
@@ -45,13 +45,14 @@ class AistoreWallet
 
         $new_amount = $old_balance - $amount;
 
-        $q1 = $wpdb->prepare("INSERT INTO {$wpdb->prefix}aistore_wallet_transactions  (amount, description,type, balance, user_id, currency ) VALUES (%s,%s, %s,%s,%s,%s )", array(
+        $q1 = $wpdb->prepare("INSERT INTO {$wpdb->prefix}aistore_wallet_transactions  (amount, description,type, balance, user_id, currency ,reference) VALUES (%s,%s, %s,%s,%s,%s,%s )", array(
             $amount,
             $description,
             $type,
             $new_amount,
             $user_id,
-            $currency
+            $currency,
+            $reference
         ));
 
         $wpdb->query($q1);
@@ -61,7 +62,7 @@ class AistoreWallet
     SET balance = '%s',transaction_id=%d  WHERE user_id = '%d' and currency=%s", $new_amount, $transaction_id, $user_id, $currency));
     }
 
-    public function aistore_credit($user_id, $amount, $currency, $description)
+    public function aistore_credit($user_id, $amount, $currency, $description,$reference)
     {
         global $wpdb;
         $type = "credit";
@@ -70,13 +71,14 @@ class AistoreWallet
 
         $new_amount = $old_balance + $amount;
 
-        $q1 = $wpdb->prepare("INSERT INTO {$wpdb->prefix}aistore_wallet_transactions  (amount,description,type, balance, user_id, currency ) VALUES (%s,%s, %s,%s,%s,%s )", array(
+        $q1 = $wpdb->prepare("INSERT INTO {$wpdb->prefix}aistore_wallet_transactions  (amount,description,type, balance, user_id, currency,reference ) VALUES (%s,%s, %s,%s,%s,%s,%s )", array(
             $amount,
             $description,
             $type,
             $new_amount,
             $user_id,
-            $currency
+            $currency,
+            $reference
         ));
 
         $wpdb->query($q1);
@@ -143,11 +145,14 @@ $currency=  $row->currency;
         <tr>
       
     <th><?php _e('ID', 'aistore'); ?></th>
+    <th><?php _e('Reference', 'aistore'); ?></th>
+   
         <th><?php _e('Type', 'aistore'); ?></th>
          <th><?php _e('Balance', 'aistore'); ?></th>
           <th><?php _e('Amount', 'aistore'); ?></th> 
  
 		  <th><?php _e('Currency', 'aistore'); ?></th>
+		  
 		   <th><?php _e('Description', 'aistore'); ?></th> 
 		    <th><?php _e('Date', 'aistore'); ?></th> 
 		    
@@ -161,6 +166,7 @@ $currency=  $row->currency;
 ?>    <tr>
           
 		   <td>   <?php echo $row->transaction_id; ?> </td>
+		    <td>   <?php echo $row->reference; ?> </td>
   <td> 	   <?php echo $row->type; ?> </td>
     <td> 	
  
@@ -195,7 +201,7 @@ $currency=  $row->currency;
 
         global $wpdb;
 
-        $sql = "SELECT * FROM {$wpdb->prefix}aistore_wallet_transactions WHERE   user_id=$user_id order by transaction_id desc";
+        $sql = "SELECT * FROM {$wpdb->prefix}aistore_wallet_transactions WHERE   user_id=$user_id group by reference order by transaction_id desc";
 
         return $wpdb->get_results($sql);
 

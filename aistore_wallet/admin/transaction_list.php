@@ -156,16 +156,6 @@ public function search_box( $text, $input_id ) {
 <p class="search-box">
   <label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo $text; ?>:</label>
   
-	<select name="user_email" >
-<option selected value="0">Selected User</option>
-		  <?php
-        $blogusers = get_users();
-
-        foreach ($blogusers as $user)
-        {
-                echo '	<option  value="' . $user->user_email . '">' . $user->display_name . '</option>';
-        } ?> 
- </select>
 
 <select name="search_column"  >
 
@@ -230,6 +220,14 @@ public function search_box( $text, $input_id ) {
             if (isset($_REQUEST['id']))
         {
 $id=sanitize_text_field($_REQUEST['id']);
+
+ $wallet = new AistoreWallet();
+                
+$balance = $wallet->aistore_balance($id, 'USD');
+?>
+<h3>Balance : <?php echo $balance; ?>  USD </h3><br>
+
+<?php
 
 	$sql = "SELECT * FROM {$wpdb->prefix}aistore_wallet_transactions  INNER JOIN {$wpdb->prefix}users ON  {$wpdb->prefix}aistore_wallet_transactions.user_id={$wpdb->prefix}users.ID WHERE {$wpdb->prefix}users.ID= ".$id;
         }  

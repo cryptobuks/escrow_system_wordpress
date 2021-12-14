@@ -149,20 +149,29 @@ if ( ! isset( $_POST['aistore_nonce'] )
 $aistore_currency=sanitize_text_field($_REQUEST['aistore_currency']);
 $amount=intval($_REQUEST['amount']);
 
+
 $username = get_the_author_meta( 'user_email', get_current_user_id() );
   $balance = $wallet->aistore_balance($user_id, $aistore_currency);
 
-if($balance>=$amount){
-    
-   $wallet->aistore_debit($user_id, $amount, $aistore_currency, $description);
+  $withdraw = get_option('withdraw_fee');
+ $withdraw_fee = ($withdraw / 100) * $amount;
+$escrow_admin_user_id = get_option('escrow_user_id');
 
+$new_amount = $amount+ $withdraw_fee;
+if($balance>=$new_amount){
+    
+  
 
 $res=( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}widthdrawal_requests ( amount,username,currency  ) VALUES ( %s, %s, %s)", array(  $amount, $username,$aistore_currency ) ) );
 
 $wpdb->query($res);
 $wid = $wpdb->insert_id;
 
-
+ $wallet->aistore_debit($user_id, $amount, $aistore_currency, $description,$wid);
+  
+   $description="Withdraw Fee"; 
+$wallet->aistore_debit($user_id, $withdraw_fee, $aistore_currency, $description,$wid);
+$wallet->aistore_credit($escrow_admin_user_id, $withdraw_fee, $aistore_currency, $description,$wid);
 
 // email to sender 
 

@@ -102,9 +102,9 @@
 
             $escrow_wallet = new AistoreWallet();
 
-            $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details);
+            $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
 
-            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details);
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
             sendNotificationAccepted($eid);
              $accept_escrow_success_message = get_option('accept_escrow_success_message');
 
@@ -132,7 +132,7 @@
             $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE  id=%d ", $eid));
 
             $escrow_amount = $escrow->amount;
-
+            $aistore_escrow_currency = $escrow->currency;
             $escrow_reciever_email_id = $escrow->receiver_email;
             $user = get_user_by('email', $escrow_reciever_email_id);
             $id = $user->ID;
@@ -141,9 +141,9 @@
 
             $escrow_wallet = new AistoreWallet();
 
-            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
 
-            $escrow_wallet->aistore_credit($id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+            $escrow_wallet->aistore_credit($id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
             
             $release_escrow_success_message = get_option('release_escrow_success_message');
             
@@ -174,7 +174,12 @@
                 $user_login,
                 $ipaddress
             )));
-
+            
+   $url = admin_url('admin.php?page=disputed_escrow_details&eid=' . $escrow_id . '', 'https');
+   ?>
+   <meta http-equiv="refresh" content="0; URL=<?php echo esc_html($url); ?>" />
+   <?php
+             
             wp_die();
 
         }
@@ -208,17 +213,17 @@
 
             $escrow_wallet = new AistoreWallet();
 
-            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
 
-            $escrow_wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+            $escrow_wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
 
             $cancel_escrow_fee = get_option('cancel_escrow_fee');
 
             if ($cancel_escrow_fee == 'yes')
             {
-               $escrow_wallet->aistore_debit($escrow_admin_user_id, $sender_escrow_fee, $aistore_escrow_currency, $escrow_details);
+               $escrow_wallet->aistore_debit($escrow_admin_user_id, $sender_escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
 
-              $escrow_wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $escrow_details);
+              $escrow_wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
             
              $cancel_escrow_success_message = get_option('cancel_escrow_success_message');
              
@@ -260,6 +265,8 @@
         $object->cancel_escrow_btn($escrow);
 
         $object->release_escrow_btn($escrow);
+        
+        
 
         $object->dispute_escrow_btn($escrow);
 
@@ -381,6 +388,7 @@
  <div class="card">
 	
 	<?php
+	$eid=  $escrow->id;
         $discussions = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_discussion  WHERE eid=%d order by id desc", $eid));
 
         foreach ($discussions as $row):

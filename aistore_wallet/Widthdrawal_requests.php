@@ -161,7 +161,7 @@ public function search_box( $text, $input_id ) {
   <option value="username"><?php   _e( 'User', 'aistore' ); ?></option>
  
   <option value="amount"><?php   _e( 'Amount', 'aistore' ); ?></option>
-  <option value="gateway_charge"><?php   _e( 'Gateway Charge', 'aistore' ); ?></option>
+  <option value="charges"><?php   _e( 'Charge', 'aistore' ); ?></option>
   
     <option value="status"><?php   _e( 'Status', 'aistore' ); ?></option>
   
@@ -337,7 +337,7 @@ $sql .=  Aistore_Withdrawal_List::prepareWhereClouse();
 		switch ( $column_name ) {
 			case 'username':
 			case 'amount':
-			case 'gateway_charge':
+			case 'charges':
 			case 'status':	
 			case 'method':	
 			case 'created_at':
@@ -392,7 +392,7 @@ $sql .=  Aistore_Withdrawal_List::prepareWhereClouse();
 			'cb'      => '<input type="checkbox" />',
 			'username' => __( 'User', 'sp' ),
 			'amount'    => __( 'Amount', 'sp' ),
-			'gateway_charge' => __( 'Gateway Charge', 'sp' ),
+			'charges' => __( 'Charges', 'sp' ),
 			'status'    => __( 'Status', 'sp' ),
 			'method'    => __( 'Method', 'sp' ),
 	
@@ -412,7 +412,7 @@ $sql .=  Aistore_Withdrawal_List::prepareWhereClouse();
 		$sortable_columns = array(
 			'username' => array( 'username', true ),
 			'amount' => array( 'amount', true ),
-			'gateway_charge' => array( 'gateway_charge', false ),
+			'charges' => array( 'charges', false ),
 			'status' => array( 'status', false ),
 			'method' => array( 'method', false ),
 

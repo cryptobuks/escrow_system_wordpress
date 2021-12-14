@@ -41,23 +41,23 @@
   
             
 
-            $escrow_wallet->aistore_credit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details); 
+            $escrow_wallet->aistore_credit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details,$eid); 
                     
                     
                      $created_escrow_message = get_option('created_escrow_message');
         $escrow_details =$created_escrow_message .$eid;
                     //  $escrow_details = 'User Send Payment to Admin  with escrow id # '.$eid;
                     
-                        $escrow_wallet->aistore_debit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details);
+                        $escrow_wallet->aistore_debit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
 
-            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details); 
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid); 
                     
                     
                      $escrow_details = 'Escrow Fee for the created escrow with escrow id '.$eid;
                     
-          $escrow_wallet->aistore_debit($sender_id, $escrow_fee, $aistore_escrow_currency, $escrow_details);
+          $escrow_wallet->aistore_debit($sender_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
 
-            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details); 
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid); 
             
                     $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET payment_status = 'paid'  WHERE id = '%d' ", $eid));
@@ -121,7 +121,20 @@
      
       <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
-    
+  
+    <?php
+
+        if ($results == null)
+        {
+            _e("No Escrow Found", 'aistore');
+
+        }
+        else
+        {
+            
+            
+            ?>
+              
   <table  id="example" class="display nowrap" style="width:100%">
          <thead>
      <tr>
@@ -137,15 +150,8 @@
      </tr>
       </thead>
 <tbody>
+    
     <?php
-
-        if ($results == null)
-        {
-            _e("No Escrow Found", 'aistore');
-
-        }
-        else
-        {
             foreach ($results as $row):
 
 ?> 
@@ -196,7 +202,7 @@ if($row->payment_status=='process'){
     
 } 
                    
-                   if($row->payment_status=='paid'){
+                   if($row->payment_status=='paid' && $row->status=='pending' ){
     ?>
                    
                  <form method="POST" action="" name="remove_escrow_payment" enctype="multipart/form-data"> 

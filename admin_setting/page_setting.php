@@ -146,6 +146,7 @@
         
         update_option( 'escrow_user_id', $user_id);
         update_option( 'escrow_user_name', $escrow_user_id);
+         update_option( 'escrow_file_type', 'pdf');
         }  
             //add currency
              global $wpdb;
@@ -611,7 +612,11 @@
         <td><input type="number" name="escrow_accept_fee" value="<?php echo esc_attr(get_option('escrow_accept_fee')); ?>" />%</td>
         </tr>
         
-       
+         <tr valign="top">
+        <th scope="row"><?php _e('Withdraw Fee', 'aistore') ?></th>
+        <td><input type="number" name="withdraw_fee" value="<?php echo esc_attr(get_option('withdraw_fee')); ?>" />%</td>
+        </tr>
+        
   
   
     </table>

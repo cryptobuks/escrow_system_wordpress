@@ -45,7 +45,7 @@ $id=sanitize_text_field($_REQUEST['id']);
   <div class="discussionmsg">
    
  <!--<a href="<?php echo $row->url; ?>">  </a> </p>-->
-  
+    <p> <?php echo ($row->user_email); ?></p>
   <p> <?php echo html_entity_decode($row->message); ?></p>
   <h6 > <?php echo $row->created_at; ?></h6>
 </div>

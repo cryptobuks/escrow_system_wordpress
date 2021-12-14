@@ -41,13 +41,13 @@ return _e( 'Please select an user.', 'aistore' );
      $current_user_id=get_current_user_id();
      
 if($type=='debit'){
- $res=$wallet->aistore_credit($current_user_id, $amount, $currency, $description);
- $res=$wallet->aistore_debit($user_id, $amount, $currency, $description);
+ $res=$wallet->aistore_credit($current_user_id, $amount, $currency, $description,$current_user_id);
+ $res=$wallet->aistore_debit($user_id, $amount, $currency, $description,$user_id);
 }
 
 else{
-  $res=$wallet->aistore_credit($user_id, $amount, $currency, $description);
-   $res=$wallet->aistore_debit($current_user_id, $amount, $currency, $description);
+  $res=$wallet->aistore_credit($user_id, $amount, $currency, $description,$user_id);
+   $res=$wallet->aistore_debit($current_user_id, $amount, $currency, $description,$current_user_id);
 }
 
 
