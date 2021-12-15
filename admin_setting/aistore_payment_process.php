@@ -20,7 +20,7 @@
                     
                      $object_escrow = new AistoreEscrowSystem();
                      
-                     
+
                        $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
                     
                       $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s ", $eid));
@@ -46,14 +46,14 @@
                     
                      $created_escrow_message = get_option('created_escrow_message');
         $escrow_details =$created_escrow_message .$eid;
-                    //  $escrow_details = 'User Send Payment to Admin  with escrow id # '.$eid;
+                
                     
                         $escrow_wallet->aistore_debit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
 
             $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid); 
                     
                     
-                     $escrow_details = 'Escrow Fee for the created escrow with escrow id '.$eid;
+                     $escrow_details = 'Escrow Fee for the created escrow with escrow id #'.$eid;
                     
           $escrow_wallet->aistore_debit($sender_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
 
@@ -96,10 +96,42 @@
                     }
 
                            $eid =   sanitize_text_field($_REQUEST['ecsrow_id']);
+                           
+                        $escrow_wallet = new AistoreWallet();
+                        $object_escrow = new AistoreEscrowSystem();
+                        
+                          $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
+                    
+                      $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s ", $eid));
+                      
+                      
+                       $aistore_escrow_currency = $escrow->currency;
+                      $escrow_amount = $escrow->amount;
+                      $escrow_fee = $escrow->escrow_fee;
+                       $sender_email = $escrow->sender_email;
+            $user = get_user_by('email', $sender_email);
+            $sender_id = $user->ID;
+            
+              $created_escrow_message = get_option('cancel_escrow_message');
+        $escrow_details =$created_escrow_message .$eid;
+                
+                    
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
+
+            $escrow_wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid); 
+                    
+                    
+            $escrow_details = 'Escrow Fee for the cancelled escrow with escrow id # '.$eid;
+                    
+          $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
+
+            $escrow_wallet->aistore_credit($sender_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid); 
+            
+            
                     $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET payment_status = 'Pending'  WHERE id = '%d' ", $eid));
 
-                    
+                     sendNotificationPaymentRefund($eid);
 
                 }
              
@@ -126,7 +158,7 @@
 
         if ($results == null)
         {
-            _e("No Escrow Found", 'aistore');
+           // _e("No Escrow Found", 'aistore');
 
         }
         else

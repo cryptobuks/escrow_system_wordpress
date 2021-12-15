@@ -337,9 +337,9 @@ $sql .=  Aistore_Withdrawal_List::prepareWhereClouse();
 		switch ( $column_name ) {
 			case 'username':
 			case 'amount':
+			case 'currency':
 			case 'charges':
 			case 'status':	
-			case 'method':	
 			case 'created_at':
 				return $item[ $column_name ];
 			default:
@@ -392,9 +392,9 @@ $sql .=  Aistore_Withdrawal_List::prepareWhereClouse();
 			'cb'      => '<input type="checkbox" />',
 			'username' => __( 'User', 'sp' ),
 			'amount'    => __( 'Amount', 'sp' ),
+			'currency'    => __( 'Currency', 'sp' ),
 			'charges' => __( 'Charges', 'sp' ),
 			'status'    => __( 'Status', 'sp' ),
-			'method'    => __( 'Method', 'sp' ),
 	
 			'created_at'    => __( 'Date', 'sp' )
 		];
@@ -412,9 +412,10 @@ $sql .=  Aistore_Withdrawal_List::prepareWhereClouse();
 		$sortable_columns = array(
 			'username' => array( 'username', true ),
 			'amount' => array( 'amount', true ),
+				'currency'    => __( 'currency', 'sp' ),
 			'charges' => array( 'charges', false ),
 			'status' => array( 'status', false ),
-			'method' => array( 'method', false ),
+		
 
 		
 			'created_at' => array( 'created_at', false ),
@@ -569,6 +570,26 @@ class Aistore_Withdrawal_Plugin {
 		<div class="wrap">
 			<h2><?php _e( 'Withdrawal Requests', 'aistore' ); ?></h2>
 
+<?php
+  $user_id=get_current_user_id();
+$bank_account= ( get_the_author_meta( 'user_bank_detail', $user_id ) );
+$instructions= ( get_the_author_meta( 'user_deposit_instruction', $user_id ) );
+
+?><br>
+ <table class="table table-sm">
+ 
+  <tbody>
+    <tr>
+      <th scope="row"><?php _e( 'Bank Account Details', 'aistore' ); ?></th>
+      <td><?php echo $bank_account; ?></td>
+    </tr>
+    <tr>
+      <th scope="row"><?php _e( 'Instructions', 'aistore' ); ?></th>
+      <td><?php echo $instructions; ?></td>
+    </tr>
+  </tbody>
+  </table>
+  <br>
 			<div id="poststuff">
 				<div id="post-body" class="metabox-holder columns-2">
 					<div id="post-body-content">

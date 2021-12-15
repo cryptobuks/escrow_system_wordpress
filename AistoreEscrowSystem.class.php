@@ -171,6 +171,8 @@ class AistoreEscrowSystem
             return "<div class='no-login'>Kindly login and then visit this page </div>";
         }
 
+    
+            
         $object_escrow = new AistoreEscrowSystem();
         $aistore_escrow_currency = $object_escrow->get_escrow_currency();
 
@@ -183,8 +185,13 @@ class AistoreEscrowSystem
 
         $user_id = get_current_user_id();
 
+        
+        
         if (isset($_POST['submit']) and $_POST['action'] == 'escrow_system')
         {
+            
+            
+                       
 
             if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
             {
@@ -208,7 +215,7 @@ class AistoreEscrowSystem
             global $wpdb;
 
             // add currency also
-            $wpdb->query($wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee ,currency ) VALUES ( %s, %d, %s, %s ,%s ,%s,%s)", array(
+         $qr=$wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_system ( title, amount, receiver_email,sender_email,term_condition,escrow_fee ,currency ) VALUES ( %s, %d, %s, %s ,%s ,%s,%s)", array(
                 $title,
                 $amount,
                 $receiver_email,
@@ -216,7 +223,13 @@ class AistoreEscrowSystem
                 $term_condition,
                 $escrow_fee,
                 $escrow_currency
-            )));
+            ));
+            
+         
+            
+               $wpdb->query($qr);
+            
+    
 
             $eid = $wpdb->insert_id;
 
@@ -324,6 +337,7 @@ if($user_balance>$new_amount){
 
 <?php
 
+ 
         }
         else
         {
@@ -854,11 +868,22 @@ global $wpdb;
         }
 
         echo "<h1>#" . $escrow->id . " " . $escrow->title . "</h1><br>";
-        printf(__("Term Condition : %s", 'aistore') , html_entity_decode($escrow->term_condition) . "<br>");
+        
+        
+        
+        
         printf(__("Sender :  %s", 'aistore') , $escrow->sender_email . "<br>");
         printf(__("Receiver : %s", 'aistore') , $escrow->receiver_email . "<br>");
         printf(__("Status : %s", 'aistore') , $escrow->status . "<br>");
-         printf(__("Amount : %s", 'aistore') , $escrow->amount ." ". $escrow->currency."<br><br>");
+         printf(__("Amount : %s", 'aistore') , $escrow->amount ." ". $escrow->currency."<br><hr />");
+         
+         
+         
+        printf(__("Term Condition : %s", 'aistore') , html_entity_decode($escrow->term_condition) . "<br>");
+        
+        
+        
+        
         $object = new AistoreEscrowSystem();
 
         $object->accept_escrow_btn($escrow);

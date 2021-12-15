@@ -16,6 +16,18 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
     
 
+            <?php
+            
+  
+        if ($results == null)
+        {
+            // _e("No transactions Found", 'aistore');
+
+        }
+        else
+        {
+            ?>
+            
 <table id="example" class="display nowrap" style="width:100%">
         <thead>
             <tr>
@@ -34,15 +46,6 @@
         
         <tbody>
             <?php
-            
-  
-        if ($results == null)
-        {
-            // _e("No transactions Found", 'aistore');
-
-        }
-        else
-        {
              foreach ($results as $row):
              
 ?>

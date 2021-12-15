@@ -101,7 +101,7 @@
             $escrow_fee = $object_escrow_fee->accept_escrow_fee($amount);
 
             $escrow_wallet = new AistoreWallet();
-
+                
             $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
 
             $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);

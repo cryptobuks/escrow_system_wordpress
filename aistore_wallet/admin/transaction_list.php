@@ -334,13 +334,13 @@ $sql .=  Aistore_Transaction_List::prepareWhereClouse();
 		switch ( $column_name ) {
 			
 			case 'transaction_id':
-			case 'user_email':
+		    case 'reference':
+		    case 'type':
+		    case 'description':
+			case 'amount':
 			case 'balance':	
 			case 'currency':
-			case 'amount':
-			case 'type':	
-			case 'description':
-			case 'created_by':
+		    case 'user_email':
 			case 'date':
 				return $item[ $column_name ];
 			default:
@@ -376,18 +376,19 @@ $sql .=  Aistore_Transaction_List::prepareWhereClouse();
 	 *
 	 * @return array
 	 */
+
 	function get_columns() {
 		$columns = [
 			'cb'      => '<input type="checkbox" />',
 			'transaction_id' => __( 'Transaction id', 'sp' ),
-			'user_email'    => __( 'Email', 'sp' ),
-			'balance'    => __( 'Balance', 'sp' ),
-			'currency'    => __( 'Currency', 'sp' ),
-			'amount'    => __( 'Amount', 'sp' ),
+			'reference' => __( 'Reference id', 'sp' ),
 			'type'    => __( 'Type', 'sp' ),
 			'description' => __( 'Description ', 'sp' ),
-			'created_by' => __( 'Created By ', 'sp' ),
-			'date'    => __( 'Date', 'sp' )
+			'amount'    => __( 'Amount', 'sp' ),
+			'balance'    => __( 'Balance', 'sp' ),
+			'currency'    => __( 'Currency', 'sp' ),
+			'user_email'    => __( 'Email', 'sp' ),
+        	'date'    => __( 'Date', 'sp' )
 		];
 
 		return $columns;
@@ -402,14 +403,14 @@ $sql .=  Aistore_Transaction_List::prepareWhereClouse();
 	public function get_sortable_columns() {
 		$sortable_columns = array(
 			'transaction_id' => array( 'transaction_id', true ),
-			'user_email' => array( 'user_email', false ),
+			'reference' => array( 'reference', true ),
+			'type' => array( 'type', false ),
+			'description' => array( 'description', false ),
+			'amount' => array( 'amount', false ),
+		
 			'balance' => array( 'balance', false ),
 			'currency' => array( 'currency', false ),
-			'amount' => array( 'amount', false ),
-			'type' => array( 'type', false ),
-		   'description' => array( 'description', false ),
-		   'created_by' => array( 'created_by', false ),
-		   
+			'user_email' => array( 'user_email', false ),
 			'date' => array( 'date', false )
 		);
 

@@ -10,7 +10,19 @@ global $wpdb;
 	
 	     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
-    
+  
+
+    <?php
+        if ($results == null)
+        {
+
+          //  _e("No Escrow Found", 'aistore');
+
+        }
+        else
+        {
+            ?>
+              
   <table  id="example" class="display nowrap" style="width:100%">
       
         <thead>
@@ -27,17 +39,7 @@ global $wpdb;
       </thead>
 <tbody>
       
-
-    <?php
-        if ($results == null)
-        {
-
-            _e("No Escrow Found", 'aistore');
-
-        }
-        else
-        {
-
+<?php
             foreach ($results as $row):
 
                 $url = admin_url('admin.php?page=disputed_escrow_details&eid=' . $row->id . '', 'https');

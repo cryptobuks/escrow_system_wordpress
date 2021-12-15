@@ -149,8 +149,8 @@ function aistore_plugin_table_install()
     $table_withdrawal_requests = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "widthdrawal_requests  (
   id int(100) NOT NULL  AUTO_INCREMENT,
   amount int(100) NOT NULL,
-   currr  int(100)  NOT NULL,
-   method  varchar(100)   NOT NULL,
+ 
+   method  varchar(100)   NOT NULL,   charges  varchar(100)   NOT NULL,
    username  varchar(100)   NOT NULL,
    currency  varchar(100)   NOT NULL,
   status  varchar(100)   NOT NULL DEFAULT 'pending',

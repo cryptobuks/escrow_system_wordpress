@@ -135,6 +135,11 @@ $user_id=get_current_user_id();
 if(isset($_POST['submit']) and $_POST['action']=='withdrawal_request' )
 {
 
+
+
+
+
+
 if ( ! isset( $_POST['aistore_nonce'] ) 
     || ! wp_verify_nonce( $_POST['aistore_nonce'], 'aistore_nonce_action' ) 
 ) {
@@ -142,35 +147,56 @@ if ( ! isset( $_POST['aistore_nonce'] )
    exit;
 } 
 
+
+
     $user_id=get_current_user_id();
+
       $description="Withdraw Balance";
       
       
 $aistore_currency=sanitize_text_field($_REQUEST['aistore_currency']);
+
 $amount=intval($_REQUEST['amount']);
 
 
 $username = get_the_author_meta( 'user_email', get_current_user_id() );
+
+
+
   $balance = $wallet->aistore_balance($user_id, $aistore_currency);
 
-  $withdraw = get_option('withdraw_fee');
- $withdraw_fee = ($withdraw / 100) * $amount;
+
+
 $escrow_admin_user_id = get_option('escrow_user_id');
 
-$new_amount = $amount+ $withdraw_fee;
-if($balance>=$new_amount){
-    
-  
 
-$res=( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}widthdrawal_requests ( amount,username,currency  ) VALUES ( %s, %s, %s)", array(  $amount, $username,$aistore_currency ) ) );
+
+
+if($balance >= $amount){ 
+    
+    
+    $withdraw = get_option('withdraw_fee');
+    
+     $withdraw_fee = ($withdraw / 100) * $amount;
+     
+     
+  $new_amount = $amount-$withdraw_fee;
+
+
+$res=( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}widthdrawal_requests ( amount,username,currency ,charges ) VALUES ( %s, %s, %s, %s)", array(  $new_amount, $username,$aistore_currency,$withdraw_fee ) ) );
 
 $wpdb->query($res);
+
+
 $wid = $wpdb->insert_id;
+
+
 
  $wallet->aistore_debit($user_id, $amount, $aistore_currency, $description,$wid);
   
    $description="Withdraw Fee"; 
-$wallet->aistore_debit($user_id, $withdraw_fee, $aistore_currency, $description,$wid);
+   
+    
 $wallet->aistore_credit($escrow_admin_user_id, $withdraw_fee, $aistore_currency, $description,$wid);
 
 // email to sender 
@@ -194,6 +220,7 @@ $user_id=get_current_user_id();
      
      "<br>Withdraw ID is: ".$wid.
       "<br>Amount: ".$amount.
+            "<br>Withdraw Fee: ".$withdraw_fee.
      "<br>Process Withdraw system to :<br>".
          $withdraw_page_id_url."<br>" ;
     
@@ -212,7 +239,10 @@ $user_id=get_current_user_id();
   //$body.=__( 'Your Recevier Email'.$receiver_email, 'aistore' );
   
   $headers = array('Content-Type: text/html; charset=UTF-8');
+  
      wp_mail( $to, $subject, $body, $headers );
+     
+        _e( 'Withdraw Submitted succesfully', 'aistore' ); 
 
 }
 
@@ -301,6 +331,18 @@ $currency=  $row->currency;
  type="submit"  name="submit" value="<?php  _e( 'Withdrawal', 'aistore' ) ?>"/>
 <input type="hidden" name="action" value="withdrawal_request" />
 </form> 
+
+
+
+<?php
+}
+
+?>
+
+
+
+
+
 <br>
 <hr>
 
@@ -359,6 +401,7 @@ global $wpdb;
       
     <th><?php   _e( 'ID', 'aistore' ); ?></th>
         <th><?php   _e( 'Amount', 'aistore' ); ?></th>
+        <th><?php   _e( 'Charges', 'aistore' ); ?></th>
         
 		    <th><?php   _e( 'Status', 'aistore' ); ?></th>  
 		    <th><?php   _e( 'Date', 'aistore' ); ?></th>
@@ -389,7 +432,7 @@ global $wpdb;
    
 		   
 		  	   <td> 		   <?php echo esc_attr($row->amount) . " " . $row->currency;?>  </td>
-		  
+		  	   <td> 		   <?php echo esc_attr($row->charges) . " " . $row->currency;?>  </td>
 	
 		    <td> 		   <?php echo esc_attr($row->status) ; ?> </td>
 		    	   <td> 		   <?php echo esc_attr($row->created_at); ?> </td>
@@ -401,7 +444,21 @@ global $wpdb;
 
     </table>
 <?php
-}
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 }

@@ -26,7 +26,7 @@ include_once dirname(__FILE__) . '/admin/user_balance.php';
 include_once dirname(__FILE__) . '/AistoreWallet.class.php';
 include_once dirname(__FILE__) . '/Aistore_WithdrawalSystem.class.php';
 include_once dirname(__FILE__) . '/Widthdrawal_requests.php';
-// include_once dirname(__FILE__) . '/Withdrawal.php';
+include_once dirname(__FILE__) . '/user_bank_details.php';
 include_once dirname(__FILE__) . '/menu.php';
 
 
