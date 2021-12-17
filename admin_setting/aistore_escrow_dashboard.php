@@ -3,24 +3,24 @@
  $user_id = get_current_user_id();
                      
  $escrow_user_id = get_option( 'escrow_user_id');
-$balance = $wallet->aistore_balance($user_id, 'USD');
-$escrow_user_id_balance = $wallet->aistore_balance($escrow_user_id, 'USD');
+ 
+ 
+     $currencies = $wallet->aistore_wallet_currency();
+    
+            foreach ($currencies as $c)
+            {
+     $currency=$c->currency;
+$balance = $wallet->aistore_balance($user_id, $currency);
+$escrow_user_id_balance = $wallet->aistore_balance($escrow_user_id, $currency);
 
  ?>
  
- <h3>Balance : <?php echo $balance; ?> USD </h3>
-  <h3>Escrow Admin Balance : <?php echo $escrow_user_id_balance; ?> USD</h3><br>
+ <!--<h3>Balance : <?php echo $balance." ".$currency; ?>  </h3>-->
+ <!-- <h3>Escrow Admin Balance : <?php echo $escrow_user_id_balance." ".$currency; ?> </h3><br>-->
  <?php
 
-        $results = $wallet->aistore_wallet_currency();
-    
-            // foreach ($results as $c)
-            // {
-     $currency='USD';//$c->currency;
- 
-    
-            // }
-            
+        
+            }        
 
             
 
@@ -66,6 +66,15 @@ $users = get_users( );
   
              foreach ($users as $row):
                //  print_r($users);
+               
+               $currencies = $wallet->aistore_wallet_currency();
+    
+            foreach ($currencies as $c)
+            {
+     $currency=$c->currency;
+ 
+    
+            
   $balance = $wallet->aistore_balance($row->ID, $currency);
   
   if($balance>0){
@@ -77,13 +86,15 @@ $users = get_users( );
 		   
 		   <td> 		   <?php echo esc_attr($row->user_email); ?> </td>
 		  
-		   <td> 		   <?php echo esc_attr($balance); ?> </td>
+		   <td> 		   <?php echo esc_attr($balance) ." ".$currency; ?> </td>
 		   
 		 
 		   </tr>
 		   <?php
-		   
   }
+  }
+  
+        
             endforeach;
         ?>
     
@@ -279,32 +290,61 @@ $users = get_users( );
  $escrow_admin_user_id = get_option('escrow_user_id');
    $user_email = get_the_author_meta('user_email', $escrow_admin_user_id);
    
- $sql = "SELECT * FROM {$wpdb->prefix}escrow_notification  order by id desc limit 15";
- 
-
-     	
-     //	echo $sql;
+ $sql = "SELECT * FROM {$wpdb->prefix}escrow_notification  limit 15";
      	
      	 $results = $wpdb->get_results($sql);
      
+
+ 	  if ($results == null)
+        {
+            // _e("No Notification Found", 'aistore');
+
+        }
+        ?>
+         <h1> <?php _e('Top 15 Notification', 'aistore') ?> </h1>  <br>
+          <table  id="example6" class="display nowrap" style="width:100%">
+      
+        <thead>
+     <tr>
+         <th>Id</th>
+      <th>Email</th>
+     <th> Message</th>
+        <th>Date</th>
+   
+    
+     </tr>
+      </thead>
+<tbody>
+     <?php
  	foreach ($results as $row):
             
 ?> 
-    <h1> <?php _e('Top 15 Notification', 'aistore') ?> </h1>
-  <div class="discussionmsg">
-   
- <!--<a href="<?php echo $row->url; ?>">  </a> </p>-->
-    <p> <?php echo html_entity_decode($row->user_email); ?></p>
-  <p> <?php echo html_entity_decode($row->message); ?></p>
-  <h6 > <?php echo $row->created_at; ?></h6>
-</div>
- 
-<hr>
-    
+  
+    <tr>
+        <td> 	 
+		   <?php echo $row->id; ?></td>
+           <td> <?php echo $row->user_email; ?></td>
+		   <td> <?php echo html_entity_decode($row->message); ?></td>
+		     <td><?php echo $row->created_at; ?></td>
+
+    </tr>
+            
+            </tbody>
     <?php
         endforeach;
     ?>
+    
+      <tfoot>
+            <tr>
+       <th>Id</th>
+      <th>Email</th>
+     <th> Message</th>
+        <th>Date</th>
+            </tr>
+        </tfoot>
+        </table>
      <br><br>
+     
     
     
       <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -339,6 +379,14 @@ $users = get_users( );
 
   $(document).ready(function() {
     $('#example2').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+ $(document).ready(function() {
+    $('#example6').DataTable( {
         dom: 'Bfrtip',
         buttons: [
             'copy', 'csv', 'excel', 'pdf', 'print'

@@ -69,7 +69,7 @@
             $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET status = 'disputed'  WHERE id = '%d'", $eid));
       $dispute_escrow_success_message = get_option('dispute_escrow_success_message');
-
+sendNotificationDisputed($eid);
 ?>
 <div>
 <strong> <?php echo $dispute_escrow_success_message; ?></strong></div>
@@ -146,7 +146,7 @@
             $escrow_wallet->aistore_credit($id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
             
             $release_escrow_success_message = get_option('release_escrow_success_message');
-            
+            sendNotificationReleased($eid);
 ?>
 <div>
 <strong> <?php echo $release_escrow_success_message; ?></strong></div>
@@ -226,7 +226,7 @@
               $escrow_wallet->aistore_credit($sender_id, $sender_escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
             
              $cancel_escrow_success_message = get_option('cancel_escrow_success_message');
-             
+              sendNotificationCancelled($eid);
             }
 ?>
 <div>
