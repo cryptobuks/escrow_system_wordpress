@@ -28,7 +28,7 @@
 
     $n = array();
     $n['message'] = $Seller_Deposit;
-
+     $n['reference_id'] = $eid;
     $n['type'] = "success";
     
     $n['url'] = $details_escrow_page_id_url ;
@@ -37,13 +37,14 @@
     
     
     aistore_notification_new($n);
+    aistore_send_email($n);
     
     
       $subject = $Seller_Deposit;
 
     $n = array();
     $n['message'] = $Buyer_Deposit;
-
+    $n['reference_id'] = $eid;
     $n['type'] = "success";
     
     $n['url'] = $details_escrow_page_id_url ;
@@ -52,6 +53,7 @@
     
     
     aistore_notification_new($n);
+    aistore_send_email($n);
 
   }
   
@@ -88,13 +90,14 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $Seller_Deposit;
 
     $n['type'] = "success";
-    
+      $n['reference_id'] = $eid;
     $n['url'] = $details_escrow_page_id_url ;
 
     $n['user_email'] = $user_email;
     
     
     aistore_notification_new($n);
+    aistore_send_email($n);
     
     
       $subject = $Seller_Deposit;
@@ -103,13 +106,14 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $Buyer_Deposit;
 
     $n['type'] = "success";
-    
+      $n['reference_id'] = $eid;
     $n['url'] = $details_escrow_page_id_url ;
 
     $n['user_email'] = $sender_email;
     
     
     aistore_notification_new($n);
+    aistore_send_email($n);
 
     // ob_start();
 
@@ -189,7 +193,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     
     
-	 
+	   $n['reference_id'] = $eid;
 
     $n['url'] = $details_escrow_page_id_url ;
 
@@ -197,6 +201,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     
     aistore_notification_new($n);
+    aistore_send_email($n);
 
     ob_start();
 
@@ -218,12 +223,13 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $n = array();
     $n['message'] = $created_escrow;
-
+  $n['reference_id'] = $eid;
     $n['type'] = "success";
     $n['url'] = $details_escrow_page_id_url ;
 
     $n['user_email'] = $user_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
  
 }
 
@@ -263,7 +269,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     //aistore_notification($subject ,"success",$escrow->sender_email);
     $n = array();
     $n['message'] = $Buyer_Deposit;
-
+  $n['reference_id'] = $eid;
     $n['type'] = "success";
  
  
@@ -279,7 +285,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $n['user_email'] = $escrow->sender_email;
     aistore_notification_new($n);
-
+    aistore_send_email($n);
     //send email to seller
     
 
@@ -314,7 +320,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     $n = array();
     $n['message'] = $Seller_Deposit;
-
+  $n['reference_id'] = $eid;
     $n['type'] = "success";
 
 
@@ -330,6 +336,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $n['user_email'] = $escrow->receiver_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
    
 }
 
@@ -347,7 +354,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     $n = array();
     $n['message'] = "You have marked escrow #" . $eid . " as payed";
-
+  $n['reference_id'] = $eid;
     $n['type'] = "success";
    
    
@@ -365,6 +372,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $n['user_email'] = $user_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
 }
 function sendNotificationAccepted($eid)
@@ -395,7 +403,7 @@ function sendNotificationAccepted($eid)
 
     $n = array();
     $n['message'] = $partner_accept_escrow;
-
+      $n['reference_id'] = $eid;
     $n['type'] = "success";
  
  
@@ -413,6 +421,7 @@ function sendNotificationAccepted($eid)
     
     $n['user_email'] = $party_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
     $subject = $partner_accept_escrow;
 
@@ -459,13 +468,14 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 ), home_url() ) ); 
 
 
-
+  $n['reference_id'] = $eid;
     $n['url'] = $details_escrow_page_id_url ;
     
     
     
     $n['user_email'] = $user_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
 }
 
@@ -516,7 +526,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['type'] = "warning";
     
 
-
+  $n['reference_id'] = $eid;
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
     'page_id' => get_option('details_escrow_page_id'),
     'eid' => $eid,
@@ -530,6 +540,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $n['user_email'] = $party_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
     //send email to self
     $message = $dispute_escrow;
@@ -547,7 +558,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $dispute_escrow;
 
     $n['type'] = "success";
-
+  $n['reference_id'] = $eid;
 
 
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
@@ -563,6 +574,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $n['user_email'] = $user_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
 }
 
@@ -608,7 +620,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $partner_release_escrow;
 
     $n['type'] = "success";
-
+  $n['reference_id'] = $eid;
 
 
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
@@ -627,6 +639,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     
     aistore_notification_new($n);
+    aistore_send_email($n);
 
     //send email to self
     $message = $release_escrow;
@@ -644,7 +657,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $release_escrow;
 
     $n['type'] = "success";
- 
+   $n['reference_id'] = $eid;
  
  
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
@@ -660,6 +673,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $n['user_email'] = $user_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
 }
 
@@ -701,7 +715,7 @@ function sendNotificationCancelled($eid)
     $n['message'] = $partner_cancel_escrow;
 
     $n['type'] = "warning";
-
+  $n['reference_id'] = $eid;
 
 
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
@@ -717,6 +731,7 @@ function sendNotificationCancelled($eid)
     
     $n['user_email'] = $party_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
    /* ob_start();
 
@@ -744,7 +759,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $cancel_escrow;
 
     $n['type'] = "success";
-
+  $n['reference_id'] = $eid;
 
 
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
@@ -759,11 +774,13 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $n['user_email'] = $user_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
 }
 
 function sendNotificationShippingDetailsUpdated($eid)
-{$headers = array('Content-Type: text/html; charset=UTF-8');
+{
+    $headers = array('Content-Type: text/html; charset=UTF-8');
 
 
      
@@ -797,7 +814,7 @@ function sendNotificationShippingDetailsUpdated($eid)
     $n['message'] = $partner_shipping_escrow;
 
     $n['type'] = "success";
-
+  $n['reference_id'] = $eid;
 
 
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
@@ -813,6 +830,7 @@ function sendNotificationShippingDetailsUpdated($eid)
     
     $n['user_email'] = $party_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
     ob_start();
 
@@ -836,7 +854,7 @@ function sendNotificationShippingDetailsUpdated($eid)
 
     $n = array();
     $n['message'] = $shipping_escrow;
-
+  $n['reference_id'] = $eid;
     $n['type'] = "success";
 
 
@@ -853,6 +871,7 @@ function sendNotificationShippingDetailsUpdated($eid)
     
     $n['user_email'] = $user_email;
     aistore_notification_new($n);
+    aistore_send_email($n);
 
 }
 

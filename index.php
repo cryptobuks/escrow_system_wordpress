@@ -117,9 +117,22 @@ function aistore_plugin_table_install()
    message  text  NOT NULL,
    user_email  varchar(100)   NOT NULL,
   url varchar(100)   NOT NULL,
+   reference_id bigint(20)   NULL,
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id)
 ) ";
+
+$table_escrow_email = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_email  (
+  id int(100) NOT NULL  AUTO_INCREMENT,
+  type varchar(100) NOT NULL,
+   message  text  NOT NULL,
+   user_email  varchar(100)   NOT NULL,
+  url varchar(100)   NOT NULL,
+   reference_id bigint(20)   NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id)
+) ";
+
   $table_aistore_wallet_transactions = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "aistore_wallet_transactions  (
    	transaction_id  bigint(20)  NOT NULL  AUTO_INCREMENT,
   user_id bigint(20)  NOT NULL,
@@ -176,6 +189,9 @@ function aistore_plugin_table_install()
 
     dbDelta($table_escrow_notification);
     
+    dbDelta($table_escrow_email);
+    
+    
       dbDelta($table_aistore_wallet_transactions);
 
     dbDelta($table_aistore_wallet_balance);
@@ -183,6 +199,8 @@ function aistore_plugin_table_install()
     dbDelta($table_withdrawal_requests);
     
     dbDelta($table_escrow_currency);
+
+
 
 
     email_notification_message();
@@ -229,33 +247,7 @@ add_shortcode('aistore_bank_details', array(
     'aistore_bank_details'
 ));
 
-function wpdocs_log_me_shortcode_fn() {
-  if (!is_user_logged_in())
-        {
-             return wp_login_form();
-        }
-
  
- 
- 
-}
-add_shortcode( 'wpdocs_log_me', 'wpdocs_log_me_shortcode_fn' );
-
-add_action( 'register_form', 'wporg_myplugin_add_registration_fields' );
- 
-function wporg_myplugin_add_registration_fields() {
- 
-    // Get and set any values already sent
-    $user_extra = ( isset( $_POST['user_extra'] ) ) ? $_POST['user_extra'] : '';
-    ?>
- 
-    <p>
-        <label for="user_extra"><?php _e( 'Extra Field', 'myplugin_textdomain' ) ?><br />
-        <input type="text" name="user_extra" id="user_extra" class="input" value="<?php echo esc_attr( stripslashes( $user_extra ) ); ?>" size="25" /></label>
-    </p>
- 
-    <?php
-}
 
 function email_notification_message()
 {

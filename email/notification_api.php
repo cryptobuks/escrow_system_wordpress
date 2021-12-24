@@ -117,7 +117,7 @@ function aistore_notification_new($n  ){
  
  
    
-   $q1=$wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_notification (  message,type, user_email,url ) VALUES ( %s, %s, %s, %s ) ", array( $n['message'],$n['type'], $n['user_email'], $n['url']));
+   $q1=$wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_notification (  message,type, user_email,url ,reference_id) VALUES ( %s, %s, %s, %s, %s ) ", array( $n['message'],$n['type'], $n['user_email'], $n['url'], $n['reference_id']));
    
    // qr_to_log($q1);
 	
@@ -128,6 +128,25 @@ function aistore_notification_new($n  ){
 }
 
 
+
+
+function aistore_send_email($n  ){
+    
+	 if ( !is_user_logged_in() ) {
+    return "" ;
+}
+	
+   global $wpdb;
+ 
+   $q1=$wpdb->prepare("INSERT INTO {$wpdb->prefix}escrow_email (message,type, user_email,url ,reference_id) VALUES ( %s, %s, %s, %s, %s ) ", array( $n['message'],$n['type'], $n['user_email'], $n['url'], $n['reference_id']));
+   
+   // qr_to_log($q1);
+	
+	
+     $wpdb->query($q1);
+    
+   
+}
 
 
 ?>

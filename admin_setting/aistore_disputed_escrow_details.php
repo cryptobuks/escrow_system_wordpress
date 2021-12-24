@@ -411,4 +411,273 @@ sendNotificationDisputed($eid);
 
 ?>
 </div>
+
+
+
+<br><br>
+
+
+<!--<div class="card col-12">-->
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <?php
+    
+
+	global $wpdb;
+		$eid=  $escrow->id;
+           	
+           	        // $escrow_admin_user_id = get_option('escrow_user_id');
+           	        
+     	$sql = "SELECT * FROM {$wpdb->prefix}aistore_wallet_transactions  INNER JOIN {$wpdb->prefix}users ON  {$wpdb->prefix}aistore_wallet_transactions.user_id={$wpdb->prefix}users.ID WHERE  {$wpdb->prefix}aistore_wallet_transactions.reference=".$eid;
+     	
+     //	echo $sql;
+     	
+     	 $results = $wpdb->get_results($sql);
+           ?>
+       <h1> <?php _e('Transaction Report', 'aistore') ?> </h1>
+   
+    
+    
+
+            <?php
+            
+  
+        if ($results == null)
+        {
+            _e("No transactions Found", 'aistore');
+
+        }
+        else
+        {
+            ?>
+            
+<table id="example" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                   <th><?php _e('ID', 'aistore'); ?></th>
+      
+		    <th><?php _e('Email', 'aistore'); ?></th>
+          <th><?php _e('Balance', 'aistore'); ?></th> 
+		  
+	    <th><?php _e('Amount', 'aistore'); ?></th> 
+	    <th><?php _e('Type', 'aistore'); ?></th> 
+	    <th><?php _e('Description', 'aistore'); ?></th> 
+	      <th><?php _e('Date', 'aistore'); ?></th> 
+            </tr>
+            
+        </thead>
+        
+        <tbody>
+            <?php
+             foreach ($results as $row):
+             
+?>
+            <tr>
+            	   <td>  <?php echo esc_attr($row->transaction_id); ?></td>
+	
+		  
+		   
+		   <td> 		   <?php echo esc_attr($row->user_email); ?> </td>
+		  
+		   <td> 		   <?php echo esc_attr($row->balance); ?> </td>
+		   
+		   <td> 		   <?php echo esc_attr($row->amount." ".$row->currency); ?> </td>
+		   
+		  <td> 		   <?php echo esc_attr($row->type); ?> </td>
+		  
+		   <td> 		   <?php echo esc_attr($row->description); ?> </td>
+		   
+		   	   <td> 		   <?php echo esc_attr($row->date); ?> </td>
+		   </tr>
+		   <?php
+            endforeach;
+        ?>
+    
+        </tbody>
+        
+        
+        <tfoot>
+            <tr>
+         <th><?php _e('ID', 'aistore'); ?></th>
+        <th><?php _e('Username', 'aistore'); ?></th>
+		    <th><?php _e('Email', 'aistore'); ?></th>
+          <th><?php _e('Balance', 'aistore'); ?></th> 
+          	  
+	    <th><?php _e('Amount', 'aistore'); ?></th> 
+	    <th><?php _e('Type', 'aistore'); ?></th> 
+	    <th><?php _e('Description', 'aistore'); ?></th> 
+            </tr>
+        </tfoot>
+    </table>
+    
+    
+        <?php } ?>
+    
+    
+    
+    
+    <br><br>
+     <h1> <?php _e('All Notification', 'aistore') ?> </h1>  <br>
+     <?php
+      
+	global $wpdb;
+           		$eid=  $escrow->id;
+ $sql = "SELECT * FROM {$wpdb->prefix}escrow_notification WHERE  {$wpdb->prefix}escrow_notification.reference_id=".$eid." order by id desc";
+ 
+     	 $results = $wpdb->get_results($sql);
+     	  if ($results == null)
+        {
+            _e("No Notification Found", 'aistore');
+
+        }
+        ?>
+          <table  id="example1" class="display nowrap" style="width:100%">
+      
+        <thead>
+     <tr>
+         <th>Id</th>
+      <th>Email</th>
+     <th> Message</th>
+        <th>Date</th>
+   
+    
+     </tr>
+      </thead>
+<tbody>
+     <?php
+ 	foreach ($results as $row):
+            
+?> 
+  
+    <tr>
+        <td> 	 
+		   <?php echo $row->id; ?></td>
+           <td> 	 
+		   <?php echo $row->user_email; ?></td>
+		   <td> <?php echo html_entity_decode($row->message); ?></td>
+		     <td><?php echo $row->created_at; ?></td>
+
+    </tr>
+            
+            </tbody>
+    <?php
+        endforeach;
+    ?>
+    
+      <tfoot>
+            <tr>
+       <th>Id</th>
+      <th>Email</th>
+     <th> Message</th>
+        <th>Date</th>
+            </tr>
+        </tfoot>
+        </table>
+     <br><br>
+    
+    
+    
+    
+    
+    
+     <h1> <?php _e('All Email', 'aistore') ?> </h1>  <br>
+     <?php
+      
+	global $wpdb;
+           		$eid=  $escrow->id;
+ $sql = "SELECT * FROM {$wpdb->prefix}escrow_email WHERE  {$wpdb->prefix}escrow_email.reference_id=".$eid." order by id desc";
+ 
+     	 $results = $wpdb->get_results($sql);
+     	  if ($results == null)
+        {
+            _e("No Email Found", 'aistore');
+
+        }
+        ?>
+          <table  id="example2" class="display nowrap" style="width:100%">
+      
+        <thead>
+     <tr>
+         <th>Id</th>
+      <th>Email</th>
+     <th> Message</th>
+        <th>Date</th>
+   
+    
+     </tr>
+      </thead>
+<tbody>
+     <?php
+ 	foreach ($results as $row):
+            
+?> 
+  
+    <tr>
+        <td> 	 
+		   <?php echo $row->id; ?></td>
+           <td> 	 
+		   <?php echo $row->user_email; ?></td>
+		   <td> <?php echo html_entity_decode($row->message); ?></td>
+		     <td><?php echo $row->created_at; ?></td>
+
+    </tr>
+            
+            </tbody>
+    <?php
+        endforeach;
+    ?>
+    
+      <tfoot>
+            <tr>
+       <th>Id</th>
+      <th>Email</th>
+     <th> Message</th>
+        <th>Date</th>
+            </tr>
+        </tfoot>
+        </table>
+     <br><br>
+    
+    
+      <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    
+    <script>
+    
+    $(document).ready(function() {
+    $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+
+  $(document).ready(function() {
+    $('#example1').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+
+
+  $(document).ready(function() {
+    $('#example2').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+
+</script>
+<!--</div>-->
 </div>
