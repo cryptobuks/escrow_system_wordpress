@@ -6,7 +6,7 @@
         {
 $id=sanitize_text_field($_REQUEST['id']);
 
-
+//echo $id;
       //  $id = sanitize_text_field($_REQUEST['id']);
 
         $user_email = get_the_author_meta('user_email', $id);
@@ -58,8 +58,24 @@ $id=sanitize_text_field($_REQUEST['id']);
             
             <?php
              foreach ($results as $row):
+                 
    $url = admin_url('admin.php?page=disputed_escrow_details&eid=' . $row->id . '', 'https');
-
+   
+  
+    $user = get_user_by('email', $row->sender_email);
+    
+  //  print_r($user);
+            $sender_id = $user->ID;
+           // echo $sender_id;
+    $user = get_user_by('email', $row->receiver_email);
+            $receiver_id = $user->ID;
+            
+   $urlbyid = admin_url('admin.php?page=aistore_user_escrow_list&id=' . $sender_id . '', 'https');
+   
+    $urlbyidreciver = admin_url('admin.php?page=aistore_user_escrow_list&id=' . $receiver_id . '', 'https');
+   
+        
+// https://www.blogentry.in/est/wp-admin/admin.php?page=aistore_user_escrow_list
 ?>
             <tr>
             	   <td> 	 
@@ -68,22 +84,35 @@ $id=sanitize_text_field($_REQUEST['id']);
 		   <?php echo esc_attr($row->id); ?> </a> </td>
 		  
 		   
-		   <td> 		   <?php echo esc_attr($row->title); ?> </td>
+		    <td> 	 
+		  <a href="<?php echo esc_html($url); ?>">
+		   
+		   <?php echo esc_attr($row->title); ?> </a> </td>
+
 		  
 		   <td> 		   <?php echo esc_attr($row->status); ?> </td>
 		   
 		   <td> 		   <?php echo esc_attr($row->amount) . " " . $row->currency; ?> </td>
-		   <td> 		   <?php echo esc_attr($row->sender_email); ?> </td>
-		   <td> 		   <?php echo esc_attr($row->receiver_email); ?> </td>
+		   
+		  <td> <a href="<?php echo esc_html($urlbyid); ?>">
+		   
+		   <?php echo esc_attr($row->sender_email); ?> </a> </td>
+		   
+		   	  <td> <a href="<?php echo esc_html($urlbyidreciver); ?>">
+		   
+		   <?php echo esc_attr($row->receiver_email); ?> </a> </td>
+
+		  
 		     <td> 		   <?php echo esc_attr($row->created_at); ?> </td>
 		   </tr>
 		   <?php
+        
             endforeach;
         ?>
     
         </tbody>
         
-        <?php } ?>
+    
         
         <tfoot>
             <tr>
@@ -97,7 +126,7 @@ $id=sanitize_text_field($_REQUEST['id']);
             </tr>
         </tfoot>
     </table>
-    
+        <?php } ?>
       <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>

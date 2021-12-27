@@ -185,6 +185,8 @@ class AistoreEscrowSettings
         register_setting('aistore_page', 'escrow_accept_fee');
         register_setting('aistore_page', 'escrow_message_page');
         register_setting('aistore_page', 'cancel_escrow_fee');
+        register_setting('aistore_page', 'escrow_fee_deducted');
+        
         
         
         register_setting('aistore_page', 'bank_details');

@@ -98,11 +98,11 @@ function aistore_plugin_table_install()
   id int(100) NOT NULL AUTO_INCREMENT, 
   title varchar(100)   NOT NULL,
   term_condition text ,
-  amount int(100) NOT NULL,
+  amount double NOT NULL,
   currency  varchar(100)   NOT NULL,
   receiver_email varchar(100)  NOT NULL,
   sender_email varchar(100)   NOT NULL,
-  escrow_fee int(100) NOT NULL,
+  escrow_fee double NOT NULL,
   status varchar(100)   NOT NULL DEFAULT 'pending',
   payment_status varchar(100)   NOT NULL DEFAULT 'Pending',
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
@@ -129,6 +129,7 @@ $table_escrow_email = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_
    user_email  varchar(100)   NOT NULL,
   url varchar(100)   NOT NULL,
    reference_id bigint(20)   NULL,
+   subject varchar(100)  NULL,
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id)
 ) ";
@@ -138,8 +139,8 @@ $table_escrow_email = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_
   user_id bigint(20)  NOT NULL,
    reference bigint(20)   NULL,
    type   varchar(100)  NOT NULL,
-   amount  decimal(10,2)    NOT NULL,
-  balance  decimal(10,2)    NOT NULL,
+   amount  double    NOT NULL,
+  balance  double    NOT NULL,
     description  text  NOT NULL,
    currency  varchar(100)   NOT NULL,
    created_by  	bigint(20) NOT NULL,
@@ -151,7 +152,7 @@ $table_escrow_email = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_
      	id  bigint(20)  NOT NULL  AUTO_INCREMENT,
    	transaction_id  bigint(20)  NOT NULL,
   user_id bigint(20)  NOT NULL,
-  balance  decimal(10,2)    NOT NULL,
+  balance  double    NOT NULL,
    currency  varchar(100)   NOT NULL,
    created_by  	bigint(20) NOT NULL,
    date  timestamp NOT NULL DEFAULT current_timestamp(),
@@ -161,7 +162,7 @@ $table_escrow_email = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_
   
     $table_withdrawal_requests = "CREATE TABLE   IF NOT EXISTS  " . $wpdb->prefix . "widthdrawal_requests  (
   id int(100) NOT NULL  AUTO_INCREMENT,
-  amount int(100) NOT NULL,
+  amount double NOT NULL,
  
    method  varchar(100)   NOT NULL,   charges  varchar(100)   NOT NULL,
    username  varchar(100)   NOT NULL,
@@ -211,6 +212,7 @@ $table_escrow_email = "CREATE TABLE  IF NOT EXISTS  " . $wpdb->prefix . "escrow_
      update_option('escrow_accept_fee', 5);
      update_option('escrow_create_fee', 5);
      update_option('withdraw_fee', 5);
+      update_option('escrow_fee_deducted', 'accepted');
     
 
 }

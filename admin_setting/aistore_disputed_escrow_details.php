@@ -58,6 +58,152 @@
             return ob_get_clean();
         }
 
+
+
+
+
+
+
+
+//
+  global $wpdb;
+                if (isset($_POST['submit']) and $_POST['action'] == 'escrow_payment')
+                {
+
+                    if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
+                    {
+                        return _e('Sorry, your nonce did not verify', 'aistore');
+                        exit;
+                    }
+                    
+                    
+                    
+
+                    $eid =   sanitize_text_field($_REQUEST['ecsrow_id']);
+                    
+                    
+                     $object_escrow = new AistoreEscrowSystem();
+                     
+
+                       $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
+                    
+                      $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s ", $eid));
+                      
+                      
+                       $aistore_escrow_currency = $escrow->currency;
+                      $escrow_amount = $escrow->amount;
+                      $escrow_fee = $escrow->escrow_fee;
+                       $sender_email = $escrow->sender_email;
+            $user = get_user_by('email', $sender_email);
+            $sender_id = $user->ID;
+                      $escrow_details = 'Send Payment To User Account  with escrow id # '.$eid;
+                      
+                       $escrow_wallet = new AistoreWallet();
+                       
+                    $new_amount = $escrow_fee+$escrow_amount;
+                    
+  
+            
+
+            $escrow_wallet->aistore_credit($sender_id, $new_amount, $aistore_escrow_currency, $escrow_details,$eid); 
+                    
+                    
+                     $created_escrow_message = get_option('created_escrow_message');
+        $escrow_details =$created_escrow_message .$eid;
+                
+                    
+                        $escrow_wallet->aistore_debit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
+
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid); 
+                    
+                    
+                     $escrow_details = 'Escrow Fee for the created escrow with escrow id #'.$eid;
+                    
+          $escrow_wallet->aistore_debit($sender_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
+
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid); 
+            
+                    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
+    SET payment_status = 'paid'  WHERE id = '%d' ", $eid));
+    
+    
+    
+     sendNotificationPaymentAccepted($eid);
+
+                }
+                
+                
+                
+                      if (isset($_POST['submit']) and $_POST['action'] == 'reject_payment')
+                {
+
+                    if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
+                    {
+                        return _e('Sorry, your nonce did not verify', 'aistore');
+                        exit;
+                    }
+
+                           $eid =   sanitize_text_field($_REQUEST['reject_ecsrow_id']);
+                    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
+    SET payment_status = 'Rejected'  WHERE id = '%d' ", $eid));
+
+                    
+                }
+                
+                if (isset($_POST['submit']) and $_POST['action'] == 'remove_escrow_payment')
+                {
+
+                    if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
+                    {
+                        return _e('Sorry, your nonce did not verify', 'aistore');
+                        exit;
+                    }
+
+                           $eid =   sanitize_text_field($_REQUEST['ecsrow_id']);
+                           
+                        $escrow_wallet = new AistoreWallet();
+                        $object_escrow = new AistoreEscrowSystem();
+                        
+                          $escrow_admin_user_id = $object_escrow->get_escrow_admin_user_id();
+                    
+                      $escrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_system WHERE id=%s ", $eid));
+                      
+                      
+                       $aistore_escrow_currency = $escrow->currency;
+                      $escrow_amount = $escrow->amount;
+                      $escrow_fee = $escrow->escrow_fee;
+                       $sender_email = $escrow->sender_email;
+            $user = get_user_by('email', $sender_email);
+            $sender_id = $user->ID;
+            
+              $created_escrow_message = get_option('cancel_escrow_message');
+        $escrow_details =$created_escrow_message .$eid;
+                
+                    
+            $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
+
+            $escrow_wallet->aistore_credit($sender_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid); 
+                    
+                    
+            $escrow_details = 'Escrow Fee for the cancelled escrow with escrow id # '.$eid;
+                    
+          $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
+
+            $escrow_wallet->aistore_credit($sender_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid); 
+            
+            
+                    $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
+    SET payment_status = 'Pending'  WHERE id = '%d' ", $eid));
+
+                     sendNotificationPaymentRefund($eid);
+
+                }
+             
+             
+             
+             ///////
+
+
         if (isset($_POST['submit']) and $_POST['action'] == 'disputed')
         {
             if (!isset($_POST['aistore_nonce']) || !wp_verify_nonce($_POST['aistore_nonce'], 'aistore_nonce_action'))
@@ -99,12 +245,18 @@ sendNotificationDisputed($eid);
             $object_escrow_fee = new AistoreEscrowSystem();
 
             $escrow_fee = $object_escrow_fee->accept_escrow_fee($amount);
-
+            
+             if($escrow_fee_deducted == 'accepted'){
             $escrow_wallet = new AistoreWallet();
-                
             $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
 
             $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
+            
+            
+}
+
+       
+            
             sendNotificationAccepted($eid);
              $accept_escrow_success_message = get_option('accept_escrow_success_message');
 
@@ -134,12 +286,23 @@ sendNotificationDisputed($eid);
             $escrow_amount = $escrow->amount;
             $aistore_escrow_currency = $escrow->currency;
             $escrow_reciever_email_id = $escrow->receiver_email;
+            $escrow_fee = $escrow->escrow_fee;
             $user = get_user_by('email', $escrow_reciever_email_id);
             $id = $user->ID;
             $release_escrow_message = get_option('release_escrow_message');
             $escrow_details = $release_escrow_message . $eid;
+              $escrow_wallet = new AistoreWallet();
+              
+           if($escrow_fee_deducted == 'released'){
 
-            $escrow_wallet = new AistoreWallet();
+            $escrow_wallet->aistore_debit($id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
+
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid); // change variable name
+            
+}
+
+          
+          
 
             $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
 
@@ -256,6 +419,7 @@ sendNotificationDisputed($eid);
         printf(__("Term Condition : %s", 'aistore') , html_entity_decode($escrow->term_condition) . "<br>");
         printf(__("Sender :  %s", 'aistore') , $escrow->sender_email . "<br>");
         printf(__("Receiver : %s", 'aistore') , $escrow->receiver_email . "<br>");
+         printf(__("Payment Status : %s", 'aistore') , $escrow->payment_status . "<br>");
         printf(__("Status : %s", 'aistore') , $escrow->status . "<br><br>");
 
         $object = new AistoreEscrowSystem();
@@ -269,8 +433,56 @@ sendNotificationDisputed($eid);
         
 
         $object->dispute_escrow_btn($escrow);
+        
+        
+        
+        
 
         $eid = $escrow->id;
+        
+        if($escrow->payment_status=='processing'){
+    ?>
+    <br><br>
+    <form method="POST" action="" name="escrow_payment" enctype="multipart/form-data"> 
+
+<?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
+	<input type="hidden" name="ecsrow_id" value="<?php echo $escrow->id; ?>" />
+<input 
+ type="submit" name="submit" value="<?php _e('Approve Payment', 'aistore') ?>"/>
+<input type="hidden" name="action" value="escrow_payment" />
+                </form>
+             
+                
+                 <form method="POST" action="" name="reject_payment" enctype="multipart/form-data"> 
+
+<?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
+		<input type="hidden" name="reject_ecsrow_id" value="<?php echo $escrow->id; ?>" />
+<input 
+ type="submit" name="submit" value="<?php _e('Reject Payment', 'aistore') ?>"/>
+<input type="hidden" name="action" value="reject_payment" />
+                </form>
+                   <?php
+                   
+    
+} 
+                   
+                   if($escrow->payment_status=='paid' && $escrow->status=='pending' ){
+    ?>
+                   
+                 <form method="POST" action="" name="remove_escrow_payment" enctype="multipart/form-data"> 
+
+<?php wp_nonce_field('aistore_nonce_action', 'aistore_nonce'); ?>
+		<input type="hidden" name="ecsrow_id" value="<?php echo $escrow->id; ?>" />
+<input 
+ type="submit" name="submit" value="<?php _e('Remove Payment', 'aistore') ?>"/>
+<input type="hidden" name="action" value="remove_escrow_payment" />
+                </form>
+              
+           
+    <?php
+            
+        } 
+        
         
         $escrow_documents = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}escrow_documents WHERE eid=%d", $eid));
 
@@ -537,6 +749,7 @@ sendNotificationDisputed($eid);
      <tr>
          <th>Id</th>
       <th>Email</th>
+      
      <th> Message</th>
         <th>Date</th>
    
@@ -600,6 +813,7 @@ sendNotificationDisputed($eid);
      <tr>
          <th>Id</th>
       <th>Email</th>
+           <th>Subject</th>
      <th> Message</th>
         <th>Date</th>
    
@@ -617,6 +831,8 @@ sendNotificationDisputed($eid);
 		   <?php echo $row->id; ?></td>
            <td> 	 
 		   <?php echo $row->user_email; ?></td>
+		    <td> 	 
+		   <?php echo $row->subject; ?></td>
 		   <td> <?php echo html_entity_decode($row->message); ?></td>
 		     <td><?php echo $row->created_at; ?></td>
 
@@ -631,6 +847,7 @@ sendNotificationDisputed($eid);
             <tr>
        <th>Id</th>
       <th>Email</th>
+        <th>Subject</th>
      <th> Message</th>
         <th>Date</th>
             </tr>

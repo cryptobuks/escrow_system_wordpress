@@ -49,10 +49,10 @@
             $plugin_name = $plugin_data['TextDomain'];
             // $dir = '/wp-content/plugins/saksh-escrow-system/Common-Currency.json';
            // echo $dir;
-           
-            $file_path =   'Common-Currency.json';
+       //  $file_path =  include_once dirname(__FILE__) . '/Common-Currency.json';
+            $file_path =   '/wp-content/plugins/escrow_system_wordpress-master/aistore_wallet/admin/Common-Currency.json';
        
-           $filedata = file_get_contents($file_path );
+           $filedata = file_get_contents($file_path);
        
        
        $currency= json_decode($filedata);

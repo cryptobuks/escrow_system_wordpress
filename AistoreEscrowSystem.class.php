@@ -133,7 +133,7 @@ class AistoreEscrowSystem
 
                    
                     $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
-    SET payment_status = 'process'  WHERE id = '%d' ", $eid));
+    SET payment_status = 'processing'  WHERE id = '%d' ", $eid));
     
   $details_escrow_page_id_url = esc_url(add_query_arg(array(
                     'page_id' => get_option('details_escrow_page_id') ,
@@ -318,15 +318,25 @@ if($user_balance>$new_amount){
             <p> <?php _e('Note : We accept only '.$set_file.' file', 'aistore') ?></p><?php
             }
 
-            $details_escrow_page_id_url = esc_url(add_query_arg(array(
-                'page_id' => get_option('details_escrow_page_id') ,
-                'eid' => $eid,
-            ) , home_url()));
+            // $details_escrow_page_id_url = esc_url(add_query_arg(array(
+            //     'page_id' => get_option('details_escrow_page_id') ,
+            //     'eid' => $eid,
+            // ) , home_url()));
 
             sendNotificationCreated($eid);
+            
+            $bank_details_page_id_url = esc_url(add_query_arg(array(
+                'page_id' => get_option('bank_details_page_id') ,
+                'eid' => $eid,
+            ) , home_url()));
+            
+            ?>
+
+ 
+ 
 
 ?>
-<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($details_escrow_page_id_url); ?>" />
+<meta http-equiv="refresh" content="0; URL=<?php echo esc_html($bank_details_page_id_url); ?>" />
 
 
 
@@ -690,15 +700,16 @@ global $wpdb;
             
             $accept_escrow_message = get_option('accept_escrow_message');
             $escrow_details = $accept_escrow_message . $eid;
+            $escrow_fee_deducted = get_option('escrow_fee_deducted');
             
-        
+        if($escrow_fee_deducted == 'accepted'){
             $escrow_wallet = new AistoreWallet();
 
             $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
 
             $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid); // change variable name
             
-
+}
             $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}escrow_system
     SET status = '%s'  WHERE  payment_status='paid' and  receiver_email = %s  and id = '%d'", 'accepted', $email_id, $eid));
  $accept_escrow_success_message = get_option('accept_escrow_success_message');
@@ -725,7 +736,7 @@ global $wpdb;
 
             $aistore_escrow_currency = $escrow->currency;
             $escrow_amount = $escrow->amount;
-
+            $escrow_fee = $escrow->escrow_fee;
             $escrow_reciever_email_id = $escrow->receiver_email;
 
             $escrow_user = get_user_by('email', $escrow_reciever_email_id);
@@ -735,9 +746,18 @@ global $wpdb;
              $release_escrow_message = get_option('release_escrow_message');
             $escrow_details = $release_escrow_message . $eid;
             
-            
+             $escrow_fee_deducted = get_option('escrow_fee_deducted');
+                        $escrow_wallet = new AistoreWallet();
 
-            $escrow_wallet = new AistoreWallet();
+        if($escrow_fee_deducted == 'released'){
+
+            $escrow_wallet->aistore_debit($escrow_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
+
+            $escrow_wallet->aistore_credit($escrow_admin_user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid); // change variable name
+            
+}
+
+          
 
             $escrow_wallet->aistore_debit($escrow_admin_user_id, $escrow_amount, $aistore_escrow_currency, $escrow_details,$eid);
 

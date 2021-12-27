@@ -147,6 +147,7 @@
         update_option( 'escrow_user_id', $user_id);
         update_option( 'escrow_user_name', $escrow_user_id);
          update_option( 'escrow_file_type', 'pdf');
+           update_option('escrow_fee_deducted', 'accepted');
         }  
             //add currency
              global $wpdb;
@@ -601,6 +602,23 @@
         <table class="form-table">
         
         <h3><?php _e('Escrow Fee Setting', 'aistore') ?></h3>
+         
+         <tr valign="top">
+ <th scope="row"><?php _e('when will the escrow fee be deducted  ', 'aistore') ?></th>
+        <td>
+            <?php $escrow_fee_deducted = get_option('escrow_fee_deducted'); ?>
+            
+            <select name="escrow_fee_deducted" id="escrow_fee_deducted">
+                
+               
+            <option selected value="release" <?php selected($escrow_fee_deducted, 'release'); ?>>In Release</option>
+            <option value="accepted" <?php selected($escrow_fee_deducted, 'accepted'); ?>>In Accepted</option>
+  
+
+</select>
+	
+</td>
+        </tr>  
         
 	 <tr valign="top">
         <th scope="row"><?php _e('Escrow Create Fee', 'aistore') ?></th>

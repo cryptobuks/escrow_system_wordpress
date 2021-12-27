@@ -185,13 +185,13 @@
     
     <?php
             foreach ($results as $row):
-
+  $url = admin_url('admin.php?page=disputed_escrow_details&eid=' . $row->id . '', 'https');
 ?> 
       <tr>
-
-		   <td> 	
-		   
-		   <?php echo esc_attr($row->id); ?></td>
+ 
+		   <td> 	 
+		  <a href="<?php echo ($url); ?>">  <?php echo $row->id; ?></a></td>
+		  
 		  
 		   
 		   <td> 		   <?php echo esc_attr($row->title); ?> </td>
@@ -209,7 +209,7 @@
 <?php
 
 echo $row->payment_status;
-if($row->payment_status=='process'){
+if($row->payment_status=='processing'){
     ?>
     <form method="POST" action="" name="escrow_payment" enctype="multipart/form-data"> 
 

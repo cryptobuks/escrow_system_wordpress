@@ -35,7 +35,7 @@
 
     $n['user_email'] = $user_email;
     
-    
+     $n['subject'] = $subject;
     aistore_notification_new($n);
     aistore_send_email($n);
     
@@ -48,7 +48,7 @@
     $n['type'] = "success";
     
     $n['url'] = $details_escrow_page_id_url ;
-
+     $n['subject'] = $subject;
     $n['user_email'] = $sender_email;
     
     
@@ -88,7 +88,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     $n = array();
     $n['message'] = $Seller_Deposit;
-
+     $n['subject'] = $subject;
     $n['type'] = "success";
       $n['reference_id'] = $eid;
     $n['url'] = $details_escrow_page_id_url ;
@@ -104,7 +104,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     $n = array();
     $n['message'] = $Buyer_Deposit;
-
+    $n['subject'] = $subject;
     $n['type'] = "success";
       $n['reference_id'] = $eid;
     $n['url'] = $details_escrow_page_id_url ;
@@ -190,7 +190,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $partner_created_escrow;
 
     $n['type'] = "success";
-    
+     $n['subject'] = $subject;
     
     
 	   $n['reference_id'] = $eid;
@@ -226,7 +226,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
   $n['reference_id'] = $eid;
     $n['type'] = "success";
     $n['url'] = $details_escrow_page_id_url ;
-
+ $n['subject'] = $subject;
     $n['user_email'] = $user_email;
     aistore_notification_new($n);
     aistore_send_email($n);
@@ -271,7 +271,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $Buyer_Deposit;
   $n['reference_id'] = $eid;
     $n['type'] = "success";
- 
+  $n['subject'] = $subject;
  
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
     'page_id' => get_option('details_escrow_page_id'),
@@ -291,7 +291,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     // send email to seller
     $subject = $Seller_Deposit;
-
+     $n['subject'] = $subject;
     // $escrow->sender_email  ." has deposited the payment ". $escrow->total_buyer_fee  ." into  the escrow for  the transaction   #".$eid;
     
 
@@ -322,6 +322,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $Seller_Deposit;
   $n['reference_id'] = $eid;
     $n['type'] = "success";
+     $n['subject'] = $subject;
 
 
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
@@ -356,7 +357,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = "You have marked escrow #" . $eid . " as payed";
   $n['reference_id'] = $eid;
     $n['type'] = "success";
-   
+    $n['subject'] = $subject;
    
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
     'page_id' => get_option('details_escrow_page_id'),
@@ -460,7 +461,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     $n['type'] = "success";
   
-  
+   $n['subject'] = $subject;
   
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
     'page_id' => get_option('details_escrow_page_id'),
@@ -524,7 +525,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['message'] = $partner_dispute_escrow;
 
     $n['type'] = "warning";
-    
+     $n['subject'] = $subject;
 
   $n['reference_id'] = $eid;
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
@@ -556,7 +557,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     $n = array();
     $n['message'] = $dispute_escrow;
-
+ $n['subject'] = $subject;
     $n['type'] = "success";
   $n['reference_id'] = $eid;
 
@@ -622,7 +623,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
     $n['type'] = "success";
   $n['reference_id'] = $eid;
 
-
+ $n['subject'] = $subject;
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
     'page_id' => get_option('details_escrow_page_id'),
     'eid' => $eid,
@@ -655,7 +656,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     $n = array();
     $n['message'] = $release_escrow;
-
+ $n['subject'] = $subject;
     $n['type'] = "success";
    $n['reference_id'] = $eid;
  
@@ -678,7 +679,8 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 }
 
 function sendNotificationCancelled($eid)
-{$headers = array('Content-Type: text/html; charset=UTF-8');
+{
+    $headers = array('Content-Type: text/html; charset=UTF-8');
 
 
     $user_id = get_current_user_id();
@@ -713,7 +715,7 @@ function sendNotificationCancelled($eid)
 
     $n = array();
     $n['message'] = $partner_cancel_escrow;
-
+     $n['subject'] = $subject;
     $n['type'] = "warning";
   $n['reference_id'] = $eid;
 
@@ -757,6 +759,7 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 
     $n = array();
     $n['message'] = $cancel_escrow;
+     $n['subject'] = $subject;
 
     $n['type'] = "success";
   $n['reference_id'] = $eid;
@@ -812,7 +815,7 @@ function sendNotificationShippingDetailsUpdated($eid)
 
     $n = array();
     $n['message'] = $partner_shipping_escrow;
-
+     $n['subject'] = $subject;
     $n['type'] = "success";
   $n['reference_id'] = $eid;
 
@@ -856,7 +859,7 @@ function sendNotificationShippingDetailsUpdated($eid)
     $n['message'] = $shipping_escrow;
   $n['reference_id'] = $eid;
     $n['type'] = "success";
-
+    $n['subject'] = $subject;
 
 	 $details_escrow_page_id_url =  esc_url( add_query_arg( array(
     'page_id' => get_option('details_escrow_page_id'),

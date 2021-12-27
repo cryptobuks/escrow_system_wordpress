@@ -28,6 +28,17 @@ global  $wpdb;
 
 
  $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}widthdrawal_requests");
+ 
+         if ($results == null)
+        {
+            echo "<div class='no-result'>";
+
+            _e('No Withdraw Found', 'aistore');
+            echo "</div>";
+        }
+        else
+        {
+
      foreach($results as $row):
     
     
@@ -282,7 +293,10 @@ else{
       </div>
     </div>
   </div>
-    <?php endforeach; ?>
+    <?php endforeach;
+    
+    }
+    ?>
     
   </div>
   
