@@ -117,7 +117,7 @@ function aistore_plugin_table_install()
    message  text  NOT NULL,
    user_email  varchar(100)   NOT NULL,
   url varchar(100)   NOT NULL,
-   reference_id bigint(20)   NULL,
+  reference_id bigint(20)   NULL,
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id)
 ) ";
