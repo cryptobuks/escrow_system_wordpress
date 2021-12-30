@@ -245,7 +245,8 @@ sendNotificationDisputed($eid);
             $object_escrow_fee = new AistoreEscrowSystem();
 
             $escrow_fee = $object_escrow_fee->accept_escrow_fee($amount);
-            
+               $escrow_fee_deducted = get_option('escrow_fee_deducted');
+               
              if($escrow_fee_deducted == 'accepted'){
             $escrow_wallet = new AistoreWallet();
             $escrow_wallet->aistore_debit($user_id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
@@ -293,6 +294,7 @@ sendNotificationDisputed($eid);
             $escrow_details = $release_escrow_message . $eid;
               $escrow_wallet = new AistoreWallet();
               
+                 $escrow_fee_deducted = get_option('escrow_fee_deducted');
            if($escrow_fee_deducted == 'released'){
 
             $escrow_wallet->aistore_debit($id, $escrow_fee, $aistore_escrow_currency, $escrow_details,$eid);
